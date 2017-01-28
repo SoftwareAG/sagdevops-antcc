@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<project xmlns="antlib:org.apache.tools.ant" name="antcc" basedir="." default="help" >
+	<description>
+	    Common include for all plugins
+    </description>
+
+	<dirname file="${ant.file.antcc}" property="ant.file.antcc.basedir"/>
+
+	<import file="lib/bootstrap.xml" />
+
+	<import file="lib/sagcc.xml" />
+	<import file="lib/sagenv.xml" />
+	<import file="lib/sagtest.xml" />
+	<import file="lib/sagabe.xml" />
+
+	<target name="help" description="Usage help" depends="
+		help-bootstrap,
+		help-sagcc,
+		help-sagenv,
+		help-sagtest,
+		help-sagabe
+	" />
+
+	<target name="all" description="End to end automation" depends="boot,up,test" />
+
+</project>

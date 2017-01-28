@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="bootstrap" default="help-bootstrap" basedir=".">
+	<description>
+      	Command Central bootstrap installer wrapper
+	</description>
+
+	<target name="help-bootstrap">
+		<echo>
+Optional parameter for any target:		
+
+-Dbootstrap=other                Bootstrap local Command Central server 
+                                 using defaults from 'bootstrap/default.properties'
+                                 or custom 'bootstrap/other.properties'
+Targets:
+
+ant upgrade                      Upgrade local Command Central server
+ant client                       Bootstrap local CC CLI (client)
+ant agent                        Bootstrap local SPM (agent)
+ant startcc                      Start local Command Central server
+ant stopcc                       Stop local Command Central server
+		</echo>
+	</target>
+
+	<condition property="is.linux" value="true">
+		<os family="unix" />
+	</condition>
+
+	<condition property="is.windows" value="true">
+		<os family="windows" />
+	</condition>
+
+	<condition property="is.mac" value="true">
+		<os family="mac" />
+	</condition>
+
+	<target name="_prepare" depends="_check-os-distribution">
+		<condition property="unzip.file" value="true">
+			<os family="windows" />
+		</condition>
+		<condition property="file.extension" value="zip" else="sh">
+			<os family="windows" />
+		</condition>
+
+		<property name="bootstrap" value="default" />		
+		<property name="bootstrap.properties" value="bootstrap/${bootstrap}.properties" />
+		<property file="${bootstrap.properties}" />
+
+		<condition property="license.agreement.switch" value="--accept-license" else="" >
+			<equals arg1="${accept.license}" arg2="true" casesensitive="false" trim="true"/>
+		</condition>
+		
+		<!-- latest public GA version on SDC -->
+		<property name="installer" value="cc-def-9.12-fix2-${platform}" />
+
+		<!-- default download location -->
+		<property name="installer.dir" location="${user.home}/Downloads" />
+		<!-- 
+		<property name="installer.url" value="http://aquarius-dae.eur.ad.sag/cc/installers" />
+         -->
+	    <!-- default installation directory in Dev -->
+		<property name="install.dir" location="${user.home}/sag/cc" />
+
+		<condition property="install.dir.exists">
+			<available file="${install.dir}" />
+		</condition>
+
+
+		<!-- default ports -->
+		<property name="cce.http.port" value="8090" />
+		<property name="cce.https.port" value="8091" />
+		<property name="spm.http.port" value="8092" />
+		<property name="spm.https.port" value="8093" />
+		<property name="spm.https.port" value="8093" />
+
+		<!-- default Administrator password -->
+		<property name="password" value="manage" />
+
+		<property name="distro" value="CCE" />
+		<property name="cc.host" value="localhost" />
+	</target>
+
+	<target name="_install" depends="_prepare,_download,_check-installer,_unzip-installer">
+		<echo>
+			Installing ${distro} using ${installer} from ${installer.dir} ...
+			Running ${installer}.${file.extension} ${license.agreement.switch} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -H ${cc.host}
+		</echo>
+
+		<exec dir="${installer.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failonerror="true" >
+			<arg line="./${installer}.sh ${license.agreement.switch} -D ${distro} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -H ${cc.host}" />
+		</exec>
+
+		<exec dir="${install.dir}" executable="${installer.bat.filename}" osfamily="windows" vmlauncher="false" failonerror="true" >
+			<arg line="${license.agreement.switch}" />
+			<arg value="-D" />
+			<arg value="${distro}" />
+			<arg value="-d" />
+			<!-- IMPORTANT: convert path to Windows format -->
+			<arg path="${install.dir}" />
+			<arg value="-c" />
+			<arg value="${cce.http.port}" />
+			<arg value="-C" />
+			<arg value="${cce.https.port}" />
+			<arg value="-s" />
+			<arg value="${spm.http.port}" />
+			<arg value="-S" />
+			<arg value="${spm.https.port}" />
+			<arg value="-p" />
+			<arg value="${password}" />
+			<arg value="-H" />
+			<arg value="${cc.host}" />
+		</exec>
+		
+		<mkdir dir="${user.home}/.sag" />
+		<propertyfile file="${user.home}/.sag/cc.properties">
+			<entry key="cc.cli.home" value="${install.dir}/CommandCentral/client"/>
+		</propertyfile>
+
+		<echo>
+			Finished installatino
+		</echo>
+	</target>
+
+	<target name="stopcc" depends="_prepare" description="Stop local Command Central Server" if="install.dir.exists">
+		<exec dir="${install.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failifexecutionfails="false" >
+			<arg line="./profiles/SPM/bin/shutdown.sh" />
+		</exec>
+		<exec dir="${install.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failifexecutionfails="false" >
+			<arg line="./profiles/CCE/bin/shutdown.sh" />
+		</exec>
+
+		<exec dir="${install.dir}" executable="profiles/SPM/bin/shutdown.bat" osfamily="windows" vmlauncher="false" failifexecutionfails="false" />
+        <exec dir="${install.dir}" executable="profiles/CCE/bin/shutdown.bat" osfamily="windows" vmlauncher="false" failifexecutionfails="false"  />
+
+		<sleep seconds="15" />
+	</target>
+
+	<target name="startcc" depends="_prepare" description="Start local Command Central Server" if="install.dir.exists">
+		<exec dir="${install.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" >
+			<arg line="./profiles/SPM/bin/startup.sh" />
+		</exec>
+		<exec dir="${install.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" >
+			<arg line="./profiles/CCE/bin/startup.sh" />
+		</exec>
+
+		<exec dir="${install.dir}" executable="profiles/SPM/bin/startup.bat" osfamily="windows" vmlauncher="false" />
+        <exec dir="${install.dir}" executable="profiles/CCE/bin/startup.bat" osfamily="windows" vmlauncher="false" />
+	</target>
+	
+	<target name="uninstall" depends="stopcc" description="Uninstall bootstrapped installation" if="install.dir.exists" >
+		<delete dir="${install.dir}" />
+	</target>
+
+	<target name="boot" description="Bootstrap local Command Central">
+		<antcall target="_install" />
+	</target>
+
+	<target name="backup" description="Backup local Command Central" depends="_prepare,stopcc" if="install.dir.exists">
+		<move todir="${install.dir}.bak" overwrite="true" preservelastmodified="true" >
+			<fileset dir="${install.dir}" includes="**"/>
+		</move>
+	</target>
+	
+	<target name="upgrade" description="Upgrade local Command Central" depends="backup" if="install.dir.exists">
+		<antcall target="_install" >
+			<param name="extra.args" value="-m ${install.dir}.bak" />
+		</antcall>
+	</target>
+	
+	<target name="client" description="Bootstrap local CC CLI tool">
+		<antcall target="_install">
+			<param name="distro">CLI</param>
+		</antcall>
+	</target>
+
+	<target name="agent" description="Bootstrap local SPM agent">
+		<antcall target="_install">
+			<param name="distro">SPM</param>
+		</antcall>
+	</target>
+
+	<target name="_download" depends="_prepare" if="installer.url">
+		<echo>Downloading bootstrap installer from ${installer.url}/${installer}.${file.extension} ...</echo>
+		<mkdir dir="${installer.dir}" />
+		<get src="${installer.url}/${installer}.${file.extension}" dest="${installer.dir}" usetimestamp="true" />
+		<echo>Finished downloading bootstrap installer.</echo>
+	</target>
+
+	<target name="_check-installer" depends="_prepare">
+		<fail>
+			Bootstrap installer is not found: ${installer.dir}/${installer}.${file.extension}
+			Download this file from https://empower.softwareag.com/Products/DownloadProducts/sdc/default.asp
+			and place this file at the above location.
+			<condition>
+				<not>
+					<available file="${installer.dir}/${installer}.${file.extension}"/>
+				</not>
+			</condition>
+		</fail>
+	</target>
+	
+	<target name="_unzip-installer" if="unzip.file">
+		<echo>Unzipping file ${installer.dir}\${installer}.${file.extension} into ${install.dir} ... </echo>
+		<unzip src="${installer.dir}/${installer}.${file.extension}" dest="${install.dir}" />
+
+		<fileset id="win.installers.fileset" dir="${install.dir}" includes="**/*">
+			<filename name="cc-*-w64.bat" />
+		</fileset>
+
+		<property name="installer.bat.filename" refid="win.installers.fileset" />
+	</target>
+
+	<target name="_check-os-distribution" depends="_check-win-distribution,_check-mac-distribution,_check-unix-distribution" />
+
+	<target name="_check-win-distribution" if="is.windows">
+		<condition property="platform" value="w64">
+			<os family="windows" />
+		</condition>
+	</target>
+
+	<target name="_check-mac-distribution" if="is.mac">
+		<condition property="platform" value="osx">
+			<os family="mac" />
+		</condition>
+	</target>
+
+	<target name="_check-unix-distribution" if="is.linux" depends="_check-solaris-distribution">
+		<exec executable="/bin/sh" outputproperty="output.uname">
+			<arg value="-c" />
+			<arg value="uname" />
+		</exec>
+
+		<condition property="platform" value="lnxamd64">
+			<equals arg1="${output.uname}" arg2="Linux" />
+		</condition>
+
+		<condition property="platform" value="aix">
+			<equals arg1="${output.uname}" arg2="AIX" />
+		</condition>
+
+		<condition property="platform" value="hp11it">
+			<equals arg1="${output.uname}" arg2="HP-UX" />
+		</condition>
+
+		<condition property="platform.unix" value="osx">
+            <equals arg1="${output.uname}" arg2="Darwin" />
+        </condition>
+	</target>
+
+	<target name="_check-solaris-distribution" depends="_check-is-solaris" if="is.solaris">
+		<exec executable="/bin/sh" outputproperty="output.solaris.distribution">
+			<arg value="-c" />
+			<arg value="uname -m" />
+		</exec>
+		<!--i86pc is for solamd64; SPARC is for sol -->
+		<condition property="platform" value="solamd64" else="sol">
+			<equals arg1="${output.solaris.distribution}" arg2="i86pc" />
+		</condition>
+	</target>
+
+	<target name="_check-is-solaris" if="is.linux">
+		<exec executable="/bin/sh" outputproperty="output.uname">
+			<arg value="-c" />
+			<arg value="uname" />
+		</exec>
+		<condition property="is.solaris" value="true">
+			<equals arg1="${output.uname}" arg2="SunOS" />
+		</condition>
+	</target>
+	
+</project>

@@ -1,0 +1,127 @@
+<project name="sagenv" xmlns="antlib:org.apache.tools.ant" xmlns:if="ant:if" xmlns:unless="ant:unless" basedir="." default="help-sagenv" >
+	<description>
+        Environment template based provisioning
+    </description>
+
+	<import file="sagcc.xml" />
+
+	<target name="help-sagenv">
+		<echo>
+Optional parameter for any target:
+
+-Denv=other                      Environment configuration to use from
+                                 project defaults in 'environments/default/env.properties'
+                                 or custom 'environments/other/env.properties'
+Targets:
+
+ant up                           Import and apply all project 'templates/*'
+ant apply -Dalias=template       Apply template using its alias
+ant import -Dt=templateFolder    Reimport template from source folder by do not apply
+ant apply -Dt=templateFolder     Reimport and apply template from source folder
+ant migrate -Dt=templateFolder   Reimport and migrate using template from source folder
+		</echo>
+	</target>
+
+
+	<target name="sagenvInit" depends="sagccInit" >
+		<property id="sagenv.env" name="env" value="default" />
+
+	    <!-- find env.properties in the order of priority -->
+	    <condition property="env.properties" value="environments/${env}/env.properties">
+	        <available file="environments/${env}/env.properties"/>
+	    </condition>
+	    <condition property="env.properties" value="environments/${env}.properties">
+	        <available file="environments/${env}.properties"/>
+	    </condition>
+	    <condition property="env.properties.exists" >
+	        <available file="${env.properties}"/>
+	    </condition>
+
+	    <fail unless="env.properties.exists">
+	    	env.properties configuration file does not exist: ${env.properties}
+	    </fail>
+
+		<echo>Environment configuration: ${env.properties}</echo>
+	</target>
+
+	<target name="import" description="Import template and dont apply" depends="_zip,sagenvInit" if="import.template" >
+		<echo>Import ${template.file}</echo>
+		<cc command="exec templates composite import overwrite=true" input="${template.file}"/>
+	</target>
+
+	<target name="apply" description="Apply template and wait" depends="import" >
+		<cc command="exec templates composite apply ${alias} includeHeaders=false properties=id" format="csv" outputproperty="jobid" input="${env.properties}" />
+		<cc command="list jobmanager jobs ${jobid} includeHeaders=false" expectedvalues="DONE|ERROR|ConnectException" wait="${w}" checkevery="20" error="build/logs/waiting" format="tsv" />
+        <antcall target="_jobresult"/>
+	</target>
+
+	<target name="up" description="Provision environment using templates" depends="sagccInit" >
+		<!-- default set of templates are all project templates/* -->
+		<path id="templates.list.ref">
+    		<dirset dir="templates" includes="*" />
+  		</path>
+ 	    <property name="templates" value="${toString:templates.list.ref}"/>
+
+    	<for list="${templates}" param="t" delimiter="${path.separator}">
+			<sequential>
+				<antcall target="apply">
+					<param name="t" value="@{t}" />
+				</antcall>
+			</sequential>
+        </for>
+	</target>
+
+	<target name="migrate" description="Migrate environment" depends="import" >
+		<cc command="exec templates composite apply ${alias} environment.mode=migration includeHeaders=false properties=id" format="csv" outputproperty="jobid" input="${env.properties}" />
+		<cc command="list jobmanager jobs ${jobid} includeHeaders=false" expectedvalues="DONE|ERROR|ConnectException" wait="${w}" checkevery="20" error="build/logs/waiting" format="tsv" />
+		<antcall target="_jobresult"/>
+	</target>
+
+	<target name="stop" description="Stop environment" depends="sagenvInit" >
+		<echo>Not implemented</echo>
+	</target>
+
+	<target name="start" description="Start environment" depends="sagenvInit" >
+        <echo>Not implemented</echo>
+	</target>
+
+	<target name="restart" description="Restart environment" depends="sagenvInit" >
+        <echo>Not implemented</echo>
+	</target>
+
+	<target name="_params" >
+		<property name="w" value="4600" description="Wait time (seconds)"/>
+		<basename file="${t}" property="alias" unless:blank="${t}" />
+
+		<fail unless="alias">
+            Neither template '${alias}' nor template source '${t}' are specified!
+        </fail>
+
+		<condition property="import.template">
+			<available file="${t}" type="dir"/>
+		</condition>
+		
+		<echo>alias: ${alias} projectdir: ${t}</echo>
+	</target>
+
+	<target name="_zip" depends="_params" if="import.template" >
+		<property name="template.file" value="build/templates/${alias}.zip" />
+		<delete file="${template.file}"/>
+		<zip destfile="${template.file}" basedir="${t}" />
+	</target>
+
+	<target name="_jobresult">
+		<cc command="list jobmanager jobs ${jobid} properties=status includeHeaders=false" outputproperty="job.status" format="tsv" />
+		<cc command="list jobmanager jobs ${jobid} properties=statusAsString includeHeaders=false" outputproperty="job.status.description" format="tsv" />
+
+		<fail>
+			<condition>
+				<not>
+					<equals arg1="${job.status}" arg2="DONE" />
+				</not>
+			</condition>
+			Job execution failed with '${job.status}' status: ${job.status.description}
+		</fail>
+	</target>
+
+</project>

@@ -1,0 +1,76 @@
+<project name="sagtest" xmlns:au="antlib:org.apache.ant.antunit" basedir="." default="help-sagtest">
+	<description>
+        AntUnit tests execution
+    </description>
+
+	<import file="sagenv.xml" />
+	<dirname file="${ant.file.setup}" property="project.basedir" />
+
+	<target name="help-sagtest">
+		<echo>
+Optional parameter for any target:
+
+-Dsuite=some                     Run only tests from 'tests/some/*' folder
+
+Targets:
+
+ant test                         Run tests/test*.xml AntUnit tests
+		</echo>
+	</target>
+
+	<target name="sagtestInit" depends="sagenvInit">
+		<mkdir dir="build/tests" />
+		<mkdir dir="build/tests/temp" />
+		<mkdir dir="build/tests/${env}" />
+
+		<property name="temp.dir" location="${project.basedir}/build/tests/temp" />
+		<property name="tests.project.basedir" location="${project.basedir}" />
+		<property name="test.data.basedir" location="${tests.project.basedir}/tests/testData" />
+		<property name="test.properties" location="${tests.project.basedir}/tests/test.properties" />
+		<property name="cc.properties.full.path" location="${cc.properties}" />
+		<property name="env.properties.full.path" location="${env.properties}" />
+	</target>
+
+	<target name="test" depends="sagtestInit" description="Run tests/test*.xml AntUnit tests">
+
+		<condition property="fileset.dir" value="${tests.project.basedir}/tests/${suite}" else="${tests.project.basedir}/tests">
+			<isset property="suite" />
+		</condition>
+		<property name="tests" value="test*.xml" />
+		
+		
+		<echo>Running tests from: ${fileset.dir} ...</echo>
+		<echo>Using test data from: ${test.data.basedir} ...</echo>
+		<echo>Using test properties from:  ${test.properties} ...</echo>
+		<echo>Temporary test outputs will be stored in: ${temp.dir} </echo>
+		<echo>Test reports will be stored in: build/tests/${env} </echo>
+		<echo>Using cc properties from: ${cc.properties.full.path}</echo>
+		<echo>Using env properties from: ${env.properties.full.path}</echo>
+
+		<au:antunit failonerror="false">
+			<!-- pass in important properties -->
+			<propertyset>
+				<propertyref name="temp.dir" />
+				<propertyref name="tests.project.basedir" />
+				<propertyref name="test.data.basedir" />
+				<propertyref name="project.test.properties" />
+				<propertyref name="test.properties" />
+				<propertyref name="cc.properties.full.path" />
+				<propertyref name="env.properties.full.path" />
+				<propertyref name="cc" />
+				<propertyref name="cc.properties" />
+				<propertyref name="env" />
+				<propertyref name="env.properties" />
+			</propertyset>
+
+			<fileset dir="${fileset.dir}">
+				<include name="${tests}" />
+			</fileset>
+			<au:xmllistener todir="build/tests/${env}" />
+			<au:plainlistener todir="build/tests/${env}" loglevel="warn" sendlogto="both" />
+		</au:antunit>
+
+
+	</target>
+
+</project>

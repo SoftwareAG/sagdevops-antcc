@@ -1,0 +1,138 @@
+<project name="sagcc" default="help-sagcc" xmlns="antlib:org.apache.tools.ant" xmlns:if="ant:if" xmlns:unless="ant:unless" basedir="." >
+	<description>
+        Core Command Central API client library and targets
+    </description>
+	
+	<property environment="env" />
+
+	<!-- default Command Central client name -->
+	<property name="cc" value="default" />
+
+	<!-- project clients -->
+	<condition property="cc.properties" value="clients/${cc}.properties">
+		<available file="clients/${cc}.properties"/>
+	</condition>
+	
+    <condition property="cc.properties" value="clients/${cc}/cc.properties">
+        <available file="clients/${cc}/cc.properties"/>
+    </condition>
+	
+    <!-- user clients -->
+	<condition property="cc.properties" value="${user.home}/.sag/cc.properties">
+		<available file="${user.home}/.sag/cc.properties"/>
+	</condition>
+		
+	<target name="help-sagcc">
+		<echo>
+Optional parameter for any target:
+
+-Dcc=other                       Connection to Command Central server
+                                 using global settings in '~/.sag/cc.properties' 
+								 or from 'clients/default/cc.properties'
+                                 or from 'clients/default.properties'
+                                 or custom 'clients/other.properties'
+Targets:
+
+ant waitcc                       Wait for Command Central ready status
+ant restartcc                    Restart local or remote Command Central server
+ant jobs                         List recent jogs
+ant killjobs                     Cancel active and remove completed jobs
+ant log                          Show tail of Command Central default log
+ant logs                         Show tail of agents default log
+		</echo>
+	</target>
+
+	<!-- call this target internally to initialize connection to CC using cc.properties -->
+	<target name="sagccInit">
+	
+		<condition property="cc.properties.exists" >
+			<available file="${cc.properties}"/>
+		</condition>
+
+		<fail unless="cc.properties.exists" message="Client configuration file cannot be found in any supported locations." />
+
+		<property file="${cc.properties}" />
+
+		<condition property="cc.cli.home" value="${env.CC_CLI_HOME}" >
+			<isset property="env.CC_CLI_HOME" />
+		</condition>
+
+		<fail unless="cc.cli.home" message="Neither CC_CLI_HOME environment variable not 'cc.cli.home' property are set!" />
+
+		<echo>CC CLI HOME: ${cc.cli.home}</echo>
+
+		<path description="" id="cc.ant.classpath">
+			<fileset dir="${cc.cli.home}" includes="lib/*.jar" />
+		</path>
+
+		<taskdef description="core CLI support" resource="com/softwareag/platform/management/client/ant/antlib.xml" classpathref="cc.ant.classpath" />
+
+		<taskdef description="conditions,cycles,etc" resource="net/sf/antcontrib/antlib.xml" classpathref="cc.ant.classpath" />
+		<taskdef description="xml processing" name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask" classpathref="cc.ant.classpath" />
+		<taskdef description="unit testing" uri="antlib:org.apache.ant.antunit" resource="org/apache/ant/antunit/antlib.xml" classpathref="cc.ant.classpath" />
+
+		<echo>CC CLI configuration: ${cc.properties}</echo>
+
+		<ccsetup configurationFile="${cc.properties}" />
+
+	</target>
+
+	<!-- MAIN targets -->
+
+	<target name="waitcc" description="Wait for Command Central ready" depends="sagccInit" >
+		<echo>Waiting for Command Central ready status ...</echo>
+		<cc command="get monitoring runtimestatus local OSGI-CCE" format="tsv" 
+            expectedvalues="ONLINE" wait="300" checkevery="5" />
+		<echo>Command Central is ready</echo>
+	</target>
+
+	<target name="restartcc" description="Restart Command Central" depends="sagccInit" >
+		<echo>Restart Command Central</echo>
+		<cc command="exec lifecycle restart local OSGI-CCE" format="tsv" />
+		<cc command="get monitoring runtimestatus local OSGI-CCE" format="tsv" 
+            expectedvalues="Connection refused,ONLINE" wait="300" checkevery="5" />
+		<echo>Command Central restarted</echo>
+	</target>
+
+	<target name="jobs" description="List Command Central jobs" depends="sagccInit" >
+		<cc command="list jobmanager jobs properties=status,description" format="tsv" />
+	</target>
+
+	<target name="killjobs" description="Kill Command Central jobs" depends="sagccInit" >
+		<echo>Canceling jobs...</echo>
+		<cc command="list jobmanager jobs includeHeaders=false properties=id" format="csv" outputproperty="jobs" failonerror="false" />
+		<for list="${jobs}" param="job.id" delimiter="${line.separator}" keepgoing="true" trim="yes">
+			<sequential>
+				<cc command="delete jobmanager jobs @{job.id}" format="csv"  />
+			</sequential>
+		</for>
+	</target>
+
+    <target name="log" description="Command Central server default log" depends="sagccInit" >
+    	<echo>
+    		Command Central >>>
+    	</echo>
+        <cc command="get diagnostics logs local OSGI-CCE default.log tail lines=40" format="text/plain" />
+    </target>
+
+	<target name="logs" description="Agents default log" depends="sagccInit">
+        <cc command="list landscape nodes includeHeaders=false properties=alias" format="csv" outputproperty="nodes" />
+        <for list="${nodes}" param="node.alias" delimiter="${line.separator}" trim="true">
+            <sequential>
+            	<echo>
+            		@{node.alias} >>>
+            	</echo>
+                <cc command="get diagnostics logs @{node.alias} OSGI-SPM default.log tail lines=20" format="text/plain" failonerror="false" />
+            </sequential>
+        </for>
+    </target>
+	
+    <target name="ps" description="List runtime instances" depends="sagccInit" >
+        <cc command="list inventory components runtimeComponentCategory=PROCESS properties=runtimeComponent.displayName,nodeAlias" format="tsv" />
+    </target>	
+
+	<target name="clean" description="Delete build and temp files" >
+		<delete dir="build" />
+	</target>	
+	
+</project>
