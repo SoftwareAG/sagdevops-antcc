@@ -20,7 +20,7 @@ pipeline {
             }
             steps {
                 checkout scm
-                stash 'scripts'
+                stash(name:'scripts', includes:'**')
             }
         }
         
