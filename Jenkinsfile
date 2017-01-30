@@ -4,7 +4,7 @@ pipeline {
     agent none
 
     environment {
-        INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/PDShare/cc" // internal download site
+        INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/cc/installers" // internal download site
         P = '333' // TODO: random free port range
     }
 
