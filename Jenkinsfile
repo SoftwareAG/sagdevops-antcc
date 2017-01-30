@@ -19,6 +19,7 @@ pipeline {
                 label 'master'
             }
             steps {
+                checkout scm
                 stash 'scripts'
             }
         }
