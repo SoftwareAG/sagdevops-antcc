@@ -44,24 +44,7 @@ pipeline {
                 }
             }
         }
-
-        // FIXME: target install dir!
-        //stage("Component Test") {
-        //    agent {
-        //        docker {
-        //            image 'frekele/ant'
-        //            label 'docker'
-        //            args "-v /tmp/build/:/test/"
-        //        }
-        //    }
-        //    steps {
-        //        timeout(time:5, unit:'MINUTES') {
-        //            unstash 'scripts'
-        //            sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=/test/sag uninstall boot ps jobs killjobs log logs restartcc waitcc stopcc"
-        //        }
-        //    }
-        //}
-
+        
         stage("Restart VMs") {
             agent {
                 label 'master'
