@@ -3,10 +3,6 @@
 pipeline {
     agent none
 
-    triggers {
-        cron '@daily'
-    }
-
     environment {
         INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/cc/installers" // internal download site
         P = '333' // TODO: random free port range
@@ -66,11 +62,27 @@ pipeline {
         //    }
         //}
 
-        stage("Platform Tests") {
+        stage("Restart VMs") {
+            agent {
+                label 'master'
+            }
+            steps {
+                // TODO: clean this up
+                vSphere buildStep: [$class: 'PowerOff', evenIfSuspended: false, shutdownGracefully: false, vm: 'bgninjabvt11'], serverName: 'daevvc02'
+                vSphere buildStep: [$class: 'PowerOff', evenIfSuspended: false, shutdownGracefully: false, vm: 'bgninjabvt02'], serverName: 'daevvc02'
+                vSphere buildStep: [$class: 'PowerOff', evenIfSuspended: false, shutdownGracefully: false, vm: 'bgninjabvt22'], serverName: 'daevvc02'
+                sleep 10
+                vSphere buildStep: [$class: 'PowerOn', timeoutInSeconds: 180, vm: 'bgninjabvt11'], serverName: 'daevvc02'
+                vSphere buildStep: [$class: 'PowerOn', timeoutInSeconds: 180, vm: 'bgninjabvt02'], serverName: 'daevvc02'
+                vSphere buildStep: [$class: 'PowerOn', timeoutInSeconds: 180, vm: 'bgninjabvt22'], serverName: 'daevvc02'
+                sleep 80
+            }
+        }
+        stage("Platform Tests") {     
             tools {
                 ant "ant-1.9.7"
                 jdk "jdk-1.8"
-            }        
+            } 
             steps {
                 parallel (
                     "Linux": {
@@ -91,16 +103,15 @@ pipeline {
                             }
                         }
                     }
-                    // FIXME: Windows installation fails if the VM is not clean!
-                    //, "Windows": {
-                    //    node('w64') {
-                    //        unstash 'scripts'
-                    //        timeout(time:10, unit:'MINUTES') {
-                    //            bat "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=${pwd()}\\build\\cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot ps jobs killjobs log logs restartcc waitcc stopcc"
-                    //            bat "ant -f main.xml uninstall"
-                    //        }
-                    //    }
-                    // }
+                    , "Windows": {
+                        node('w64') {
+                            unstash 'scripts'
+                            timeout(time:10, unit:'MINUTES') {
+                                bat "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=${pwd()}\\build\\cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot ps jobs killjobs log logs restartcc waitcc stopcc"
+                                bat "ant -f main.xml uninstall"
+                            }
+                        }
+                    }
                 )
             }
         } 

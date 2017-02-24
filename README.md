@@ -103,7 +103,7 @@ file system and reference it using relative or absolute path.
 
 ## Bootstrap
 
-ANTCC tool provides generic targets to optionally download (internal SAG network only) 
+ANTCC tool provides generic targets to download
 and then bootstrap Command Central server, CC CLI or SPM.
 Bootstrap folder is optional and allows to customize bootstrap parameters.
 

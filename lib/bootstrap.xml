@@ -54,9 +54,10 @@ ant stopcc                       Stop local Command Central server
 
 		<!-- default download location -->
 		<property name="installer.dir" location="${user.home}/Downloads" />
-		<!-- 
-		<property name="installer.url" value="http://aquarius-dae.eur.ad.sag/cc/installers" />
-         -->
+
+		<!-- default download site -->
+		<property name="installer.url" value="http://empowersdc.softwareag.com/ccinstallers" />
+
 	    <!-- default installation directory in Dev -->
 		<property name="install.dir" location="${user.home}/sag/cc" />
 
@@ -110,14 +111,17 @@ ant stopcc                       Stop local Command Central server
 			<arg value="${cc.host}" />
 		</exec>
 		
+		<!-- remember CLI location for Windows clients that can't pick up CC_CLI_HOME env var right away -->
 		<mkdir dir="${user.home}/.sag" />
 		<propertyfile file="${user.home}/.sag/cc.properties">
 			<entry key="cc.cli.home" value="${install.dir}/CommandCentral/client"/>
 		</propertyfile>
 
-		<echo>
-			Finished installatino
-		</echo>
+		<mkdir dir="environments/default" />
+		<propertyfile file="environments/default/cc.properties">
+			<entry key="cc.cli.home" value="${install.dir}/CommandCentral/client"/>
+		</propertyfile>
+		
 	</target>
 
 	<target name="stopcc" depends="_prepare" description="Stop local Command Central Server" if="install.dir.exists">
