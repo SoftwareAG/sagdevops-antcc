@@ -89,8 +89,8 @@ pipeline {
                         node('lnxamd64') {
                             unstash 'scripts'
                             timeout(time:10, unit:'MINUTES') {
-                                sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot ps jobs killjobs log logs restartcc waitcc stopcc"
-                                sh "ant -f main.xml uninstall"
+                                sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
+                                sh "ant -f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
                             }
                         }
                     }
@@ -98,8 +98,8 @@ pipeline {
                         node('solamd64') {
                             unstash 'scripts'
                             timeout(time:10, unit:'MINUTES') {
-                                sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot ps jobs killjobs log logs restartcc waitcc stopcc"
-                                sh "ant -f main.xml uninstall"
+                                sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
+                                sh "ant -f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
                             }
                         }
                     }
@@ -107,8 +107,8 @@ pipeline {
                         node('w64') {
                             unstash 'scripts'
                             timeout(time:10, unit:'MINUTES') {
-                                bat "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=${pwd()}\\build\\cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot ps jobs killjobs log logs restartcc waitcc stopcc"
-                                bat "ant -f main.xml uninstall"
+                                bat "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=${pwd()}\\build\\cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
+                                bat "ant -f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
                             }
                         }
                     }

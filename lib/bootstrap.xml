@@ -111,15 +111,12 @@ ant stopcc                       Stop local Command Central server
 			<arg value="${cc.host}" />
 		</exec>
 		
+		<property name="cc.cli.home" value="${install.dir}/CommandCentral/client" />
+
 		<!-- remember CLI location for Windows clients that can't pick up CC_CLI_HOME env var right away -->
 		<mkdir dir="${user.home}/.sag" />
 		<propertyfile file="${user.home}/.sag/cc.properties">
-			<entry key="cc.cli.home" value="${install.dir}/CommandCentral/client"/>
-		</propertyfile>
-
-		<mkdir dir="environments/default" />
-		<propertyfile file="environments/default/cc.properties">
-			<entry key="cc.cli.home" value="${install.dir}/CommandCentral/client"/>
+			<entry key="cc.cli.home" value="${cc.cli.home}" />
 		</propertyfile>
 		
 	</target>
