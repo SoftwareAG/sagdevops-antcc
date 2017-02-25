@@ -49,6 +49,8 @@ ant stopcc                       Stop local Command Central server
 			<equals arg1="${accept.license}" arg2="true" casesensitive="false" trim="true"/>
 		</condition>
 		
+		<upper string="${platform}" to="platform.uppercase" />
+
 		<!-- latest public GA version on SDC -->
 		<property name="installer" value="cc-def-9.12-fix4-${platform}" />
 
@@ -267,5 +269,12 @@ ant stopcc                       Stop local Command Central server
 			<equals arg1="${output.uname}" arg2="SunOS" />
 		</condition>
 	</target>
+
+	<!-- To upper case -->
+	<scriptdef language="javascript" name="upper">
+		<attribute name="string" />
+		<attribute name="to" />
+	    project.setProperty(attributes.get("to"),attributes.get("string").toUpperCase());
+	</scriptdef>
 	
 </project>
