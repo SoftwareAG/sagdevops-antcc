@@ -14,14 +14,14 @@ Optional parameter for any target:
                                  or custom 'environments/other/env.properties'
 Targets:
 
-ant up                           Import and apply all project 'templates/*'
-ant apply -Dalias=template       Apply template using its alias
-ant import -Dt=templateFolder    Reimport template from source folder by do not apply
+ant up                           Import and apply all 'templates/*'
+ant templates                    Import templates from 'templates/*' and list
+ant import -Dt=templateFolder    Reimport single template
+ant apply -Dalias=template       Apply single template using its alias
 ant apply -Dt=templateFolder     Reimport and apply template from source folder
-ant migrate -Dt=templateFolder   Reimport and migrate using template from source folder
+ant migrate -Dt=templateFolder   Migrate using template from source folder
 		</echo>
 	</target>
-
 
 	<target name="sagenvInit" depends="sagccInit" >
 		<property id="sagenv.env" name="env" value="default" />
@@ -44,9 +44,30 @@ ant migrate -Dt=templateFolder   Reimport and migrate using template from source
 		<echo>Environment configuration: ${env.properties}</echo>
 	</target>
 
-	<target name="import" description="Import template and dont apply" depends="_zip,sagenvInit" if="import.template" >
+	<target name="import" description="Import template and dont apply" depends="_zip,sagccInit" if="import.template" >
 		<echo>Import ${template.file}</echo>
 		<cc command="exec templates composite import overwrite=true" input="${template.file}"/>
+	</target>
+
+	<target name="templates" description="Import and list all available templates" depends="sagccInit" >
+		<path id="templates.list.ref">
+    		<dirset dir="templates" includes="*" />
+  		</path>
+ 	    <property name="templates" value="${toString:templates.list.ref}"/>
+
+    	<for list="${templates}" param="t" delimiter="${path.separator}">
+			<sequential>
+				<antcall target="import">
+					<param name="t" value="@{t}" />
+				</antcall>
+			</sequential>
+        </for>
+
+		<echo>
+			Available templates:
+		</echo>
+		<cc command="list templates composite" format="tsv" />
+
 	</target>
 
 	<target name="apply" description="Apply template and wait" depends="import" >
