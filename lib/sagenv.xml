@@ -44,7 +44,7 @@ ant migrate -Dt=templateFolder   Migrate using template from source folder
 		<echo>Environment configuration: ${env.properties}</echo>
 	</target>
 
-	<target name="import" description="Import template and dont apply" depends="_zip,sagccInit" if="import.template" >
+	<target name="import" description="Import template and dont apply" depends="_zip,sagenvInit" if="import.template" >
 		<echo>Import ${template.file}</echo>
 		<cc command="exec templates composite import overwrite=true" input="${template.file}"/>
 	</target>
