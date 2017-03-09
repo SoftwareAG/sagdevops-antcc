@@ -184,7 +184,8 @@ ant stopcc                       Stop local Command Central server
 	<target name="_download" depends="_prepare" if="installer.url">
 		<echo>Downloading bootstrap installer from ${installer.url}/${installer}.${file.extension} ...</echo>
 		<mkdir dir="${installer.dir}" />
-		<get src="${installer.url}/${installer}.${file.extension}" dest="${installer.dir}" usetimestamp="true" />
+		<property name="installer.file" value="${installer}.${file.extension}" />
+		<get src="${installer.url}/${installer.file}" dest="${installer.dir}" usetimestamp="true" />
 		<echo>Finished downloading bootstrap installer.</echo>
 	</target>
 
