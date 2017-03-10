@@ -13,9 +13,11 @@ Optional parameter for any target:
                                  or custom 'bootstrap/other.properties'
 Targets:
 
-ant upgrade                      Upgrade local Command Central server
+ant boot                         Bootstrap local Command Central server
 ant client                       Bootstrap local CC CLI (client)
 ant agent                        Bootstrap local SPM (agent)
+ant download                     Download bootstrap installer(s)
+ant upgrade                      Upgrade local Command Central server
 ant startcc                      Start local Command Central server
 ant stopcc                       Stop local Command Central server
 		</echo>
@@ -53,6 +55,9 @@ ant stopcc                       Stop local Command Central server
 
 		<!-- latest public GA version on SDC -->
 		<property name="installer" value="cc-def-9.12-fix4-${platform}" />
+
+		<!-- comma delimited list of all installers to download -->
+		<property name="installers" value="${installer}" />
 
 		<!-- default download location -->
 		<property name="installer.dir" location="${user.home}/Downloads" />
@@ -182,11 +187,21 @@ ant stopcc                       Stop local Command Central server
 	</target>
 
 	<target name="_download" depends="_prepare" if="installer.url">
-		<echo>Downloading bootstrap installer from ${installer.url}/${installer}.${file.extension} ...</echo>
 		<mkdir dir="${installer.dir}" />
 		<property name="installer.file" value="${installer}.${file.extension}" />
+		<echo>Downloading bootstrap installer from ${installer.url}/${installer.file} ...</echo>
 		<get src="${installer.url}/${installer.file}" dest="${installer.dir}" usetimestamp="true" />
 		<echo>Finished downloading bootstrap installer.</echo>
+	</target>
+
+	<target name="download" depends="_prepare" if="installer.url" description="Download bootstrap installers">
+		<for list="${installers}" param="i" delimiter=",">
+			<sequential>
+				<antcall target="_download">
+					<param name="installer.file" value="@{i}" />
+				</antcall>
+			</sequential>
+        </for>	
 	</target>
 
 	<target name="_check-installer" depends="_prepare">

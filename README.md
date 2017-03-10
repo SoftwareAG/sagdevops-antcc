@@ -125,9 +125,11 @@ Optional parameter for any target:
                                  or custom 'bootstrap/other.properties'
 Targets:
 
-ant upgrade                      Upgrade local Command Central server
+ant boot                         Bootstrap local Command Central server
 ant client                       Bootstrap local CC CLI (client)
 ant agent                        Bootstrap local SPM (agent)
+ant download                     Download bootstrap installer(s)
+ant upgrade                      Upgrade local Command Central server
 ant startcc                      Start local Command Central server
 ant stopcc                       Stop local Command Central server
 ```

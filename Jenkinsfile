@@ -44,23 +44,6 @@ pipeline {
                 }
             }
         }
-        
-        stage("Restart VMs") {
-            agent {
-                label 'master'
-            }
-            steps {
-                // TODO: clean this up
-                vSphere buildStep: [$class: 'PowerOff', evenIfSuspended: false, shutdownGracefully: false, vm: 'bgninjabvt11'], serverName: 'daevvc02'
-                vSphere buildStep: [$class: 'PowerOff', evenIfSuspended: false, shutdownGracefully: false, vm: 'bgninjabvt02'], serverName: 'daevvc02'
-                vSphere buildStep: [$class: 'PowerOff', evenIfSuspended: false, shutdownGracefully: false, vm: 'bgninjabvt22'], serverName: 'daevvc02'
-                sleep 10
-                vSphere buildStep: [$class: 'PowerOn', timeoutInSeconds: 180, vm: 'bgninjabvt11'], serverName: 'daevvc02'
-                vSphere buildStep: [$class: 'PowerOn', timeoutInSeconds: 180, vm: 'bgninjabvt02'], serverName: 'daevvc02'
-                vSphere buildStep: [$class: 'PowerOn', timeoutInSeconds: 180, vm: 'bgninjabvt22'], serverName: 'daevvc02'
-                sleep 80
-            }
-        }
         stage("Platform Tests") {     
             tools {
                 ant "ant-1.9.7"
@@ -69,29 +52,41 @@ pipeline {
             steps {
                 parallel (
                     "Linux": {
-                        node('lnxamd64') {
+                        node('master') {
+                            vSphere buildStep: [$class: 'PowerOff', vm: 'bgcctbp05', evenIfSuspended: false, shutdownGracefully: false], serverName: 'daevvc02'
+                            vSphere buildStep: [$class: 'PowerOn',  vm: 'bgcctbp05', timeoutInSeconds: 180], serverName: 'daevvc02'
+                        }
+                        node('bgcctbp05') {
                             unstash 'scripts'
                             timeout(time:10, unit:'MINUTES') {
                                 sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
-                                sh "ant -f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
+                                sh "ant -f main.xml -Dinstallers=cc-def-9.12-fix4-lnxamd64.sh,cc-def-9.10-fix4-lnxamd64.sh installers ps jobs killjobs log logs restartcc waitcc stopcc"
                             }
                         }
                     }
                     , "Solaris": {
+                        node('master') {
+                            vSphere buildStep: [$class: 'PowerOff', vm: 'bgcctbp21', evenIfSuspended: false, shutdownGracefully: false], serverName: 'daevvc02'
+                            vSphere buildStep: [$class: 'PowerOn',  vm: 'bgcctbp21', timeoutInSeconds: 180], serverName: 'daevvc02'
+                        }
                         node('solamd64') {
                             unstash 'scripts'
                             timeout(time:10, unit:'MINUTES') {
                                 sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
-                                sh "ant -f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
+                                sh "ant -f main.xml -Dinstallers=cc-def-9.12-fix4-solamd64.sh,cc-def-9.10-fix4-solamd64.sh installers ps jobs killjobs log logs restartcc waitcc stopcc"
                             }
                         }
                     }
                     , "Windows": {
-                        node('w64') {
+                        node('master') {
+                            vSphere buildStep: [$class: 'PowerOff', vm: 'bgcctbp21', evenIfSuspended: false, shutdownGracefully: false], serverName: 'daevvc02'
+                            vSphere buildStep: [$class: 'PowerOn',  vm: 'bgcctbp21', timeoutInSeconds: 180], serverName: 'daevvc02'
+                        }
+                        node('bgcctbp21') {
                             unstash 'scripts'
                             timeout(time:10, unit:'MINUTES') {
                                 bat "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=${pwd()}\\build\\cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
-                                bat "ant -f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
+                                bat "ant -f main.xml -Dinstallers=cc-def-9.12-fix4-w64.sh,cc-def-9.10-fix4-w64.sh installers ps jobs killjobs log logs restartcc waitcc stopcc"
                             }
                         }
                     }
