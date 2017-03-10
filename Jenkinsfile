@@ -66,8 +66,8 @@ pipeline {
                     }
                     , "Solaris": {
                         node('master') {
-                            vSphere buildStep: [$class: 'PowerOff', vm: 'bgcctbp21', evenIfSuspended: false, shutdownGracefully: false], serverName: 'daevvc02'
-                            vSphere buildStep: [$class: 'PowerOn',  vm: 'bgcctbp21', timeoutInSeconds: 180], serverName: 'daevvc02'
+                            vSphere buildStep: [$class: 'PowerOff', vm: 'bgninjabvt22', evenIfSuspended: false, shutdownGracefully: false], serverName: 'daevvc02'
+                            vSphere buildStep: [$class: 'PowerOn',  vm: 'bgninjabvt22', timeoutInSeconds: 180], serverName: 'daevvc02'
                         }
                         node('solamd64') {
                             unstash 'scripts'
