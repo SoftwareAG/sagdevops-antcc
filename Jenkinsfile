@@ -56,7 +56,7 @@ pipeline {
                             vSphere buildStep: [$class: 'PowerOff', vm: 'bgcctbp05', evenIfSuspended: false, shutdownGracefully: false], serverName: 'daevvc02'
                             vSphere buildStep: [$class: 'PowerOn',  vm: 'bgcctbp05', timeoutInSeconds: 180], serverName: 'daevvc02'
                         }
-                        node('bgcctbp05') {
+                        node('bgcctbp05.eur.ad.sag') {
                             unstash 'scripts'
                             timeout(time:10, unit:'MINUTES') {
                                 sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
@@ -69,7 +69,7 @@ pipeline {
                             vSphere buildStep: [$class: 'PowerOff', vm: 'bgninjabvt22', evenIfSuspended: false, shutdownGracefully: false], serverName: 'daevvc02'
                             vSphere buildStep: [$class: 'PowerOn',  vm: 'bgninjabvt22', timeoutInSeconds: 180], serverName: 'daevvc02'
                         }
-                        node('bgninjabvt22') {
+                        node('bgninjabvt22.eur.ad.sag') {
                             unstash 'scripts'
                             timeout(time:10, unit:'MINUTES') {
                                 sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
@@ -82,7 +82,7 @@ pipeline {
                             vSphere buildStep: [$class: 'PowerOff', vm: 'bgcctbp21', evenIfSuspended: false, shutdownGracefully: false], serverName: 'daevvc02'
                             vSphere buildStep: [$class: 'PowerOn',  vm: 'bgcctbp21', timeoutInSeconds: 180], serverName: 'daevvc02'
                         }
-                        node('bgcctbp21') {
+                        node('bgcctbp21.eur.ad.sag') {
                             unstash 'scripts'
                             timeout(time:10, unit:'MINUTES') {
                                 bat "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=${pwd()}\\build\\cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
