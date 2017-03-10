@@ -128,7 +128,7 @@ Targets:
 ant boot                         Bootstrap local Command Central server
 ant client                       Bootstrap local CC CLI (client)
 ant agent                        Bootstrap local SPM (agent)
-ant download                     Download bootstrap installer(s)
+ant installers -Dinstallers=f1,f2 Download bootstrap installers
 ant upgrade                      Upgrade local Command Central server
 ant startcc                      Start local Command Central server
 ant stopcc                       Stop local Command Central server

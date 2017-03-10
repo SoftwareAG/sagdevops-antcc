@@ -16,7 +16,7 @@ Targets:
 ant boot                         Bootstrap local Command Central server
 ant client                       Bootstrap local CC CLI (client)
 ant agent                        Bootstrap local SPM (agent)
-ant download                     Download bootstrap installer(s)
+ant installers                   Download bootstrap installers
 ant upgrade                      Upgrade local Command Central server
 ant startcc                      Start local Command Central server
 ant stopcc                       Stop local Command Central server
@@ -194,7 +194,7 @@ ant stopcc                       Stop local Command Central server
 		<echo>Finished downloading bootstrap installer.</echo>
 	</target>
 
-	<target name="download" depends="_prepare" if="installer.url" description="Download bootstrap installers">
+	<target name="installers" depends="_prepare" if="installer.url" description="Download bootstrap installers">
 		<for list="${installers}" param="i" delimiter=",">
 			<sequential>
 				<antcall target="_download">

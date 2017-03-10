@@ -3,4 +3,4 @@ jdk:
   - oraclejdk8
 script:
   - ant -f main.xml client
-  - ant -f main.xml -Daccept.license=true boot download -Dinstallers=cc-def-9.12-fix4-lnxamd64.sh,cc-def-9.10-fix4-lnxamd64.sh
+  - ant -f main.xml -Daccept.license=true boot installers -Dinstallers=cc-def-9.12-fix4-lnxamd64.sh,cc-def-9.10-fix4-lnxamd64.sh
