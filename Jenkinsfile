@@ -60,7 +60,7 @@ pipeline {
                             unstash 'scripts'
                             timeout(time:10, unit:'MINUTES') {
                                 sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
-                                sh "ant -f main.xml -Dinstallers=cc-def-9.12-fix4-lnxamd64.sh,cc-def-9.10-fix4-lnxamd64.sh installers ps jobs killjobs log logs restartcc waitcc stopcc"
+                                sh "ant -f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
                             }
                         }
                     }
@@ -69,11 +69,11 @@ pipeline {
                             vSphere buildStep: [$class: 'PowerOff', vm: 'bgninjabvt22', evenIfSuspended: false, shutdownGracefully: false], serverName: 'daevvc02'
                             vSphere buildStep: [$class: 'PowerOn',  vm: 'bgninjabvt22', timeoutInSeconds: 180], serverName: 'daevvc02'
                         }
-                        node('solamd64') {
+                        node('bgninjabvt22') {
                             unstash 'scripts'
                             timeout(time:10, unit:'MINUTES') {
                                 sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
-                                sh "ant -f main.xml -Dinstallers=cc-def-9.12-fix4-solamd64.sh,cc-def-9.10-fix4-solamd64.sh installers ps jobs killjobs log logs restartcc waitcc stopcc"
+                                sh "ant -f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
                             }
                         }
                     }
@@ -86,7 +86,7 @@ pipeline {
                             unstash 'scripts'
                             timeout(time:10, unit:'MINUTES') {
                                 bat "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=${pwd()}\\build\\cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
-                                bat "ant -f main.xml -Dinstallers=cc-def-9.12-fix4-w64.sh,cc-def-9.10-fix4-w64.sh installers ps jobs killjobs log logs restartcc waitcc stopcc"
+                                bat "ant -f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
                             }
                         }
                     }

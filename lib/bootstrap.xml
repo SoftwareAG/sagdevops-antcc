@@ -194,16 +194,6 @@ ant stopcc                       Stop local Command Central server
 		<echo>Finished downloading bootstrap installer.</echo>
 	</target>
 
-	<target name="installers" depends="_prepare" if="installer.url" description="Download bootstrap installers">
-		<for list="${installers}" param="i" delimiter=",">
-			<sequential>
-				<antcall target="_download">
-					<param name="installer.file" value="@{i}" />
-				</antcall>
-			</sequential>
-        </for>	
-	</target>
-
 	<target name="_check-installer" depends="_prepare">
 		<fail>
 			Bootstrap installer is not found: ${installer.dir}/${installer}.${file.extension}
