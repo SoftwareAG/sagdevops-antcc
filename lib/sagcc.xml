@@ -49,15 +49,20 @@ ant logs                         Show tail of agents default log
 			<available file="${cc.properties}"/>
 		</condition>
 
-		<fail unless="cc.properties.exists" message="Client configuration file cannot be found in any supported locations." />
-
+		<!--<fail unless="cc.properties.exists" message="Client configuration file cannot be found in any supported locations." />-->
+		<echo unless:set="cc.properties.exists" message="Client configuration file not found. Using ENV variables" />
+		
 		<property file="${cc.properties}" />
 
 		<condition property="cc.cli.home" value="${env.CC_CLI_HOME}" >
 			<isset property="env.CC_CLI_HOME" />
 		</condition>
 
-		<fail unless="cc.cli.home" message="Neither CC_CLI_HOME environment variable not 'cc.cli.home' property are set!" />
+		<fail unless="cc.cli.home">
+			ERROR: Neither CC_CLI_HOME environment variable not 'cc.cli.home' property are set!
+			
+Make sure you bootstrap Command Central client on this host
+		</fail>
 
 		<echo>CC CLI HOME: ${cc.cli.home}</echo>
 
@@ -71,7 +76,7 @@ ant logs                         Show tail of agents default log
 		<taskdef description="xml processing" name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask" classpathref="cc.ant.classpath" />
 		<taskdef description="unit testing" uri="antlib:org.apache.ant.antunit" resource="org/apache/ant/antunit/antlib.xml" classpathref="cc.ant.classpath" />
 
-		<echo>CC CLI configuration: ${cc.properties}</echo>
+		<echo if:set="cc.properties.exists">CC CLI configuration: ${cc.properties}</echo>
 
 		<ccsetup configurationFile="${cc.properties}" />
 
