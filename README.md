@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-antcc.svg?branch=master)](https://travis-ci.org/SoftwareAG/sagdevops-antcc/builds)
+
+
+
 # Command Central Project Automation Tool
 
 AntCC is Software AG DevOps library to support Infrastructure as Code 
