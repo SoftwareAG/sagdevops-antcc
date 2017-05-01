@@ -5,7 +5,7 @@ pipeline {
 
     environment {
         INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/cc/installers" // internal download site
-        INSTALLER="cc-def-10.0-fix1-${platform}" // version of the installer
+        INSTALLER = 'cc-def-10.0-fix1-${platform}' // version of the installer
         P = '333' // TODO: random free port range
     }
 
