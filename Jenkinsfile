@@ -5,6 +5,7 @@ pipeline {
 
     environment {
         INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/cc/installers" // internal download site
+        INSTALLER="cc-def-10.0-fix1-${platform}" // version of the installer
         P = '333' // TODO: random free port range
     }
 
@@ -35,7 +36,7 @@ pipeline {
             steps {
                 unstash 'scripts'
                 timeout(time:2, unit:'MINUTES') {
-                    sh "ant -f main.xml -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cli client"
+                    sh "ant -f main.xml -Dinstaller.url=${env.INSTALLER_URL} -Dinstaller=${env.INSTALLER} -Dinstall.dir=`pwd`/build/cli client"
                 }
             }
             post {
@@ -59,7 +60,7 @@ pipeline {
                         node('bgcctbp05.eur.ad.sag') {
                             unstash 'scripts'
                             timeout(time:10, unit:'MINUTES') {
-                                sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
+                                sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstaller=${env.INSTALLER} -Dinstall.dir=`pwd`/build/cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
                                 sh "ant -f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
                             }
                         }
@@ -72,7 +73,7 @@ pipeline {
                         node('bgninjabvt22.eur.ad.sag') {
                             unstash 'scripts'
                             timeout(time:10, unit:'MINUTES') {
-                                sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
+                                sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstaller=${env.INSTALLER} -Dinstall.dir=`pwd`/build/cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
                                 sh "ant -f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
                             }
                         }
@@ -85,7 +86,7 @@ pipeline {
                         node('bgcctbp21.eur.ad.sag') {
                             unstash 'scripts'
                             timeout(time:10, unit:'MINUTES') {
-                                bat "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=${pwd()}\\build\\cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
+                                bat "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstaller=${env.INSTALLER} -Dinstall.dir=${pwd()}\\build\\cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
                                 bat "ant -f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
                             }
                         }
