@@ -9,18 +9,15 @@
 		<echo>
 Targets:
 
-ant build                        Build assets from source
+ant build                        Build assets from source using ABE
 		</echo>
 	</target>
 
 	<target name="sagabeInit" depends="sagenvInit">
 
 		<!-- find build.properties in the order of priority -->
-		<condition property="build.properties" value="environments/${env}/build.properties">
-			<available file="environments/${env}/build.properties"/>
-		</condition>
-		<condition property="build.properties" value="assets/build.properties">
-			<available file="assets/build.properties"/>
+		<condition property="build.properties" value="build.properties">
+			<available file="build.properties"/>
 		</condition>
 		<condition property="build.properties.exists" >
 			<available file="${build.properties}"/>
@@ -44,7 +41,7 @@ ant build                        Build assets from source
                     <available file="${install.dir}/common/AssetBuildEnvironment/master_build" />
                 </not>
             </condition>
-            ERROR: AssetBuildEnvironment is not installed at ${install.dir}
+            ERROR: AssetBuildEnvironment is not installed at ${install.dir}.
         </fail>
 
 		<ant dir="${install.dir}/common/AssetBuildEnvironment/master_build" inheritall="true">

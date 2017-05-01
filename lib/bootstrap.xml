@@ -78,7 +78,6 @@ ant stopcc                       Stop local Command Central server
 		<property name="cce.https.port" value="8091" />
 		<property name="spm.http.port" value="8092" />
 		<property name="spm.https.port" value="8093" />
-		<property name="spm.https.port" value="8093" />
 
 		<!-- default Administrator password -->
 		<property name="password" value="manage" />
