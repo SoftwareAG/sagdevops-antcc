@@ -24,9 +24,7 @@ ant build                        Build assets from source using ABE
 		</condition>
 		
 		<echo>Build configuration: ${build.properties}</echo>
-	</target>
 
-	<target name="build" depends="sagabeInit" description="Build assets into build/assets repo">
         <property file="${cc.properties}"/>
         <property file="${env.properties}"/>
         <property file="${build.properties}"/>
@@ -43,10 +41,11 @@ ant build                        Build assets from source using ABE
             </condition>
             ERROR: AssetBuildEnvironment is not installed at ${install.dir}.
         </fail>
+	</target>
 
+	<target name="build" depends="sagabeInit" description="Build assets into build/assets repo">
 		<ant dir="${install.dir}/common/AssetBuildEnvironment/master_build" inheritall="true">
 		</ant>
-
 	</target>
 
 </project>
