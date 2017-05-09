@@ -3,17 +3,20 @@
         Asset Build Environment support
     </description>
 
-	<import file="sagenv.xml" />
+	<import file="sagcc.xml" />
 
 	<target name="help-sagabe">
 		<echo>
 Targets:
 
-ant build                        Build assets from source using ABE
+ant build                        Build project assets
+ant clean                        Clean project from build artifacts
+ant publish                      Publish asset repo to Command Central 10.x
+
 		</echo>
 	</target>
 
-	<target name="sagabeInit" depends="sagenvInit">
+	<target name="sagabeInit" depends="sagccInit">
 
 		<!-- find build.properties in the order of priority -->
 		<condition property="build.properties" value="build.properties">
@@ -26,10 +29,10 @@ ant build                        Build assets from source using ABE
 		<echo>Build configuration: ${build.properties}</echo>
 
         <property file="${cc.properties}"/>
-        <property file="${env.properties}"/>
         <property file="${build.properties}"/>
 
         <property name="install.dir" location="${cc.cli.home}/../.." />
+        <property name="sag.install.dir" location="${install.dir}" />
         <property name="build.source.dir" location="${basedir}/assets" />
         <property name="build.output.dir" location="${basedir}/build/assets" />
 
@@ -39,13 +42,28 @@ ant build                        Build assets from source using ABE
                     <available file="${install.dir}/common/AssetBuildEnvironment/master_build" />
                 </not>
             </condition>
-            ERROR: AssetBuildEnvironment is not installed at ${install.dir}.
+            ERROR: AssetBuildEnvironment not found in ${install.dir}.
         </fail>
 	</target>
 
-	<target name="build" depends="sagabeInit" description="Build assets into build/assets repo">
+	<target name="build" depends="sagabeInit" description="Build project assets">
 		<ant dir="${install.dir}/common/AssetBuildEnvironment/master_build" inheritall="true">
 		</ant>
 	</target>
+
+	<target name="clean" depends="sagabeInit" description="Clean project from build artifacts">
+		<delete dir="build" verbose="true" />
+		<delete verbose="true" includeemptydirs="true">
+			<fileset dir="${basedir}" includes="**/build/**" />
+		</delete>
+	</target>
+
+    <target name="publish" depends="sagabeInit" description="Publish asset repo to Command Central 10.x" >
+        <property name="asset.repo" value="${ant.project.name}-${build.number}" />
+        <mkdir dir="build/dist" />
+        <zip destfile="build/dist/${asset.repo}.zip" basedir="${build.output.dir}" />
+		<cc command="add repository assets flatfile name=${asset.repo} overwrite=true" input="build/dist/${asset.repo}.zip" format="tsv" />	
+        <cc command="list repository assets content ${asset.repo}" format="tsv" />				
+	</target>	
 
 </project>
