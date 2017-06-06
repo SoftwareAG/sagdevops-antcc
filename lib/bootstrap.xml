@@ -56,9 +56,6 @@ ant stopcc                       Stop local Command Central server
 		<!-- latest public GA version on SDC -->
 		<property name="installer" value="cc-def-9.12-fix4-${platform}" />
 
-		<!-- comma delimited list of all installers to download -->
-		<property name="installers" value="${installer}.${file.extension}" />
-
 		<!-- default download location -->
 		<property name="installer.dir" location="${user.home}/Downloads" />
 
