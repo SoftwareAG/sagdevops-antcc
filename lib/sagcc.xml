@@ -85,7 +85,9 @@ Make sure you bootstrap Command Central client on this host
 		<echo>CC CLI HOME: ${cc.cli.home}</echo>
 
 		<path description="" id="cc.ant.classpath">
-			<fileset dir="${cc.cli.home}" includes="lib/*.jar" />
+			<fileset dir="${cc.cli.home}" includes="lib/*.jar" /> 
+			<!-- to support 10.1 common/ant distro -->
+			<fileset dir="${cc.cli.home}/../.." includes="common/lib/ant/**/*.jar" /> 
 		</path>
 
 		<taskdef description="core CLI support" resource="com/softwareag/platform/management/client/ant/antlib.xml" classpathref="cc.ant.classpath" />
