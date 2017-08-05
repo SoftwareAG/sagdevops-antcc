@@ -1,4 +1,4 @@
-<project name="sagabe" xmlns:au="antlib:org.apache.ant.antunit" basedir="." default="help-sagabe">
+<project name="sagabe" xmlns:au="antlib:org.apache.ant.antunit" xmlns:if="ant:if" xmlns:unless="ant:unless" basedir="." default="help-sagabe">
 	<description>
         Asset Build Environment support
     </description>
@@ -11,7 +11,7 @@ Targets:
 
 ant build                        Build project assets
 ant clean                        Clean project from build artifacts
-ant publish                      Publish asset repo to Command Central 10.x
+ant push                         Push asset repo to Command Central 10.x
 
 		</echo>
 	</target>
@@ -35,6 +35,8 @@ ant publish                      Publish asset repo to Command Central 10.x
         <property name="sag.install.dir" location="${install.dir}" />
         <property name="build.source.dir" location="${basedir}/assets" />
         <property name="build.output.dir" location="${basedir}/build/assets" />
+		<property name="build.number" location="1.0.0" />
+		<property name="repo.asset" value="${ant.project.name}" />
 
         <fail>
             <condition>
@@ -43,6 +45,7 @@ ant publish                      Publish asset repo to Command Central 10.x
                 </not>
             </condition>
             ERROR: AssetBuildEnvironment not found in ${install.dir}.
+			Use Command Central bootstrap installer to install client tools (with -D CLI)
         </fail>
 	</target>
 
@@ -58,12 +61,44 @@ ant publish                      Publish asset repo to Command Central 10.x
 		</delete>
 	</target>
 
-    <target name="publish" depends="sagabeInit" description="Publish asset repo to Command Central 10.x" >
-        <property name="asset.repo" value="${ant.project.name}-${build.number}" />
+    <target name="pushcc" depends="sagabeInit" description="Push flatfile asset repo to Command Central" >
         <mkdir dir="build/dist" />
-        <zip destfile="build/dist/${asset.repo}.zip" basedir="${build.output.dir}" />
-		<cc command="add repository assets flatfile name=${asset.repo} overwrite=true" input="build/dist/${asset.repo}.zip" format="tsv" />	
-        <cc command="list repository assets content ${asset.repo}" format="tsv" />				
-	</target>	
+        <zip destfile="build/dist/${repo.asset}.zip" basedir="${build.output.dir}" />
+		<cc command="add repository assets flatfile name=${repo.asset} overwrite=true" input="build/dist/${repo.asset}.zip" format="tsv" />	
+        <cc command="list repository assets content ${repo.asset}" format="tsv" />				
+	</target>
+
+    <target name="pushgit" depends="sagabeInit" description="Push asset repo to Git, register in CC" >
+		<condition property="git.cloned" value="true" >
+			<available file="build/repo/.git/" />
+		</condition>
+
+		<mkdir dir="build/repo" />
+
+		<exec dir="build/repo" executable="git" vmlauncher="false" unless:true="${git.cloned}">
+			<arg line="clone ${repo.asset.git.push.url} ." />
+		</exec>
+
+		<exec dir="build/repo" executable="git" vmlauncher="false" if:true="${git.cloned}">
+			<arg line="pull" />
+		</exec>
+
+		<copy todir="build/repo" verbose="true" overwrite="true">
+			<fileset dir="build/assets" includes="**" excludes="_*" />
+		</copy>
+
+		<exec dir="build/repo" executable="git" vmlauncher="false" >
+			<arg line="commit -am '${ant.project.name} build ${build.number}'" />
+		</exec>
+
+		<exec dir="build/repo" executable="git" vmlauncher="false" >
+			<arg line="push" />
+		</exec>
+	</target>
+
+	<target name="assets" depends="sagabeInit,waitcc" >
+		<cc command="add repository assets git name=${repo.asset.git} location=${repo.asset.git.pull.url} credentials=${repo.asset.git.pull.credentials} overwrite=true" format="tsv" />	
+        <cc command="list repository assets content ${repo.asset.git}" format="tsv" />
+	</target>
 
 </project>
