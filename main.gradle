@@ -1,0 +1,207 @@
+if(!project.ext.has("frameworkLocation")) {
+	ext.frameworkLocation = 'antcc/main.xml' 
+}
+ant.importBuild(frameworkLocation) { antTargetName -> 
+    'main.' + antTargetName
+} 
+
+if(ant.properties["ant.home"] != null) {
+	ant.'ant.home'= System.env.'ANT_HOME'
+}
+
+
+// #####################################################
+// ############ FRAMEWORK PROPS PREPARATION ############
+// #####################################################
+if(ant.properties["env"] == null) {
+	ant.properties["env"] = "default"
+}
+File bootstrapProperties = new File(projectDir, "bootstrap/bootstrap.properties");
+File ccProperties = new File(projectDir, "client/" + ant.properties["cc"] + ".properties");
+File rootEnvProperties = new File(projectDir, "env.properties");
+File envProperties = new File(projectDir, "environments/" + ant.properties["env"] + "/env.properties");
+File testProperties = new File(projectDir, "tests/test.properties");
+
+setPropertyIfFileExists("bootstrap.properties", bootstrapProperties);
+setPropertyIfFileExists("cc.properties", ccProperties);
+setPropertyIfFileExists("env.properties", rootEnvProperties);
+setPropertyIfFileExists("env.properties", envProperties);
+setPropertyIfFileExists("test.properties", testProperties);
+
+
+def setPropertyIfFileExists(String property, File propsFile) {
+	ccGradleLog "Checking presence of file $propsFile"
+	if(propsFile.exists()) { 
+		ccGradleLog "$propsFile exists. Setting property $property"
+		ant.properties[property] = propsFile.getAbsolutePath()
+	}
+	else { 
+		ccGradleLog "$propsFile does not exist. The $property will not be set."
+	}
+}
+ext.setPropertyIfFileExists = this.&setPropertyIfFileExists
+
+
+// #####################################################
+// ################## TEMPLATE APPLY ###################
+// #####################################################
+def applyTemplate(String templateRelativePath) {
+	File templateFile = new File(projectDir, templateRelativePath);
+	String templatePath = templateFile.getCanonicalPath();
+	String templateAlias = templateFile.getName();
+	File templateZip = new File(buildDir, "templates/" + templateAlias + ".zip");
+	String templateZipPath = templateZip.getCanonicalPath();
+	ccGradleLog "Preparing to apply template $templatePath having alias $templateAlias. The template zip will be located under $templateZipPath"
+	antSetProperty("t", templatePath);
+	antSetProperty("alias", templateAlias);
+	antSetProperty("template.file", templateZipPath);
+	antExecuteTarget("main.apply")
+}
+ext.applyTemplate = this.&applyTemplate
+
+// #####################################################
+// ################ ANTCALL SIMULATION #################
+// #####################################################
+def antSetProperty(String name, String value) {
+	ant.project.setProperty(name, value);
+}
+ext.antSetProperty = this.&antSetProperty
+
+def antExecuteTarget(String name) { 
+	if(name != null && name.startsWith("main.")) {
+		name = name.replace("main.", "");
+	}
+	ant.project.executeTarget(name);
+}
+ext.antExecuteTarget = this.&antExecuteTarget
+
+
+// #####################################################
+// ################## HELPER METHODS ###################
+// #####################################################
+def ccGradleLog(String message) { 
+	println "[CC Gradle] $message" 
+}
+ext.ccGradleLog = this.&ccGradleLog
+
+
+// #####################################################
+// ############ ARTIFACT REPOS PREPARATION #############
+// #####################################################
+def configureIvyRepository(String repoUrl) {
+	configureIvyRepository(repoUrl, "maven", true);
+}
+def configureIvyRepository(String repoUrl, String repoLayout, boolean repoDynamicMode) {
+	repositories {
+	    ivy {
+	    	layout repoLayout
+	    	resolve.dynamicMode = repoDynamicMode
+	        url repoUrl
+	    }
+	}
+}
+ext.configureIvyRepository = this.&configureIvyRepository
+
+
+// #####################################################
+// ################## TEST PREPARATION #################
+// #####################################################
+allprojects { currentProject ->
+	plugins.withType(JavaPlugin) {
+		ccGradleLog "Found project with gradle java plugin applied: " + currentProject.name
+		ccGradleLog "Loading test.properties and env.properties as test system properties"
+		Properties testProps = new Properties();
+		if(testProperties.exists()) {
+			testProps.load(new FileInputStream(testProperties));
+		}
+		if(envProperties.exists()) {
+			testProps.load(new FileInputStream(envProperties));
+		}
+		
+		// Load the properties in ant so that all variables are expanded by the ant framework
+		ant {
+		    property(file: envProperties)
+		    property(file: testProperties)
+		}
+		
+		testProps.each { prop -> 
+			String propKey = prop.getKey();
+			String propValue = ant.properties[prop.getKey()] // We need the evaluated ant property
+			ccGradleLog "Setting test system property $propKey to $propValue"; 
+			currentProject.tasks.test.systemProperty(propKey, propValue);
+		}
+	}
+}
+
+def setTestSrcDir(String testSrcDir) { 
+	sourceSets.test.java.setSrcDirs([testSrcDir])
+}
+ext.setTestSrcDir = this.&setTestSrcDir
+
+def setTestResourcesDir(String testResourcesDir) { 
+	sourceSets.test.resources.setSrcDirs([testResourcesDir])
+}
+ext.setTestResourcesDir = this.&setTestResourcesDir
+
+
+def setTestSuite(String testSuite) { 
+	test.setIncludes([testSuite])
+}
+ext.setTestSuite = this.&setTestSuite
+
+def setIgnoreTestFailures(boolean ignoreTestFailures) { 
+	test.ignoreFailures = ignoreTestFailures
+}
+ext.setIgnoreTestFailures = this.&setIgnoreTestFailures
+
+def installDirJarsFrom(String relativeDirPath) {
+	return fileTree(include: ['**/*.jar'], dir: ant.properties["install.dir"] + relativeDirPath);
+}
+ext.installDirJarsFrom = this.&installDirJarsFrom
+
+// #####################################################
+// ################ TEST RERUN PREPARATION #############
+// #####################################################
+ext.failedTests = new File(project.buildDir, "failedtests.properties");
+test.doFirst {
+	if(failedTests.exists()) {
+		failedTests.delete();
+	}
+}
+test.afterTest { TestDescriptor descr, TestResult result ->
+	Properties props = loadFailedTests();
+	if(TestResult.ResultType.FAILURE == result.getResultType()) {
+		props.setProperty(descr.getClassName(), result.getResultType().toString());
+        storeFailedTests(props)
+	}
+}
+
+def loadFailedTests() {
+	Properties props = new Properties();
+	if(failedTests.exists()) {
+		new FileInputStream(failedTests).withStream { is ->
+			props.load(is);
+		}
+	}
+	return props;
+}
+
+def storeFailedTests(Properties props) { 
+	new FileOutputStream(failedTests).withStream { out ->
+    	props.store(out, "Failed tests");
+    }
+}
+
+task testRerun(type: Test) {
+	onlyIf {
+		failedTests.exists()
+	}
+	if(failedTests.exists()) {
+		Properties props = loadFailedTests();
+		setIncludes([]);
+		for(String clazz : props.keySet()) {
+			String pattern = clazz.replaceAll("\\.", "/");
+			include pattern + ".class"
+		}
+	}
+}
