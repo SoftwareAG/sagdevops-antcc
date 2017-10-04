@@ -116,13 +116,18 @@ allprojects { currentProject ->
 		if(testProperties.exists()) {
 			testProps.load(new FileInputStream(testProperties));
 		}
+		if(ccProperties.exists()) {
+			testProps.load(new FileInputStream(ccProperties));
+		}
 		if(envProperties.exists()) {
 			testProps.load(new FileInputStream(envProperties));
 		}
 		
+		
 		// Load the properties in ant so that all variables are expanded by the ant framework
 		ant {
 		    property(file: envProperties)
+		    property(file: ccProperties)
 		    property(file: testProperties)
 		}
 		
