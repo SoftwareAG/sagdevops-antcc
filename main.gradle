@@ -17,12 +17,14 @@ if(ant.properties["env"] == null) {
 	ant.properties["env"] = "default"
 }
 File bootstrapProperties = new File(projectDir, "bootstrap/bootstrap.properties");
-File ccProperties = new File(projectDir, "client/" + ant.properties["cc"] + ".properties");
+File clientProperties = new File(projectDir, "client/" + ant.properties["cc"] + ".properties");
+File ccProperties = new File(projectDir, "clients/" + ant.properties["cc"] + ".properties");
 File rootEnvProperties = new File(projectDir, "env.properties");
 File envProperties = new File(projectDir, "environments/" + ant.properties["env"] + "/env.properties");
 File testProperties = new File(projectDir, "tests/test.properties");
 
 setPropertyIfFileExists("bootstrap.properties", bootstrapProperties);
+setPropertyIfFileExists("cc.properties", clientProperties);
 setPropertyIfFileExists("cc.properties", ccProperties);
 setPropertyIfFileExists("env.properties", rootEnvProperties);
 setPropertyIfFileExists("env.properties", envProperties);
