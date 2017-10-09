@@ -166,10 +166,18 @@ def installDirJarsFrom(String relativeDirPath) {
 }
 ext.installDirJarsFrom = this.&installDirJarsFrom
 
+def setTestReportDir() { 
+    test.reports.getJunitXml().setDestination(new File(project.buildDir, ant.properties["env"]));
+	println(test.reports.getJunitXml().getDestination());
+}
+ext.setTestReportDir = this.&setTestReportDir
+
 // #####################################################
 // ################ TEST RERUN PREPARATION #############
 // #####################################################
 ext.failedTests = new File(project.buildDir, "failedtests.properties");
+
+
 test.doFirst {
 	if(failedTests.exists()) {
 		failedTests.delete();
