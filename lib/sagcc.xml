@@ -17,6 +17,10 @@
         <available file="clients/${cc}/cc.properties"/>
     </condition>
 	
+	<condition property="cc.properties" value="client/${cc}.properties">
+        <available file="client/${cc}.properties"/>
+    </condition>
+	
     <!-- user clients -->
 	<condition property="cc.properties" value="${user.home}/.sag/cc.properties">
 		<available file="${user.home}/.sag/cc.properties"/>

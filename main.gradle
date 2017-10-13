@@ -17,12 +17,14 @@ if(ant.properties["env"] == null) {
 	ant.properties["env"] = "default"
 }
 File bootstrapProperties = new File(projectDir, "bootstrap/bootstrap.properties");
-File ccProperties = new File(projectDir, "client/" + ant.properties["cc"] + ".properties");
+File clientProperties = new File(projectDir, "client/" + ant.properties["cc"] + ".properties");
+File ccProperties = new File(projectDir, "clients/" + ant.properties["cc"] + ".properties");
 File rootEnvProperties = new File(projectDir, "env.properties");
 File envProperties = new File(projectDir, "environments/" + ant.properties["env"] + "/env.properties");
 File testProperties = new File(projectDir, "tests/test.properties");
 
 setPropertyIfFileExists("bootstrap.properties", bootstrapProperties);
+setPropertyIfFileExists("cc.properties", clientProperties);
 setPropertyIfFileExists("cc.properties", ccProperties);
 setPropertyIfFileExists("env.properties", rootEnvProperties);
 setPropertyIfFileExists("env.properties", envProperties);
@@ -114,6 +116,9 @@ allprojects { currentProject ->
 		if(testProperties.exists()) {
 			testProps.load(new FileInputStream(testProperties));
 		}
+		if(ccProperties.exists()) {
+			testProps.load(new FileInputStream(ccProperties));
+		}
 		if(envProperties.exists()) {
 			testProps.load(new FileInputStream(envProperties));
 		}
@@ -121,14 +126,18 @@ allprojects { currentProject ->
 		// Load the properties in ant so that all variables are expanded by the ant framework
 		ant {
 		    property(file: envProperties)
+			property(file: ccProperties)
 		    property(file: testProperties)
 		}
 		
-		testProps.each { prop -> 
-			String propKey = prop.getKey();
-			String propValue = ant.properties[prop.getKey()] // We need the evaluated ant property
-			ccGradleLog "Setting test system property $propKey to $propValue"; 
-			currentProject.tasks.test.systemProperty(propKey, propValue);
+		currentProject.afterEvaluate {
+			testProps.each { prop -> 
+				String propKey = prop.getKey();
+				String propValue = ant.properties[prop.getKey()] // We need the evaluated ant property
+				ccGradleLog "Setting test system property $propKey to $propValue"; 
+				currentProject.tasks.test.systemProperty(propKey, propValue);
+				currentProject.tasks.testRerun.systemProperty(propKey, propValue); 
+			}	
 		}
 	}
 }
@@ -171,7 +180,7 @@ test.doFirst {
 test.afterTest { TestDescriptor descr, TestResult result ->
 	Properties props = loadFailedTests();
 	if(TestResult.ResultType.FAILURE == result.getResultType()) {
-		props.setProperty(descr.getClassName(), result.getResultType().toString());
+		props.setProperty(descr.getClassName() + "." + descr.getName(), descr.getParent().getClassName());
         storeFailedTests(props)
 	}
 }
@@ -192,16 +201,37 @@ def storeFailedTests(Properties props) {
     }
 }
 
+ext.includeTestRerunMatching = null
+
 task testRerun(type: Test) {
 	onlyIf {
 		failedTests.exists()
 	}
-	if(failedTests.exists()) {
-		Properties props = loadFailedTests();
-		setIncludes([]);
-		for(String clazz : props.keySet()) {
-			String pattern = clazz.replaceAll("\\.", "/");
-			include pattern + ".class"
-		}
+	if(failedTests.exists()) {	
+        Properties props = loadFailedTests();   
+        Set failedSuites = new HashSet();
+        failedSuites.addAll(props.values());
+        for (String failedSuite : failedSuites) {
+            failedSuite = failedSuite.replaceAll("\\.", "/") + ".class" ;
+			ccGradleLog "Including Re-Run Suite: " + failedSuite;  
+            include failedSuite           
+        }
+
+		filter {			
+			for(String testRerunName : props.keySet()) {			
+				if(testRerunName.endsWith(".classMethod")) {
+					testRerunName = testRerunName.replace(".classMethod", "");
+				} 
+				ccGradleLog "Including Re-Run Test: " + testRerunName;  
+				includeTestsMatching testRerunName
+			}	
+			
+			project.afterEvaluate {
+				if(project.includeTestRerunMatching != null) {
+					ccGradleLog "Including Re-Run CleanUp Test: " + project.includeTestRerunMatching;  
+					includeTestsMatching project.includeTestRerunMatching 
+				}
+			}			
+		}		
 	}
 }
