@@ -1,6 +1,6 @@
 <project name="sagcc" default="help-sagcc" xmlns="antlib:org.apache.tools.ant" xmlns:if="ant:if" xmlns:unless="ant:unless" basedir="." >
 	<description>
-        Core Command Central API client library and targets
+        Core Command Central API client library and targets 
     </description>
 	
 	<property environment="env" />
