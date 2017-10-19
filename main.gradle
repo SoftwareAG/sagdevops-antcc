@@ -1,3 +1,5 @@
+import java.time.LocalDateTime;
+
 if(!project.ext.has("frameworkLocation")) {
 	ext.frameworkLocation = 'antcc/main.xml' 
 }
@@ -179,7 +181,13 @@ test.doFirst {
 		failedTests.delete();
 	}
 }
+
+test.beforeTest { descr ->
+    ccGradleLog "Started test: " + descr.getClassName() + "." + descr.getName() + " ; Start time: " +  LocalDateTime.now(); 
+}
+
 test.afterTest { TestDescriptor descr, TestResult result ->
+	ccGradleLog "Ended test: " + descr.getClassName() + "." + descr.getName() + " ; End time: " +  LocalDateTime.now(); 
 	Properties props = loadFailedTests();
 	if(TestResult.ResultType.FAILURE == result.getResultType()) {
 		props.setProperty(descr.getClassName() + "." + descr.getName(), descr.getParent().getClassName());
