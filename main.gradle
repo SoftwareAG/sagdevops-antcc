@@ -137,7 +137,12 @@ allprojects { currentProject ->
 				ccGradleLog "Setting test system property $propKey to $propValue"; 
 				currentProject.tasks.test.systemProperty(propKey, propValue);
 				currentProject.tasks.testRerun.systemProperty(propKey, propValue); 
-			}	
+			}
+			String defaultPassword = ant.properties["password"] != null ? ant.properties["password"] : "manage";
+			String password = System.getenv("CC_PASSWORD") != null ? System.getenv("CC_PASSWORD") : defaultPassword;
+			currentProject.tasks.test.systemProperty("password", password);
+			currentProject.tasks.testRerun.systemProperty("password", password); 
+			ccGradleLog "Setting test additional system property 'password' to $password";  		
 		}
 	}
 }
