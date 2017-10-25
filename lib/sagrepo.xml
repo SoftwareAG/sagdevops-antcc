@@ -1,0 +1,121 @@
+<project name="sagrepo" default="help-sagrepo" xmlns="antlib:org.apache.tools.ant" xmlns:if="ant:if" xmlns:unless="ant:unless" basedir="." >
+	<description>
+        Repository management
+    </description>
+
+	<import file="bootstrap.xml" />
+	<import file="sagenv.xml" />
+
+	<target name="help-sagrepo">
+		<echo>
+Optional parameter for any target:
+
+-Denv=other                      Environment configuration to use from
+                                 project defaults in 'environments/default/env.properties'
+                                 or custom 'environments/other/env.properties'
+Targets:
+
+ant mirrors                      Create and update mirrors
+ant licenses                     Import licence key archive
+		</echo>
+	</target>
+
+	<target name="mirrors" depends="_prepare,waitcc,sagenvInit" description="Create and update mirror repositories">
+		<property file="${env.properties}" />
+		
+		<property name="release" value="10.1" />
+		<property name="mirror.products" value="ALL" />
+		<property name="mirror.platforms" value="${platform.uppercase}" />
+		<property name="mirror.repo.product" value="webMethods-${release}_GA" />
+		<property name="mirror.repo.fix" value="intRepo" />
+		<property name="mirror.spm" value="http://localhost:8092" />
+
+		<mirror type="products" release="${release}" 
+			from="${mirror.repo.product}" filter="" 
+			artifacts="${mirror.products}" 
+			platforms="${mirror.platforms}"/>
+
+		<mirror type="fixes" release="${release}" 
+			from="${mirror.repo.fix}" 
+			filter="products-${release}" 
+			platforms="${mirror.platforms}"
+			artifacts="LATEST" />
+
+		<echo>
+			Registered product repositories
+		</echo>
+		<cc command="update repository products products-${release} location=${mirror.spm}/products-${release}/repository" format="tsv"/>
+		<cc command="list repository products" format="tsv"/>
+		
+		<echo>
+			Registered fix repositories
+		</echo>
+		<cc command="update repository fixes fixes-${release} location=${mirror.spm}/fix-fixes-${release}/repository" format="tsv"/>
+		<cc command="list repository fixes" format="tsv"/>
+	</target>
+
+	<target name="licenses" depends="waitcc,sagenvInit" description="Import licence key archive">
+		<property file="${env.properties}" />
+
+		<echo if:set="licenses.zip.url">Downloading license keys .zip from: ${licenses.zip.url}</echo>
+		<mkdir dir="build/downloads" />
+		<get src="${licenses.zip.url}" dest="build/downloads/licenses.zip" usetimestamp="true" if:set="licenses.zip.url" />
+		<cc command="add license-tools keys" input="build/downloads/licenses.zip" failonerror="false" />
+		<echo>Registered license keys</echo>
+		<cc command="list license-tools keys" format="tsv"/>
+	</target>
+
+	<macrodef name="mirror" >
+		<attribute name="type" default="products"/>
+		<attribute name="release" default="10.1"/>
+		<attribute name="name" default="@{type}-@{release}"/>
+		<attribute name="from" default="webMethods-@{release}"/>
+		<attribute name="filter" default="webMethods-@{release}"/>
+		<attribute name="platforms" default="${platform.uppercase}"/>
+		<attribute name="artifacts" default="ALL"/>
+		<attribute name="wait" default="3600" />
+
+		<sequential>
+			<!-- get list of all repositories -->
+			<cc command="list repository @{type} includeHeaders=false properties=displayName" format="csv" outputproperty="names" />
+		
+			<echo>Current @{type} repository names</echo>
+			<echo>${names}</echo>
+
+			<!-- check if we already have this repository -->
+			<contains list="${names}" item="@{name}" property="exists" />
+
+			<!-- if we don't, add it-->
+			<cc unless:true="${exists}" 
+				command="add repository @{type} mirror name=@{name} sourceRepos=@{from} productRepos=@{filter} artifacts=@{artifacts} platforms=@{platforms} includeHeaders=false properties=id" format="csv" outputproperty="jobid"/>
+			
+			<!-- if we do, update it -->
+			<echo if:true="${exists}">@{name} repository already exists. Updating ...</echo>
+			<cc if:true="${exists}"     
+				command="update repository @{type} mirror @{name} sourceRepos=@{from} productRepos=@{filter} artifacts=@{artifacts} platforms=@{platforms} includeHeaders=false properties=id" format="csv" outputproperty="jobid"/>
+			
+			<waitforjob wait="@{wait}" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="waitforjob" >
+		<attribute name="jobid" default="${jobid}"/>
+		<attribute name="wait" default="120" />
+		<sequential>
+			<cc command="list jobmanager jobs @{jobid} includeHeaders=false" 
+				expectedvalues="DONE|ERROR|WARNING|TIMEOUT|CANCELED" 
+				wait="@{wait}" 
+				checkevery="20" 
+				format="tsv" />
+			<antcall target="_jobresult"/>	
+		</sequential>
+	</macrodef>
+	
+    <scriptdef language="javascript" name="contains">
+        <attribute name="list" />
+    	<attribute name="item" />
+        <attribute name="property" />
+        project.setProperty(attributes.get("property"), attributes.get("list").contains(attributes.get("item")));
+    </scriptdef>	
+
+</project>

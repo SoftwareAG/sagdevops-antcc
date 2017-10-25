@@ -12,6 +12,7 @@
 	<import file="lib/sagenv.xml" />
 	<import file="lib/sagtest.xml" />
 	<import file="lib/sagabe.xml" />
+	<import file="lib/sagrepo.xml" />
 
 	<target name="help" description="Usage help" depends="
 		help-bootstrap,

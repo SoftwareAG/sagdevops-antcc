@@ -43,6 +43,7 @@ ant jobs                         List recent jogs
 ant killjobs                     Cancel active and remove completed jobs
 ant log                          Show tail of Command Central default log
 ant logs                         Show tail of agents default log
+ant nodes -Dnodes=n1,n2          Connect existing nodes as alias[:host[:port]],alias2...
 		</echo>
 	</target>
 
@@ -158,6 +159,41 @@ Make sure you bootstrap Command Central client on this host
 	
     <target name="ps" description="List runtime instances" depends="sagccInit" >
         <cc command="list inventory components runtimeComponentCategory=PROCESS properties=runtimeComponent.displayName,nodeAlias" format="tsv" />
-    </target>	
+    </target>
+
+	<target name="nodes" depends="waitcc,sagenvInit" description="Connect existing nodes">
+		<property file="${env.properties}" />
+		<property name="nodes" value="" />
+		<echo>Connecting to nodes [${nodes}] ...</echo>
+		<for list="${nodes}" param="node" delimiter="," keepgoing="true" trim="yes">
+			<sequential>
+				<echo>Connecting to: @{node}</echo>
+				<nodeProperties definition="@{node}" alias="node.alias" host="node.host" port="node.port" />
+				<cc command="add landscape nodes alias=${node.alias} url=http://${node.host}:${node.port}" expectedvalues="OK" />
+				<cc command="list landscape nodes ${node.alias}" expectedvalues="ONLINE" format="tsv" wait="180" />
+			</sequential>
+		</for>
+
+		<echo>Registered nodes</echo>
+		<cc command="list landscape nodes" format="tsv" />
+	</target>
+
+	<!-- helper to extract properties in format alias:host:port -->
+    <scriptdef language="javascript" name="nodeProperties">
+        <attribute name="definition" />
+    	<attribute name="alias" />
+        <attribute name="host" />
+		<attribute name="port" />
+		arr = attributes.get("definition").split(':');
+		alias = arr[0];
+		host = alias;
+		port = 8092;
+		if (arr[1]) { host = arr[1] }
+		if (arr[2]) { port = arr[2] }
+
+		project.setProperty(attributes.get("alias"), alias);
+		project.setProperty(attributes.get("host"), host);
+		project.setProperty(attributes.get("port"),  port);
+    </scriptdef>	
 
 </project>
