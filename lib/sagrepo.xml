@@ -17,8 +17,34 @@ Targets:
 
 ant mirrors                      Create and update mirrors
 ant licenses                     Import licence key archive
+ant installers                   Import bootstrap installers
+ant images                       Import product and fix images
 		</echo>
 	</target>
+
+	<target name="images" depends="waitcc,sagenvInit" description="Upload product and fix images">
+		<property file="${env.properties}" />
+		<property name="images.dir" value="images" />
+
+		<cc command="list repository products includeHeaders=false" format="csv" outputproperty="productrepos" />
+		<cc command="list repository fixes includeHeaders=false" format="csv" outputproperty="fixrepos" />
+		<property name="aliases" value="${productrepos},${fixrepos}" />
+
+		<iterate target="_upload-image-files">
+			<fileset dir="${images.dir}/products" includes="*.zip" />
+			<fileset dir="${images.dir}/fixes" includes="*.zip" />
+		</iterate>
+
+		<echo>
+			Registered product repositories
+		</echo>
+		<cc command="list repository products" format="tsv"/>
+		
+		<echo>
+			Registered fix repositories
+		</echo>
+		<cc command="list repository fixes" format="tsv"/>
+	</target>	
 
 	<target name="mirrors" depends="_prepare,waitcc,sagenvInit" description="Create and update mirror repositories">
 		<property file="${env.properties}" />
@@ -26,11 +52,11 @@ ant licenses                     Import licence key archive
 		<property name="release" value="10.1" />
 		<property name="mirror.products" value="ALL" />
 		<property name="mirror.platforms" value="${platform.uppercase}" />
-		<property name="mirror.repo.product" value="webMethods-${release}_GA" />
+		<property name="mirror.repo.product" value="webMethods-${release}" />
 		<property name="mirror.repo.fix" value="intRepo" />
-		<property name="mirror.spm" value="http://localhost:8092" />
+		<!-- <property name="mirror.spm" value="http://localhost:8092" /> -->
 
-		<mirror type="products" release="${release}" 
+		<mirror type="products" release="${release}"
 			from="${mirror.repo.product}" filter="" 
 			artifacts="${mirror.products}" 
 			platforms="${mirror.platforms}"/>
@@ -44,26 +70,62 @@ ant licenses                     Import licence key archive
 		<echo>
 			Registered product repositories
 		</echo>
-		<cc command="update repository products products-${release} location=${mirror.spm}/products-${release}/repository" format="tsv"/>
+		<cc if:set="mirror.spm" command="update repository products products-${release} location=${mirror.spm}/products-${release}/repository" format="tsv"/>
 		<cc command="list repository products" format="tsv"/>
 		
 		<echo>
 			Registered fix repositories
 		</echo>
-		<cc command="update repository fixes fixes-${release} location=${mirror.spm}/fix-fixes-${release}/repository" format="tsv"/>
+		<cc if:set="mirror.spm" command="update repository fixes fixes-${release} location=${mirror.spm}/fix-fixes-${release}/repository" format="tsv"/>
 		<cc command="list repository fixes" format="tsv"/>
 	</target>
 
 	<target name="licenses" depends="waitcc,sagenvInit" description="Import licence key archive">
 		<property file="${env.properties}" />
+		<mkdir dir="build/downloads" />
 
 		<echo if:set="licenses.zip.url">Downloading license keys .zip from: ${licenses.zip.url}</echo>
-		<mkdir dir="build/downloads" />
-		<get src="${licenses.zip.url}" dest="build/downloads/licenses.zip" usetimestamp="true" if:set="licenses.zip.url" />
-		<cc command="add license-tools keys" input="build/downloads/licenses.zip" failonerror="false" />
+		<get if:set="licenses.zip.url" src="${licenses.zip.url}" dest="build/downloads/licenses.zip" usetimestamp="true" />
+		<cc if:set="licenses.zip.url" command="add license-tools keys" input="build/downloads/licenses.zip" failonerror="false" />
+
 		<echo>Registered license keys</echo>
 		<cc command="list license-tools keys" format="tsv"/>
 	</target>
+
+	<target name="installers" depends="_prepare,sagenvInit" description="Download bootstrap installers">
+		<property name="installers.dir" value="${install.dir}/profiles/CCE/data/installers" />
+		<mkdir dir="${installers.dir}" />
+
+		<property file="${env.properties}" />
+		
+		<!-- default value: comma delimited list of all installers to download -->
+		<property name="installers" value="${installer}.${file.extension}" />
+
+		<echo>
+			Downloading requested installers: ${installers} ...
+		</echo>
+
+		<for list="${installers}" param="i" delimiter=",">
+			<sequential>
+				<antcall target="_download">
+					<param name="installer.file" value="@{i}" />
+				</antcall>
+			</sequential>
+        </for>
+
+		<echo>
+			Copying downloaded installers
+		</echo>
+
+		<copy todir="${installers.dir}">
+			<fileset dir="${installer.dir}" includes="${installers}" />
+		</copy>
+
+		<echo>
+			Registered bootstrap installers
+		</echo>
+		<cc command="list provisioning bootstrap installers" format="tsv"/>
+	</target>	
 
 	<macrodef name="mirror" >
 		<attribute name="type" default="products"/>
@@ -117,5 +179,69 @@ ant licenses                     Import licence key archive
         <attribute name="property" />
         project.setProperty(attributes.get("property"), attributes.get("list").contains(attributes.get("item")));
     </scriptdef>	
+
+	<target name="_upload-image-files">
+		<property name="alias" value="${filename}"/>
+		<!-- check if we already have this repo -->
+		<contains list="${aliases}" item="${alias}" property="exists" />
+		
+		<echo if:true="${exists}">${alias}: already present!</echo>
+
+		<sequential unless:true="${exists}">
+            <echo>${alias}: uploading from ${dir}/${file}</echo>
+			<cc command="add repository ${dirname} image name=${alias} includeHeaders=false properties=id" input="${dir}/${file}" format="csv" outputproperty="jobid"/>
+			<waitforjob />
+ 	    </sequential>
+	</target>
+
+	<macrodef name="waitforjob" >
+		<attribute name="jobid" default="${jobid}"/>
+		<attribute name="wait" default="120" />
+		<sequential>
+			<cc command="list jobmanager jobs @{jobid} includeHeaders=false" 
+				expectedvalues="DONE|ERROR|WARNING|TIMEOUT|CANCELED" 
+				wait="@{wait}" 
+				checkevery="20" 
+				format="tsv" />
+			<antcall target="_jobresult"/>	
+		</sequential>
+	</macrodef>
+
+	<scriptdef name="iterate" language="javascript" description="Calls target for each file in fileset">
+		<element name="fileset" type="fileset"/>
+		<attribute name="target" />
+		<![CDATA[
+            callee = project.createTask("antcall");
+            callee.setTaskName(attributes.get("target"));
+            callee.init();
+            callee.setTarget(attributes.get("target"));
+            callee.setInheritAll(true);
+            callee.setInheritRefs(false);
+            p1 = callee.createParam();
+            p1.setName("dir");
+            p2 = callee.createParam();
+            p2.setName("file");
+            p3 = callee.createParam();
+            p3.setName("filename");
+            p4 = callee.createParam();
+            p4.setName("dirname");
+          	
+          	filesets = elements.get("fileset");
+              for (i = 0; i < filesets.size(); ++i) {
+          	    fileset = filesets.get(i);
+          	    dir = fileset.getDir(project)
+          	    ds = fileset.getDirectoryScanner();
+          	    files = ds.getIncludedFiles();
+          	    for (n = 0; n < files.length; n++) {
+          	      f = files[n]
+                  p1.setValue(dir);
+                  p2.setValue(f);
+                  p3.setValue(f.substring(0, f.length() - 4)); // no .ext
+                  p4.setValue(dir.getName());
+          	      callee.execute();
+          	  }
+            }
+    ]]>
+	</scriptdef>	
 
 </project>
