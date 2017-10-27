@@ -82,11 +82,12 @@ ant images                       Import product and fix images
 
 	<target name="licenses" depends="waitcc,sagenvInit" description="Import licence key archive">
 		<property file="${env.properties}" />
+		<property name="licenses.zip.file" location="build/downloads/licenses.zip" />
 		<mkdir dir="build/downloads" />
 
 		<echo if:set="licenses.zip.url">Downloading license keys .zip from: ${licenses.zip.url}</echo>
-		<get if:set="licenses.zip.url" src="${licenses.zip.url}" dest="build/downloads/licenses.zip" usetimestamp="true" />
-		<cc if:set="licenses.zip.url" command="add license-tools keys" input="build/downloads/licenses.zip" failonerror="false" />
+		<get if:set="licenses.zip.url" src="${licenses.zip.url}" dest="${licenses.zip.file}" usetimestamp="true" />
+		<cc command="add license-tools keys" input="${licenses.zip.file}" failonerror="false" />
 
 		<echo>Registered license keys</echo>
 		<cc command="list license-tools keys" format="tsv"/>
