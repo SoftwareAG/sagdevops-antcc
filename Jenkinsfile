@@ -34,7 +34,7 @@ pipeline {
             }
             steps {
                 unstash 'scripts'
-                timeout(time:2, unit:'MINUTES') {
+                timeout(time:10, unit:'MINUTES') {
                     sh "ant -f main.xml -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cli client"
                 }
             }
@@ -58,7 +58,7 @@ pipeline {
                         }
                         node('bgcctbp05.eur.ad.sag') {
                             unstash 'scripts'
-                            timeout(time:10, unit:'MINUTES') {
+                            timeout(time:20, unit:'MINUTES') {
                                 sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
                                 sh "ant -f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
                             }
@@ -71,7 +71,7 @@ pipeline {
                         }
                         node('bgninjabvt22.eur.ad.sag') {
                             unstash 'scripts'
-                            timeout(time:10, unit:'MINUTES') {
+                            timeout(time:20, unit:'MINUTES') {
                                 sh "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
                                 sh "ant -f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
                             }
@@ -84,7 +84,7 @@ pipeline {
                         }
                         node('bgcctbp21.eur.ad.sag') {
                             unstash 'scripts'
-                            timeout(time:10, unit:'MINUTES') {
+                            timeout(time:20, unit:'MINUTES') {
                                 bat "ant -f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=${pwd()}\\build\\cc -Dcce.http.port=${P}1 -Dcce.https.port=${P}2 -Dspm.http.port=${P}3 -Dspm.https.port=${P}4 uninstall boot"
                                 bat "ant -f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
                             }
