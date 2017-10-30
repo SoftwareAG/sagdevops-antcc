@@ -4,6 +4,8 @@
       	Command Central bootstrap installer wrapper
 	</description>
 
+	<property environment="env" />
+
 	<target name="help-bootstrap">
 		<echo>
 Optional parameter for any target:		
@@ -43,7 +45,11 @@ ant stopcc                       Stop local Command Central server
 			<os family="windows" />
 		</condition>
 
-		<property name="bootstrap" value="default" />		
+		<!-- use CC_BOOT as default environment name -->
+		<property name="bootstrap" value="${env.CC_BOOT}" if:set="env.CC_BOOT" />
+		<!-- fallback to 'default' -->
+		<property name="bootstrap" value="default" />
+	
 		<property name="bootstrap.properties" value="bootstrap/${bootstrap}.properties" />
 		<property file="${bootstrap.properties}" />
 
@@ -54,6 +60,7 @@ ant stopcc                       Stop local Command Central server
 		<upper string="${platform}" to="platform.uppercase" />
 
 		<!-- latest public GA version on SDC -->
+		<property name="installer" value="${env.CC_INSTALLER}" if:set="env.CC_INSTALLER" />
 		<property name="installer" value="cc-def-10.1-fix1-${platform}" />
 
 		<!-- default download location -->

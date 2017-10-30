@@ -1,6 +1,10 @@
 language: java
 jdk:
   - oraclejdk8
+env:
+  - CC_INSTALLER=cc-def-10.1-fix1-lnxamd64.sh
+  - CC_ENV=travis
 script:
+  - mkdir -p environments/travis && echo test=true>environments/travis/env.properties
   - ant -f main.xml client
 #  - ant -f main.xml -Daccept.license=true boot
