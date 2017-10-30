@@ -24,7 +24,10 @@ ant migrate -Dt=templateFolder   Migrate using template from source folder
 	</target>
 
 	<target name="sagenvInit" depends="sagccInit" >
-		<property id="sagenv.env" name="env" value="default" />
+		<!-- use CC_ENV as default environment name -->
+		<property id="sagenv.env" name="env" value="${env.CC_ENV}" if:set="env.CC_ENV" />
+		<!-- fallback to 'default' -->
+		<property name="env" value="default" />
 
 	    <!-- find env.properties in the order of priority -->
 	    <condition property="env.properties" value="environments/${env}/env.properties">
@@ -38,7 +41,7 @@ ant migrate -Dt=templateFolder   Migrate using template from source folder
 	    </condition>
 
 	    <fail unless="env.properties.exists">
-	    	env.properties configuration file does not exist: ${env.properties}
+	    	Environment configuration .properties file does not exist for: ${env}
 	    </fail>
 
 		<echo>Environment configuration: ${env.properties}</echo>

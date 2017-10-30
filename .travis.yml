@@ -3,4 +3,4 @@ jdk:
   - oraclejdk8
 script:
   - ant -f main.xml client
-  - ant -f main.xml -Daccept.license=true boot
+#  - ant -f main.xml -Daccept.license=true boot
