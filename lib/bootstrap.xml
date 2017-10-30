@@ -45,10 +45,9 @@ ant stopcc                       Stop local Command Central server
 			<os family="windows" />
 		</condition>
 
-		<!-- use CC_BOOT as default environment name -->
-		<property name="bootstrap" value="${env.CC_BOOT}" if:set="env.CC_BOOT" />
-		<!-- fallback to 'default' -->
-		<property name="bootstrap" value="default" />
+		<condition property="bootstrap" value="${env.CC_BOOT}" else="default">
+			<isset property="env.CC_BOOT"/>
+		</condition>
 	
 		<property name="bootstrap.properties" value="bootstrap/${bootstrap}.properties" />
 		<property file="${bootstrap.properties}" />
@@ -60,8 +59,9 @@ ant stopcc                       Stop local Command Central server
 		<upper string="${platform}" to="platform.uppercase" />
 
 		<!-- latest public GA version on SDC -->
-		<property name="installer" value="${env.CC_INSTALLER}" if:set="env.CC_INSTALLER" />
-		<property name="installer" value="cc-def-10.1-fix1-${platform}" />
+		<condition property="installer" value="${env.CC_INSTALLER}" else="cc-def-10.1-fix1-${platform}">
+			<isset property="env.CC_INSTALLER"/>
+		</condition>
 
 		<!-- default download location -->
 		<property name="installer.dir" location="${user.home}/Downloads" />
@@ -84,7 +84,9 @@ ant stopcc                       Stop local Command Central server
 		<property name="spm.https.port" value="8093" />
 
 		<!-- default Administrator password -->
-		<property name="password" value="manage" />
+		<condition property="password" value="${env.CC_PASSWORD}" else="manage">
+			<isset property="env.CC_PASSWORD"/>
+		</condition>		
 
 		<property name="distro" value="CCE" />
 		<property name="cc.host" value="localhost" />
