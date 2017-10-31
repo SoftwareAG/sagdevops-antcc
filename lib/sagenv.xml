@@ -14,6 +14,7 @@ Optional parameter for any target:
                                  or custom 'environments/other/env.properties'
 Targets:
 
+ant nodes -Dnodes=n1,n2          Connect existing nodes as alias[:host[:port]],alias2...
 ant up                           Import and apply all 'templates/*'
 ant templates                    Import templates from 'templates/*' and list
 ant import -Dt=templateFolder    Reimport single template
@@ -131,6 +132,23 @@ ant migrate -Dt=templateFolder   Migrate using template from source folder
 
 	<target name="restart" description="Restart environment" depends="sagenvInit" >
         <echo>Not implemented</echo>
+	</target>
+
+	<target name="nodes" depends="waitcc,sagenvInit" description="Connect existing nodes">
+		<property file="${env.properties}" />
+		<property name="nodes" value="" />
+		<echo>Connecting to nodes [${nodes}] ...</echo>
+		<for list="${nodes}" param="node" delimiter="," keepgoing="true" trim="yes">
+			<sequential>
+				<echo>Connecting to: @{node}</echo>
+				<nodeProperties definition="@{node}" alias="node.alias" host="node.host" port="node.port" />
+				<cc command="add landscape nodes alias=${node.alias} url=http://${node.host}:${node.port}" expectedvalues="OK" />
+				<cc command="list landscape nodes ${node.alias}" expectedvalues="ONLINE" format="tsv" wait="180" />
+			</sequential>
+		</for>
+
+		<echo>Registered nodes</echo>
+		<cc command="list landscape nodes" format="tsv" />
 	</target>
 
 	<target name="_params" >
