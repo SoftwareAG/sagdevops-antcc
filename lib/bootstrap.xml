@@ -10,8 +10,15 @@
 		<echo>
 Optional parameter for any target:		
 
--Dbootstrap=other                Bootstrap local Command Central server 
-                                 using defaults from 'bootstrap/default.properties'
+Environment variables:
+
+CC_INSTALLER=name                Command Central bootstrap installer name
+CC_BOOT=other                    Command Central bootstrap configuration name
+CC_PASSWORD=password             Command Central server Administrator password  
+
+-Dbootstrap=other                Bootstrap local Command Central server using
+                                 CC_BOOT configuration
+                                 or default 'bootstrap/default.properties'
                                  or custom 'bootstrap/other.properties'
 Targets:
 

@@ -7,10 +7,15 @@
 
 	<target name="help-sagenv">
 		<echo>
+Environment variables:
+
+CC_ENV=other                     Command Central environment configuration (see below)
+
 Optional parameter for any target:
 
 -Denv=other                      Environment configuration to use from
-                                 project defaults in 'environments/default/env.properties'
+                                 CC_ENV evironment variable
+                                 or project defaults from 'environments/default/env.properties'
                                  or custom 'environments/other/env.properties'
 Targets:
 
@@ -185,5 +190,24 @@ ant migrate -Dt=templateFolder   Migrate using template from source folder
 			Job execution failed with '${job.status}' status: ${job.status.description}
 		</fail>
 	</target>
+
+	<!-- helper to extract properties in format alias:host:port -->
+    <scriptdef language="javascript" name="nodeProperties">
+        <attribute name="definition" />
+    	<attribute name="alias" />
+        <attribute name="host" />
+		<attribute name="port" />
+		arr = attributes.get("definition").split(':');
+		alias = arr[0];
+		host = alias;
+		port = 8092;
+		if (arr[1]) { host = arr[1] }
+		if (arr[2]) { port = arr[2] }
+
+		project.setProperty(attributes.get("alias"), alias);
+		project.setProperty(attributes.get("host"), host);
+		project.setProperty(attributes.get("port"),  port);
+    </scriptdef>	
+	
 
 </project>

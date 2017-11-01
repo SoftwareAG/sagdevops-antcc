@@ -6,7 +6,9 @@
 	<property environment="env" />
 
 	<!-- default Command Central client name -->
-	<property name="cc" value="default" />
+	<condition property="cc" value="${env.CC_CLIENT}" else="default">
+		<isset property="env.CC_CLIENT"/>
+	</condition>
 
 	<!-- project clients -->
 	<condition property="cc.properties" value="clients/${cc}.properties">
@@ -28,9 +30,16 @@
 		
 	<target name="help-sagcc">
 		<echo>
+Environment variables:
+
+CC_SERVER=https://host:port/     Command Central REST API endpoint URL
+CC_CLIENT=other                  Command Central client configuration (see below)
+CC_PASSWORD=password             Command Central server Administrator password  
+
 Optional parameter for any target:
 
--Dcc=other                       Connection to Command Central server
+-Dcc=other                       Command Central client configuration
+                                 using CC_CLIENT env var
                                  using global settings in '~/.sag/cc.properties' 
 								 or from 'clients/default/cc.properties'
                                  or from 'clients/default.properties'
@@ -159,23 +168,5 @@ Make sure you bootstrap Command Central client on this host
     <target name="ps" description="List runtime instances" depends="sagccInit" >
         <cc command="list inventory components runtimeComponentCategory=PROCESS properties=runtimeComponent.displayName,nodeAlias" format="tsv" />
     </target>
-
-	<!-- helper to extract properties in format alias:host:port -->
-    <scriptdef language="javascript" name="nodeProperties">
-        <attribute name="definition" />
-    	<attribute name="alias" />
-        <attribute name="host" />
-		<attribute name="port" />
-		arr = attributes.get("definition").split(':');
-		alias = arr[0];
-		host = alias;
-		port = 8092;
-		if (arr[1]) { host = arr[1] }
-		if (arr[2]) { port = arr[2] }
-
-		project.setProperty(attributes.get("alias"), alias);
-		project.setProperty(attributes.get("host"), host);
-		project.setProperty(attributes.get("port"),  port);
-    </scriptdef>	
 
 </project>
