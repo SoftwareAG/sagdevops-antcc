@@ -66,7 +66,7 @@ ant stopcc                       Stop local Command Central server
 		<upper string="${platform}" to="platform.uppercase" />
 
 		<!-- latest public GA version on SDC -->
-		<condition property="installer" value="${env.CC_INSTALLER}" else="cc-def-10.1-fix1-${platform}">
+		<condition property="installer" value="${env.CC_INSTALLER}" else="cc-def-10.1-fix2-${platform}">
 			<isset property="env.CC_INSTALLER"/>
 		</condition>
 
