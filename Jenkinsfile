@@ -44,7 +44,7 @@ pipeline {
         }
         stage("Platform Tests") {     
             environment {
-                reboot = "-f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=$(pwd)/build/cc -Dport.range=33 uninstall boot"
+                reboot = "-f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=${pwd()}/build/cc -Dport.range=33 uninstall boot"
                 test = "-f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
             }
             steps {
