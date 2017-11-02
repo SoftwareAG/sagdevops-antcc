@@ -102,8 +102,6 @@ ant stopcc                       Stop local Command Central server
 
 		<property name="distro" value="CCE" />
 		<property name="cc.host" value="localhost" />
-
-		<echoproperties />
 	</target>
 
 	<target name="_install" depends="_prepare,_download,_check-installer,_unzip-installer">
