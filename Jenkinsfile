@@ -26,10 +26,10 @@ pipeline {
             }
         }
         stage("Unit Test") {
-            tools {
-                ant "ant-1.9"
-                jdk "jdk-1.8"
-            }
+            // tools {
+            //     ant "ant-1.9"
+            //     jdk "jdk-1.8"
+            // }
             steps {
                 unstash 'scripts'
                 timeout(time:10, unit:'MINUTES') {
@@ -56,10 +56,10 @@ pipeline {
                         def label = x
                         builders[label] = {
                             node(label) {
-                                tools {
-                                    ant "ant-1.9"
-                                    jdk "jdk-1.8"
-                                }                                
+                                // tools {
+                                //     ant "ant-1.9"
+                                //     jdk "jdk-1.8"
+                                // }                                
                                 timeout(time:20, unit:'MINUTES') {
                                     antbuild "${reboot}"
                                     antbuild "${test}"
