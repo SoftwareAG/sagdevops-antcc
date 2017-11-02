@@ -9,7 +9,7 @@ def antbuild (command) {
 }
 
 pipeline {
-    agent any
+    agent { label 'master' }
 
     environment {
         INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/cc/installers" // internal download site
