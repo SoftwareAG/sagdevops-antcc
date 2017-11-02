@@ -32,7 +32,7 @@ ant stopcc                       Stop local Command Central server
 		</echo>
 	</target>
 
-	<condition property="is.linux" value="true">
+	<condition property="is.unix" value="true">
 		<os family="unix" />
 	</condition>
 
@@ -61,8 +61,11 @@ ant stopcc                       Stop local Command Central server
 		<property name="bootstrap.properties" value="bootstrap/${bootstrap}.properties" />
 
 		<upper string="${platform}" to="platform.uppercase" />
-
+		
 		<property file="${bootstrap.properties}" />
+
+		<!-- one of the env.properties properties -->
+		<property name="os.platform" value="${platform}" />
 
 		<condition property="license.agreement.switch" value="--accept-license" else="" >
 			<equals arg1="${accept.license}" arg2="true" casesensitive="false" trim="true"/>
@@ -101,7 +104,7 @@ ant stopcc                       Stop local Command Central server
 		</condition>		
 
 		<property name="distro" value="CCE" />
-		<property name="cc.host" value="localhost" />
+		<property name="cc.host" value="${node.host}" />
 	</target>
 
 	<target name="_install" depends="_prepare,_download,_check-installer,_unzip-installer">
@@ -234,24 +237,21 @@ ant stopcc                       Stop local Command Central server
 		<property name="installer.bat.filename" refid="win.installers.fileset" />
 	</target>
 
-	<target name="_check-os-distribution" depends="_check-win-distribution,_check-mac-distribution,_check-unix-distribution" />
-
-	<target name="_check-win-distribution" if="is.windows">
+	<target name="_check-os-distribution" >
 		<condition property="platform" value="w64">
 			<os family="windows" />
 		</condition>
-	</target>
-
-	<target name="_check-mac-distribution" if="is.mac">
 		<condition property="platform" value="osx">
 			<os family="mac" />
 		</condition>
-	</target>
 
-	<target name="_check-unix-distribution" if="is.linux" depends="_check-solaris-distribution">
-		<exec executable="/bin/sh" outputproperty="output.uname">
+		<exec executable="/bin/sh" outputproperty="output.uname" osfamily="unix">
 			<arg value="-c" />
 			<arg value="uname" />
+		</exec>
+		<exec executable="/bin/sh" outputproperty="output.distribution" osfamily="unix">
+			<arg value="-c" />
+			<arg value="uname -m" />
 		</exec>
 
 		<condition property="platform" value="lnxamd64">
@@ -266,30 +266,22 @@ ant stopcc                       Stop local Command Central server
 			<equals arg1="${output.uname}" arg2="HP-UX" />
 		</condition>
 
-		<condition property="platform.unix" value="osx">
-            <equals arg1="${output.uname}" arg2="Darwin" />
-        </condition>
-	</target>
-
-	<target name="_check-solaris-distribution" depends="_check-is-solaris" if="is.solaris">
-		<exec executable="/bin/sh" outputproperty="output.solaris.distribution">
-			<arg value="-c" />
-			<arg value="uname -m" />
-		</exec>
 		<!--i86pc is for solamd64; SPARC is for sol -->
 		<condition property="platform" value="solamd64" else="sol">
-			<equals arg1="${output.solaris.distribution}" arg2="i86pc" />
+			<equals arg1="${output.distribution}" arg2="i86pc" />
 		</condition>
-	</target>
 
-	<target name="_check-is-solaris" if="is.linux">
-		<exec executable="/bin/sh" outputproperty="output.uname">
+		<exec executable="/bin/sh" outputproperty="node.host" osfamily="unix">
 			<arg value="-c" />
-			<arg value="uname" />
+			<arg value="hostname" />
 		</exec>
-		<condition property="is.solaris" value="true">
-			<equals arg1="${output.uname}" arg2="SunOS" />
-		</condition>
+		<property name="node.host" value="${env.COMPUTERNAME}" />
+
+		<echo>
+			Platform: ${platform}
+			Hostname: ${node.host}
+			Username: ${user.name}
+		</echo>
 	</target>
 
 	<!-- To upper case -->
