@@ -169,4 +169,31 @@ Make sure you bootstrap Command Central client on this host
         <cc command="list inventory components runtimeComponentCategory=PROCESS properties=runtimeComponent.displayName,nodeAlias" format="tsv" />
     </target>
 
+	<macrodef name="waitforjob" >
+		<attribute name="jobid" default="${jobid}"/>
+		<attribute name="wait" default="120" />
+		<sequential>
+			<cc command="list jobmanager jobs @{jobid} includeHeaders=false" 
+				expectedvalues="DONE|ERROR|WARNING|TIMEOUT|CANCELED" 
+				wait="@{wait}" 
+				checkevery="20" 
+				format="tsv" />
+			<antcall target="_jobresult"/>	
+		</sequential>
+	</macrodef>
+
+	<target name="_jobresult">
+		<cc command="list jobmanager jobs ${jobid} properties=status includeHeaders=false" outputproperty="job.status" format="tsv" />
+		<cc command="list jobmanager jobs ${jobid} properties=statusAsString includeHeaders=false" outputproperty="job.status.description" format="tsv" />
+
+		<fail>
+			<condition>
+				<not>
+					<equals arg1="${job.status}" arg2="DONE" />
+				</not>
+			</condition>
+			Job execution failed with '${job.status}' status: ${job.status.description}
+		</fail>
+	</target>	
+
 </project>

@@ -8,16 +8,16 @@
 
 	<target name="help-bootstrap">
 		<echo>
-Optional parameter for any target:		
-
 Environment variables:
 
 CC_INSTALLER=name                Command Central bootstrap installer name
 CC_BOOT=other                    Command Central bootstrap configuration name
-CC_PASSWORD=password             Command Central server Administrator password  
+CC_PASSWORD=password             Command Central server Administrator password
+
+Optional parameter for any target:	
 
 -Dbootstrap=other                Bootstrap local Command Central server using
-                                 CC_BOOT configuration
+                                 CC_BOOT env var configuration file
                                  or default 'bootstrap/default.properties'
                                  or custom 'bootstrap/other.properties'
 Targets:
@@ -45,6 +45,8 @@ ant stopcc                       Stop local Command Central server
 	</condition>
 
 	<target name="_prepare" depends="_check-os-distribution">
+		<echo>platform: ${platform}</echo>
+
 		<condition property="unzip.file" value="true">
 			<os family="windows" />
 		</condition>
@@ -57,18 +59,21 @@ ant stopcc                       Stop local Command Central server
 		</condition>
 	
 		<property name="bootstrap.properties" value="bootstrap/${bootstrap}.properties" />
+
+		<upper string="${platform}" to="platform.uppercase" />
+
 		<property file="${bootstrap.properties}" />
 
 		<condition property="license.agreement.switch" value="--accept-license" else="" >
 			<equals arg1="${accept.license}" arg2="true" casesensitive="false" trim="true"/>
 		</condition>
 		
-		<upper string="${platform}" to="platform.uppercase" />
-
-		<!-- latest public GA version on SDC -->
+		<!-- default is latest public GA version on SDC-->
 		<condition property="installer" value="${env.CC_INSTALLER}" else="cc-def-10.1-fix2-${platform}">
 			<isset property="env.CC_INSTALLER"/>
 		</condition>
+
+		<property name="installer.file" value="${installer}.${file.extension}" />
 
 		<!-- default download location -->
 		<property name="installer.dir" location="${user.home}/Downloads" />
@@ -83,12 +88,12 @@ ant stopcc                       Stop local Command Central server
 			<available file="${install.dir}" />
 		</condition>
 
-
 		<!-- default ports -->
-		<property name="cce.http.port" value="8090" />
-		<property name="cce.https.port" value="8091" />
-		<property name="spm.http.port" value="8092" />
-		<property name="spm.https.port" value="8093" />
+		<property name="port.range" value="80" />
+		<property name="cce.http.port" value="${port.range}90" />
+		<property name="cce.https.port" value="${port.range}91" />
+		<property name="spm.http.port" value="${port.range}92" />
+		<property name="spm.https.port" value="${port.range}93" />
 
 		<!-- default Administrator password -->
 		<condition property="password" value="${env.CC_PASSWORD}" else="manage">
@@ -97,6 +102,8 @@ ant stopcc                       Stop local Command Central server
 
 		<property name="distro" value="CCE" />
 		<property name="cc.host" value="localhost" />
+
+		<echoproperties />
 	</target>
 
 	<target name="_install" depends="_prepare,_download,_check-installer,_unzip-installer">
@@ -200,7 +207,6 @@ ant stopcc                       Stop local Command Central server
 
 	<target name="_download" depends="_prepare" if="installer.url">
 		<mkdir dir="${installer.dir}" />
-		<property name="installer.file" value="${installer}.${file.extension}" />
 		<echo>Downloading bootstrap installer from ${installer.url}/${installer.file} ...</echo>
 		<get src="${installer.url}/${installer.file}" dest="${installer.dir}" usetimestamp="true" />
 		<echo>Finished downloading bootstrap installer.</echo>

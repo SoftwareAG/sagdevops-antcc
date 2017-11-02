@@ -3,7 +3,6 @@
         Repository management
     </description>
 
-	<import file="bootstrap.xml" />
 	<import file="sagenv.xml" />
 
 	<target name="help-sagrepo">
@@ -194,19 +193,6 @@ ant images                       Import product and fix images
 			<waitforjob />
  	    </sequential>
 	</target>
-
-	<macrodef name="waitforjob" >
-		<attribute name="jobid" default="${jobid}"/>
-		<attribute name="wait" default="120" />
-		<sequential>
-			<cc command="list jobmanager jobs @{jobid} includeHeaders=false" 
-				expectedvalues="DONE|ERROR|WARNING|TIMEOUT|CANCELED" 
-				wait="@{wait}" 
-				checkevery="20" 
-				format="tsv" />
-			<antcall target="_jobresult"/>	
-		</sequential>
-	</macrodef>
 
 	<scriptdef name="iterate" language="javascript" description="Calls target for each file in fileset">
 		<element name="fileset" type="fileset"/>

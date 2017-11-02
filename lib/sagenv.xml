@@ -3,6 +3,7 @@
         Environment template based provisioning
     </description>
 
+	<import file="bootstrap.xml" />
 	<import file="sagcc.xml" />
 
 	<target name="help-sagenv">
@@ -46,11 +47,31 @@ ant migrate -Dt=templateFolder   Migrate using template from source folder
 	        <available file="${env.properties}"/>
 	    </condition>
 
+		<!-- optional extra parameters for template apply operations -->
+		<property name="apply.params" value="" />
+
 	    <fail unless="env.properties.exists">
 	    	Environment configuration .properties file does not exist for: ${env}
 	    </fail>
 
 		<echo>Environment configuration: ${env.properties}</echo>
+	</target>
+
+	<target name="sagenvInit2" depends="_prepare,sagenvInit">
+		<!-- load env properties, keeping existing props -->
+		<property file="${env.properties}" />
+
+		<!-- expand resolved properties into new env.properties -->
+		<property name="env.properties.expanded.file" value="build/${env.properties}" />
+		<copy file="${env.properties}" tofile="${env.properties.expanded.file}" verbose="true" overwrite="true">
+			<filterchain>
+				<expandproperties/>
+			</filterchain>
+		</copy>
+
+		<!-- change the env.properties var to the new file -->
+		<var name="env.properties" value="${env.properties.expanded.file}"/>
+		<echo>Environment configuration expanded and loaded: ${env.properties}</echo>
 	</target>
 
 	<target name="import" description="Import template and dont apply" depends="_zip,sagenvInit" if="import.template" >
@@ -80,7 +101,11 @@ ant migrate -Dt=templateFolder   Migrate using template from source folder
 	</target>
 
 	<target name="apply" description="Apply template and wait" depends="import" >
-		<cc command="exec templates composite apply ${alias} includeHeaders=false properties=id" format="csv" outputproperty="jobid" input="${env.properties}" />
+		<echo>
+			Applying template ${alias} with ${env.properties} ${apply.params} ...
+		</echo>
+
+		<cc command="exec templates composite apply ${alias} ${apply.params} includeHeaders=false properties=id" format="csv" outputproperty="jobid" input="${env.properties}" />
 		<cc command="list jobmanager jobs ${jobid} properties=status,statusAsString includeHeaders=false" expectedvalues="DONE|ERROR|WARNING|TIMEDOUT|ConnectException" wait="${w}" checkevery="20" error="build/logs/waiting" format="tsv" />
         <cc command="list jobmanager jobs ${jobid} properties=status includeHeaders=false" outputproperty="job.status" format="tsv" />
 		<cc command="list jobmanager jobs ${jobid} properties=statusAsString includeHeaders=false" outputproperty="job.status.description" format="tsv" />
@@ -93,6 +118,7 @@ ant migrate -Dt=templateFolder   Migrate using template from source folder
 			</condition>
 			Job execution failed with '${job.status}' status: ${job.status.description}
 		</fail>
+
 	</target>
 
 	<target name="up" description="Provision environment using templates" depends="sagccInit" >
@@ -112,7 +138,11 @@ ant migrate -Dt=templateFolder   Migrate using template from source folder
 	</target>
 
 	<target name="migrate" description="Migrate environment" depends="import" >
-		<cc command="exec templates composite apply ${alias} environment.mode=migration includeHeaders=false properties=id" format="csv" outputproperty="jobid" input="${env.properties}" />
+		<echo>
+			Migrating using template ${alias} with ${env.properties} ${apply.params} ...
+		</echo>
+
+		<cc command="exec templates composite apply ${alias} ${apply.params} environment.mode=migration includeHeaders=false properties=id" format="csv" outputproperty="jobid" input="${env.properties}" />
 		<cc command="list jobmanager jobs ${jobid} properties=status,statusAsString includeHeaders=false" expectedvalues="DONE|ERROR|WARNING|TIMEDOUT|ConnectException" wait="${w}" checkevery="20" error="build/logs/waiting" format="tsv" />
 		<cc command="list jobmanager jobs ${jobid} properties=status includeHeaders=false" outputproperty="job.status" format="tsv" />
 		<cc command="list jobmanager jobs ${jobid} properties=statusAsString includeHeaders=false" outputproperty="job.status.description" format="tsv" />
@@ -175,20 +205,6 @@ ant migrate -Dt=templateFolder   Migrate using template from source folder
 		<property name="template.file" value="build/templates/${alias}.zip" />
 		<delete file="${template.file}"/>
 		<zip destfile="${template.file}" basedir="${t}" />
-	</target>
-
-	<target name="_jobresult">
-		<cc command="list jobmanager jobs ${jobid} properties=status includeHeaders=false" outputproperty="job.status" format="tsv" />
-		<cc command="list jobmanager jobs ${jobid} properties=statusAsString includeHeaders=false" outputproperty="job.status.description" format="tsv" />
-
-		<fail>
-			<condition>
-				<not>
-					<equals arg1="${job.status}" arg2="DONE" />
-				</not>
-			</condition>
-			Job execution failed with '${job.status}' status: ${job.status.description}
-		</fail>
 	</target>
 
 	<!-- helper to extract properties in format alias:host:port -->
