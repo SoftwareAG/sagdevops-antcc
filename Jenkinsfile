@@ -26,7 +26,6 @@ pipeline {
             }
         }
         stage("Unit Test") {
-            agent any
             tools {
                 ant "ant-1.9"
                 jdk "jdk-1.8"
@@ -51,7 +50,7 @@ pipeline {
             steps {
                 unstash 'scripts'
                 script {
-                    def labels = ['lnxamd64','w64','soladm64']
+                    def labels = ['lnxamd64','w64','solamd64']
                     def builders = [:]
                     for (x in labels) {
                         def label = x
