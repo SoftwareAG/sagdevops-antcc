@@ -71,7 +71,7 @@ ant migrate -Dt=templateFolder   Migrate using template from source folder
 	</target>
 
 	<target name="apply" description="Apply template and wait" depends="import" >
-		<cc command="exec templates composite apply ${alias} includeHeaders=false properties=id" format="csv" outputproperty="jobid" input="${env.properties}" />
+		<cc command="exec templates composite apply ${alias} environment.type=${env} includeHeaders=false properties=id" format="csv" outputproperty="jobid" input="${env.properties}" />
 		<cc command="list jobmanager jobs ${jobid} includeHeaders=false" expectedvalues="DONE|ERROR|WARNING|TIMEDOUT|ConnectException" wait="${w}" checkevery="20" error="build/logs/waiting" format="tsv" />
         <antcall target="_jobresult"/>
 	</target>
