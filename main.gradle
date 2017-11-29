@@ -116,7 +116,7 @@ allprojects { currentProject ->
 	plugins.withType(JavaPlugin) {
 		ccGradleLog "Found project with gradle java plugin applied: " + currentProject.name
 		ccGradleLog "Loading test.properties and env.properties as test system properties"
-		Properties testProps = new Properties();
+		currentProject.ext.testProps = new Properties();
 		if(testProperties.exists()) {
 			testProps.load(new FileInputStream(testProperties));
 		}
