@@ -1,3 +1,5 @@
+import java.time.LocalDateTime;
+
 if(!project.ext.has("frameworkLocation")) {
 	ext.frameworkLocation = 'antcc/main.xml' 
 }
@@ -17,6 +19,7 @@ if(ant.properties["env"] == null) {
 	ant.properties["env"] = "default"
 }
 File bootstrapProperties = new File(projectDir, "bootstrap/bootstrap.properties");
+File bootstrapDefaultProperties = new File(projectDir, "bootstrap/default.properties");
 File clientProperties = new File(projectDir, "client/" + ant.properties["cc"] + ".properties");
 File ccProperties = new File(projectDir, "clients/" + ant.properties["cc"] + ".properties");
 File rootEnvProperties = new File(projectDir, "env.properties");
@@ -24,6 +27,7 @@ File envProperties = new File(projectDir, "environments/" + ant.properties["env"
 File testProperties = new File(projectDir, "tests/test.properties");
 
 setPropertyIfFileExists("bootstrap.properties", bootstrapProperties);
+setPropertyIfFileExists("bootstrap.properties", bootstrapDefaultProperties);
 setPropertyIfFileExists("cc.properties", clientProperties);
 setPropertyIfFileExists("cc.properties", ccProperties);
 setPropertyIfFileExists("env.properties", rootEnvProperties);
@@ -112,7 +116,7 @@ allprojects { currentProject ->
 	plugins.withType(JavaPlugin) {
 		ccGradleLog "Found project with gradle java plugin applied: " + currentProject.name
 		ccGradleLog "Loading test.properties and env.properties as test system properties"
-		Properties testProps = new Properties();
+		currentProject.ext.testProps = new Properties();
 		if(testProperties.exists()) {
 			testProps.load(new FileInputStream(testProperties));
 		}
@@ -190,7 +194,13 @@ test.doFirst {
 		failedTests.delete();
 	}
 }
+
+test.beforeTest { descr ->
+    ccGradleLog "Started test: " + descr.getClassName() + "." + descr.getName() + " ; Start time: " +  LocalDateTime.now(); 
+}
+
 test.afterTest { TestDescriptor descr, TestResult result ->
+	ccGradleLog "Ended test: " + descr.getClassName() + "." + descr.getName() + " ; End time: " +  LocalDateTime.now(); 
 	Properties props = loadFailedTests();
 	if(TestResult.ResultType.FAILURE == result.getResultType()) {
 		props.setProperty(descr.getClassName() + "." + descr.getName(), descr.getParent().getClassName());
