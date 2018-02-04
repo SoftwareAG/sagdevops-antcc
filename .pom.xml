@@ -10,7 +10,7 @@
         <version>1.7</version>
         <executions>
           <execution>
-            <phase>install</phase>
+            <phase>integration-test</phase>
             <configuration>
               <tasks>
                 <ant
