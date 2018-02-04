@@ -27,6 +27,7 @@ ant import -Dt=templateFolder    Reimport single template
 ant apply -Dalias=template       Apply single template using its alias
 ant apply -Dt=templateFolder     Reimport and apply template from source folder
 ant migrate -Dt=templateFolder   Migrate using template from source folder
+ant clean                        Clean project from build artifacts
 		</echo>
 	</target>
 
@@ -225,5 +226,11 @@ ant migrate -Dt=templateFolder   Migrate using template from source folder
 		project.setProperty(attributes.get("port"),  port);
     </scriptdef>	
 	
+	<target name="clean" description="Clean project from build artifacts">
+		<delete dir="build" verbose="true" />
+		<delete verbose="true" includeemptydirs="true">
+			<fileset dir="${basedir}" includes="**/build/**" />
+		</delete>
+	</target>
 
 </project>
