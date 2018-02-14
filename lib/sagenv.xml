@@ -75,7 +75,7 @@ ant clean                        Clean project from build artifacts
 		<echo>Environment configuration expanded and loaded: ${env.properties}</echo>
 	</target>
 
-	<target name="import" description="Import template and dont apply" depends="_zip,sagenvInit" if="import.template" >
+	<target name="import" description="Import template and dont apply" depends="_zip,_file,sagenvInit2" if="import.template" >
 		<echo>Import ${template.file}</echo>
 		<cc command="exec templates composite import overwrite=true" input="${template.file}"/>
 	</target>
@@ -102,12 +102,16 @@ ant clean                        Clean project from build artifacts
 	</target>
 
 	<target name="apply" description="Apply template and wait" depends="import" >
+		<fail unless="alias">
+            Neither template '${alias}' nor template source '${t}' are specified!
+        </fail>
+
 		<echo>
-			Applying template ${alias} with ${env.properties} ${apply.params} ...
+			Applying template '${alias}' with '${env.properties}' ${apply.params} ...
 		</echo>
 
 		<cc command="exec templates composite apply ${alias} ${apply.params} includeHeaders=false properties=id" format="csv" outputproperty="jobid" input="${env.properties}" />
-		<cc command="list jobmanager jobs ${jobid} properties=status,statusAsString includeHeaders=false" expectedvalues="DONE|ERROR|WARNING|TIMEDOUT|ConnectException" wait="${w}" checkevery="20" error="build/logs/waiting" format="tsv" />
+		<cc command="list jobmanager jobs ${jobid} properties=status,description,statusAsString includeHeaders=false" expectedvalues="DONE|ERROR|WARNING|TIMEDOUT|ConnectException" wait="${w}" checkevery="20" error="build/logs/waiting" format="tsv" />
         <cc command="list jobmanager jobs ${jobid} properties=status includeHeaders=false" outputproperty="job.status" format="tsv" />
 		<cc command="list jobmanager jobs ${jobid} properties=statusAsString includeHeaders=false" outputproperty="job.status.description" format="tsv" />
 
@@ -158,19 +162,19 @@ ant clean                        Clean project from build artifacts
 		</fail>
 	</target>
 
-	<target name="stop" description="Stop environment" depends="sagenvInit" >
+	<target name="stop" description="Stop environment" depends="sagenvInit2" >
 		<echo>Not implemented</echo>
 	</target>
 
-	<target name="start" description="Start environment" depends="sagenvInit" >
+	<target name="start" description="Start environment" depends="sagenvInit2" >
         <echo>Not implemented</echo>
 	</target>
 
-	<target name="restart" description="Restart environment" depends="sagenvInit" >
+	<target name="restart" description="Restart environment" depends="sagenvInit2" >
         <echo>Not implemented</echo>
 	</target>
 
-	<target name="nodes" depends="waitcc,sagenvInit" description="Connect existing nodes">
+	<target name="nodes" depends="waitcc,sagenvInit2" description="Connect existing nodes">
 		<property file="${env.properties}" />
 		<property name="nodes" value="" />
 		<echo>Connecting to nodes [${nodes}] ...</echo>
@@ -189,23 +193,41 @@ ant clean                        Clean project from build artifacts
 
 	<target name="_params" >
 		<property name="w" value="4600" description="Wait time (seconds)"/>
-		<basename file="${t}" property="alias" unless:blank="${t}" />
-
-		<fail unless="alias">
-            Neither template '${alias}' nor template source '${t}' are specified!
-        </fail>
 
 		<condition property="import.template">
+			<available file="${t}"/>
+		</condition>
+
+		<condition property="import.template.dir">
 			<available file="${t}" type="dir"/>
 		</condition>
-		
-		<echo>alias: ${alias} projectdir: ${t}</echo>
+
+		<condition property="import.template.file">
+			<available file="${t}" type="file"/>
+		</condition>
 	</target>
 
-	<target name="_zip" depends="_params" if="import.template" >
+	<target name="_zip" depends="_params" if="import.template.dir" >
+		<basename file="${t}" property="alias" />
 		<property name="template.file" value="build/templates/${alias}.zip" />
 		<delete file="${template.file}"/>
 		<zip destfile="${template.file}" basedir="${t}" />
+		<echo>alias: ${alias} projectdir: ${t}</echo>
+	</target>
+
+	<target name="_file" depends="_params" if="import.template.file" >
+		<property name="template.file" value="${t}" />
+		<!-- load alias from the template -->
+		<loadproperties srcfile="${template.file}">
+			<filterchain>
+				<stripjavacomments/>
+				<headfilter lines="1"/>
+				<replacetokens>
+				<token key=":" value="="/>
+				</replacetokens>
+			</filterchain>
+		</loadproperties>
+		<echo>alias: ${alias} templatefile: ${t}</echo>
 	</target>
 
 	<!-- helper to extract properties in format alias:host:port -->
