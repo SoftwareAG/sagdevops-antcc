@@ -141,7 +141,12 @@ allprojects { currentProject ->
 				ccGradleLog "Setting test system property $propKey to $propValue"; 
 				currentProject.tasks.test.systemProperty(propKey, propValue);
 				currentProject.tasks.testRerun.systemProperty(propKey, propValue); 
-			}	
+			}
+			String defaultPassword = ant.properties["password"] != null ? ant.properties["password"] : "manage";
+			String password = System.getenv("CC_PASSWORD") != null ? System.getenv("CC_PASSWORD") : defaultPassword;
+			currentProject.tasks.test.systemProperty("password", password);
+			currentProject.tasks.testRerun.systemProperty("password", password); 
+			ccGradleLog "Setting test additional system property 'password' to $password";  		
 		}
 	}
 }
@@ -172,10 +177,18 @@ def installDirJarsFrom(String relativeDirPath) {
 }
 ext.installDirJarsFrom = this.&installDirJarsFrom
 
+def setTestReportDir() { 
+    test.reports.getJunitXml().setDestination(new File(project.buildDir, ant.properties["env"]));
+	println(test.reports.getJunitXml().getDestination());
+}
+ext.setTestReportDir = this.&setTestReportDir
+
 // #####################################################
 // ################ TEST RERUN PREPARATION #############
 // #####################################################
 ext.failedTests = new File(project.buildDir, "failedtests.properties");
+
+
 test.doFirst {
 	if(failedTests.exists()) {
 		failedTests.delete();

@@ -4,12 +4,21 @@
       	Command Central bootstrap installer wrapper
 	</description>
 
+	<property environment="env" />
+
 	<target name="help-bootstrap">
 		<echo>
-Optional parameter for any target:		
+Environment variables:
 
--Dbootstrap=other                Bootstrap local Command Central server 
-                                 using defaults from 'bootstrap/default.properties'
+CC_INSTALLER=name                Command Central bootstrap installer name
+CC_BOOT=other                    Command Central bootstrap configuration name
+CC_PASSWORD=password             Command Central server Administrator password
+
+Optional parameter for any target:	
+
+-Dbootstrap=other                Bootstrap local Command Central server using
+                                 CC_BOOT env var configuration file
+                                 or default 'bootstrap/default.properties'
                                  or custom 'bootstrap/other.properties'
 Targets:
 
@@ -23,7 +32,7 @@ ant stopcc                       Stop local Command Central server
 		</echo>
 	</target>
 
-	<condition property="is.linux" value="true">
+	<condition property="is.unix" value="true">
 		<os family="unix" />
 	</condition>
 
@@ -36,6 +45,8 @@ ant stopcc                       Stop local Command Central server
 	</condition>
 
 	<target name="_prepare" depends="_check-os-distribution">
+		<echo>platform: ${platform}</echo>
+
 		<condition property="unzip.file" value="true">
 			<os family="windows" />
 		</condition>
@@ -43,18 +54,29 @@ ant stopcc                       Stop local Command Central server
 			<os family="windows" />
 		</condition>
 
-		<property name="bootstrap" value="default" />		
+		<condition property="bootstrap" value="${env.CC_BOOT}" else="default">
+			<isset property="env.CC_BOOT"/>
+		</condition>
+	
 		<property name="bootstrap.properties" value="bootstrap/${bootstrap}.properties" />
+
+		<upper string="${platform}" to="platform.uppercase" />
+		
 		<property file="${bootstrap.properties}" />
+
+		<!-- one of the env.properties properties -->
+		<property name="os.platform" value="${platform}" />
 
 		<condition property="license.agreement.switch" value="--accept-license" else="" >
 			<equals arg1="${accept.license}" arg2="true" casesensitive="false" trim="true"/>
 		</condition>
 		
-		<upper string="${platform}" to="platform.uppercase" />
+		<!-- default is latest public GA version on SDC-->
+		<condition property="installer" value="${env.CC_INSTALLER}" else="cc-def-10.1-fix7-${platform}">
+			<isset property="env.CC_INSTALLER"/>
+		</condition>
 
-		<!-- latest public GA version on SDC -->
-		<property name="installer" value="cc-def-9.12-fix4-${platform}" />
+		<property name="installer.file" value="${installer}.${file.extension}" />
 
 		<!-- default download location -->
 		<property name="installer.dir" location="${user.home}/Downloads" />
@@ -69,18 +91,20 @@ ant stopcc                       Stop local Command Central server
 			<available file="${install.dir}" />
 		</condition>
 
-
 		<!-- default ports -->
-		<property name="cce.http.port" value="8090" />
-		<property name="cce.https.port" value="8091" />
-		<property name="spm.http.port" value="8092" />
-		<property name="spm.https.port" value="8093" />
+		<property name="port.range" value="80" />
+		<property name="cce.http.port" value="${port.range}90" />
+		<property name="cce.https.port" value="${port.range}91" />
+		<property name="spm.http.port" value="${port.range}92" />
+		<property name="spm.https.port" value="${port.range}93" />
 
 		<!-- default Administrator password -->
-		<property name="password" value="manage" />
+		<condition property="password" value="${env.CC_PASSWORD}" else="manage">
+			<isset property="env.CC_PASSWORD"/>
+		</condition>		
 
 		<property name="distro" value="CCE" />
-		<property name="cc.host" value="localhost" />
+		<property name="cc.host" value="${node.host}" />
 	</target>
 
 	<target name="_install" depends="_prepare,_download,_check-installer,_unzip-installer">
@@ -184,7 +208,6 @@ ant stopcc                       Stop local Command Central server
 
 	<target name="_download" depends="_prepare" if="installer.url">
 		<mkdir dir="${installer.dir}" />
-		<property name="installer.file" value="${installer}.${file.extension}" />
 		<echo>Downloading bootstrap installer from ${installer.url}/${installer.file} ...</echo>
 		<get src="${installer.url}/${installer.file}" dest="${installer.dir}" usetimestamp="true" />
 		<echo>Finished downloading bootstrap installer.</echo>
@@ -214,24 +237,21 @@ ant stopcc                       Stop local Command Central server
 		<property name="installer.bat.filename" refid="win.installers.fileset" />
 	</target>
 
-	<target name="_check-os-distribution" depends="_check-win-distribution,_check-mac-distribution,_check-unix-distribution" />
-
-	<target name="_check-win-distribution" if="is.windows">
+	<target name="_check-os-distribution" >
 		<condition property="platform" value="w64">
 			<os family="windows" />
 		</condition>
-	</target>
-
-	<target name="_check-mac-distribution" if="is.mac">
 		<condition property="platform" value="osx">
 			<os family="mac" />
 		</condition>
-	</target>
 
-	<target name="_check-unix-distribution" if="is.linux" depends="_check-solaris-distribution">
-		<exec executable="/bin/sh" outputproperty="output.uname">
+		<exec executable="/bin/sh" outputproperty="output.uname" osfamily="unix">
 			<arg value="-c" />
 			<arg value="uname" />
+		</exec>
+		<exec executable="/bin/sh" outputproperty="output.distribution" osfamily="unix">
+			<arg value="-c" />
+			<arg value="uname -m" />
 		</exec>
 
 		<condition property="platform" value="lnxamd64">
@@ -246,30 +266,22 @@ ant stopcc                       Stop local Command Central server
 			<equals arg1="${output.uname}" arg2="HP-UX" />
 		</condition>
 
-		<condition property="platform.unix" value="osx">
-            <equals arg1="${output.uname}" arg2="Darwin" />
-        </condition>
-	</target>
-
-	<target name="_check-solaris-distribution" depends="_check-is-solaris" if="is.solaris">
-		<exec executable="/bin/sh" outputproperty="output.solaris.distribution">
-			<arg value="-c" />
-			<arg value="uname -m" />
-		</exec>
 		<!--i86pc is for solamd64; SPARC is for sol -->
 		<condition property="platform" value="solamd64" else="sol">
-			<equals arg1="${output.solaris.distribution}" arg2="i86pc" />
+			<equals arg1="${output.distribution}" arg2="i86pc" />
 		</condition>
-	</target>
 
-	<target name="_check-is-solaris" if="is.linux">
-		<exec executable="/bin/sh" outputproperty="output.uname">
+		<exec executable="/bin/sh" outputproperty="node.host" osfamily="unix">
 			<arg value="-c" />
-			<arg value="uname" />
+			<arg value="hostname" />
 		</exec>
-		<condition property="is.solaris" value="true">
-			<equals arg1="${output.uname}" arg2="SunOS" />
-		</condition>
+		<property name="node.host" value="${env.COMPUTERNAME}" />
+
+		<echo>
+			Platform: ${platform}
+			Hostname: ${node.host}
+			Username: ${user.name}
+		</echo>
 	</target>
 
 	<!-- To upper case -->

@@ -10,7 +10,6 @@
 Targets:
 
 ant build                        Build project assets
-ant clean                        Clean project from build artifacts
 ant push                         Push asset repo to Command Central 10.x
 
 		</echo>
@@ -52,13 +51,6 @@ ant push                         Push asset repo to Command Central 10.x
 	<target name="build" depends="sagabeInit" description="Build project assets">
 		<ant dir="${install.dir}/common/AssetBuildEnvironment/master_build" inheritall="true">
 		</ant>
-	</target>
-
-	<target name="clean" depends="sagabeInit" description="Clean project from build artifacts">
-		<delete dir="build" verbose="true" />
-		<delete verbose="true" includeemptydirs="true">
-			<fileset dir="${basedir}" includes="**/build/**" />
-		</delete>
 	</target>
 
     <target name="pushcc" depends="sagabeInit" description="Push flatfile asset repo to Command Central" >
