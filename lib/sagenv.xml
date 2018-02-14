@@ -75,7 +75,7 @@ ant clean                        Clean project from build artifacts
 		<echo>Environment configuration expanded and loaded: ${env.properties}</echo>
 	</target>
 
-	<target name="import" description="Import template and dont apply" depends="_zip,_file,sagenvInit" if="import.template" >
+	<target name="import" description="Import template and dont apply" depends="_zip,_file,sagenvInit2" if="import.template" >
 		<echo>Import ${template.file}</echo>
 		<cc command="exec templates composite import overwrite=true" input="${template.file}"/>
 	</target>
@@ -162,19 +162,19 @@ ant clean                        Clean project from build artifacts
 		</fail>
 	</target>
 
-	<target name="stop" description="Stop environment" depends="sagenvInit" >
+	<target name="stop" description="Stop environment" depends="sagenvInit2" >
 		<echo>Not implemented</echo>
 	</target>
 
-	<target name="start" description="Start environment" depends="sagenvInit" >
+	<target name="start" description="Start environment" depends="sagenvInit2" >
         <echo>Not implemented</echo>
 	</target>
 
-	<target name="restart" description="Restart environment" depends="sagenvInit" >
+	<target name="restart" description="Restart environment" depends="sagenvInit2" >
         <echo>Not implemented</echo>
 	</target>
 
-	<target name="nodes" depends="waitcc,sagenvInit" description="Connect existing nodes">
+	<target name="nodes" depends="waitcc,sagenvInit2" description="Connect existing nodes">
 		<property file="${env.properties}" />
 		<property name="nodes" value="" />
 		<echo>Connecting to nodes [${nodes}] ...</echo>
@@ -217,6 +217,7 @@ ant clean                        Clean project from build artifacts
 
 	<target name="_file" depends="_params" if="import.template.file" >
 		<property name="template.file" value="${t}" />
+		<!-- load alias from the template -->
 		<loadproperties srcfile="${template.file}">
 			<filterchain>
 				<stripjavacomments/>
@@ -226,7 +227,7 @@ ant clean                        Clean project from build artifacts
 				</replacetokens>
 			</filterchain>
 		</loadproperties>
-		<echo>alias: ${alias} templatefile: ${template.file}</echo>
+		<echo>alias: ${alias} templatefile: ${t}</echo>
 	</target>
 
 	<!-- helper to extract properties in format alias:host:port -->
