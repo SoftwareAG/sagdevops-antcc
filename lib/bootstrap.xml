@@ -53,6 +53,9 @@ ant stopcc                       Stop local Command Central server
 		<condition property="file.extension" value="zip" else="sh">
 			<os family="windows" />
 		</condition>
+		<condition property="report.file.extension" value="bat" else="sh">
+			<os family="windows" />
+		</condition>		
 
 		<condition property="bootstrap" value="${env.CC_BOOT}" else="default">
 			<isset property="env.CC_BOOT"/>
@@ -110,7 +113,7 @@ ant stopcc                       Stop local Command Central server
 	<target name="_install" depends="_prepare,_download,_check-installer,_unzip-installer">
 		<echo>
 			Installing ${distro} using ${installer} from ${installer.dir} ...
-			Running ${installer}.${file.extension} ${license.agreement.switch} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -H ${cc.host}
+			Running ${installer}.${report.file.extension} ${license.agreement.switch} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -H ${cc.host}
 		</echo>
 
 		<exec dir="${installer.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failonerror="true" >
