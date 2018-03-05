@@ -59,8 +59,8 @@ def test(propfile) {
         builders[label] = {
             node(label) {
                 unstash 'scripts'
-                sagccant "-f main.xml -Daccept.license=true boot"
-                sagccant "-f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
+                ant "-f main.xml -Daccept.license=true boot"
+                ant "-f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
             }
         }                        
     }
@@ -85,29 +85,29 @@ pipeline {
                 stash 'scripts'
             }
         }        
-        stage("Unit Test") {
-            agent {
-                docker { image 'cloudbees/java-build-tools' }
-            }
-            steps {
-                unstash 'scripts'
-                timeout (time:10, unit:'MINUTES') {
-                    sh "ant -f main.xml -Dinstall.dir=`pwd`/build/cli client"
-                }
-            }
-            post {
-                always {
-                    sh "ant -f main.xml -Dinstall.dir=`pwd`/build/cc/cli uninstall"
-                }
-            }
-        }        
-        stage ('Restart VMs') { 
-            steps {
-                script {
-                    restartVMs env.CC_ENV_FILE
-                }              
-            }
-        }  
+        // stage("Unit Test") {
+        //     agent {
+        //         docker { image 'cloudbees/java-build-tools' }
+        //     }
+        //     steps {
+        //         unstash 'scripts'
+        //         timeout (time:10, unit:'MINUTES') {
+        //             sh "ant -f main.xml -Dinstall.dir=`pwd`/build/cli client"
+        //         }
+        //     }
+        //     post {
+        //         always {
+        //             sh "ant -f main.xml -Dinstall.dir=`pwd`/build/cc/cli uninstall"
+        //         }
+        //     }
+        // }        
+        // stage ('Restart VMs') { 
+        //     steps {
+        //         script {
+        //             restartVMs env.CC_ENV_FILE
+        //         }              
+        //     }
+        // }  
         stage ('Platform Test') {
             steps {
                 script {
