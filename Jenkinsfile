@@ -89,12 +89,12 @@ pipeline {
             steps {
                 unstash 'scripts'
                 timeout (time:10, unit:'MINUTES') {
-                    sagccant "-f main.xml -Dinstall.dir=`pwd`/build/cli client"
+                    gradlew "-f main.xml -Dinstall.dir=`pwd`/build/cli client"
                 }
             }
             post {
                 always {
-                    sagccant "-f main.xml -Dinstall.dir=`pwd`/build/cc/cli uninstall"
+                    gradlew "-f main.xml -Dinstall.dir=`pwd`/build/cc/cli uninstall"
                 }
             }
         }        
