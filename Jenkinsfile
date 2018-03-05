@@ -9,7 +9,7 @@
 // curl -X POST -F "jenkinsfile=<Jenkinsfile" $JENKINS_URL/pipeline-model-converter/validate
 
 
-def sagccant (command) {
+def ant (command) {
     if (isUnix()) {
         sh "ant $command"
     } else {
@@ -86,31 +86,34 @@ pipeline {
             }
         }        
         stage("Unit Test") {
+            agent {
+                docker { image 'cloudbees/java-build-tools' }
+            }
             steps {
                 unstash 'scripts'
                 timeout (time:10, unit:'MINUTES') {
-                    gradlew "-f main.xml -Dinstall.dir=`pwd`/build/cli client"
+                    sh "ant -f main.xml -Dinstall.dir=`pwd`/build/cli client"
                 }
             }
             post {
                 always {
-                    gradlew "-f main.xml -Dinstall.dir=`pwd`/build/cc/cli uninstall"
+                    sh "ant -f main.xml -Dinstall.dir=`pwd`/build/cc/cli uninstall"
                 }
             }
         }        
-        stage ('Restart VMs') { 
-            steps {
-                script {
-                    restartVMs env.CC_ENV_FILE
-                }              
-            }
-        }  
-        stage ('Platform Test') {
-            steps {
-                script {
-                    test env.CC_ENV_FILE
-                }         
-            }
-        }     
+        // stage ('Restart VMs') { 
+        //     steps {
+        //         script {
+        //             restartVMs env.CC_ENV_FILE
+        //         }              
+        //     }
+        // }  
+        // stage ('Platform Test') {
+        //     steps {
+        //         script {
+        //             test env.CC_ENV_FILE
+        //         }         
+        //     }
+        // }     
     }
 }
