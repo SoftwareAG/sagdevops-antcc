@@ -59,7 +59,7 @@ def test(propfile) {
         builders[label] = {
             node(label) {
                 unstash 'scripts'
-                sagccant "-f main.xml -Daccept.license=true -Dinstall.dir=${pwd()}/build/cc -Dport.range=33 uninstall boot"
+                sagccant "-f main.xml -Daccept.license=true boot"
                 sagccant "-f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
             }
         }                        
