@@ -101,19 +101,19 @@ pipeline {
                 }
             }
         }        
-        // stage ('Restart VMs') { 
-        //     steps {
-        //         script {
-        //             restartVMs env.CC_ENV_FILE
-        //         }              
-        //     }
-        // }  
-        // stage ('Platform Test') {
-        //     steps {
-        //         script {
-        //             test env.CC_ENV_FILE
-        //         }         
-        //     }
-        // }     
+        stage ('Restart VMs') { 
+            steps {
+                script {
+                    restartVMs env.CC_ENV_FILE
+                }              
+            }
+        }  
+        stage ('Platform Test') {
+            steps {
+                script {
+                    test env.CC_ENV_FILE
+                }         
+            }
+        }     
     }
 }
