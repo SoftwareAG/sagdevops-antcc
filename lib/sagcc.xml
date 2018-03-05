@@ -160,9 +160,8 @@ Upgrade Command Central server to version 10.1 or newer
 
 	<target name="restartcc" description="Restart Command Central" depends="waitcc" >
 		<echo>Restart Command Central</echo>
-		<cc command="exec lifecycle restart local OSGI-CCE" syncjob="true" expectedvalues="RUNNING" checkevery="2" wait="10" format="tsv" />
+		<cc command="exec lifecycle restart local OSGI-CCE" expectedvalues="RUNNING" checkevery="2" wait="10" format="tsv" />
 		<antcall target="waitcc" />
-		<antcall target="log" />
 	</target>
 
 	<target name="jobs" description="List Command Central jobs" depends="sagccInit" >
