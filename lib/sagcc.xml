@@ -1,6 +1,6 @@
 <project name="sagcc" default="help-sagcc" xmlns="antlib:org.apache.tools.ant" xmlns:if="ant:if" xmlns:unless="ant:unless" basedir="." >
 	<description>
-        Core Command Central API client library and targets 
+        Core Command Central 10.2 API client library and targets 
     </description>
 	
 	<property environment="env" />
@@ -95,7 +95,7 @@ Make sure that Java version is 1.8 or greater
 Make sure you bootstrap Command Central client on this host
 		</fail>
 
-		<echo>CC CLI HOME: ${cc.cli.home}</echo>
+		<echo>CC Client HOME: ${cc.cli.home}</echo>
 
 		<path description="" id="cc.ant.classpath">
 			<fileset dir="${cc.cli.home}" includes="lib/*.jar" /> 
@@ -109,7 +109,30 @@ Make sure you bootstrap Command Central client on this host
 		<taskdef description="xml processing" name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask" classpathref="cc.ant.classpath" />
 		<taskdef description="unit testing" uri="antlib:org.apache.ant.antunit" resource="org/apache/ant/antunit/antlib.xml" classpathref="cc.ant.classpath" />
 
-		<echo if:set="cc.properties.exists">CC CLI configuration: ${cc.properties}</echo>
+		<loadproperties>
+			<zipentry zipfile="${cc.cli.home}/lib/cce-client-cli.jar" name="META-INF/MANIFEST.MF"/>
+			<filterchain>
+				<linecontains>
+					<contains value="Implementation-Version"/>
+				</linecontains>
+				<replacetokens>
+					<token key=":" value="="/>
+				</replacetokens>
+				<prefixlines prefix="cli."/>
+			</filterchain>
+		</loadproperties>
+		<echo>CC Client version: ${cli.Implementation-Version}</echo>
+
+		<!-- REQUIRES: 10.2 client -->
+		<fail>
+			<condition>
+				<islessthan arg1="${cli.Implementation-Version}" arg2="10.2"/>
+			</condition>
+			Unsupported CC Client version: ${cli.Implementation-Version}. 
+Upgrade CC Client to version 10.2 or newer
+		</fail>
+
+		<echo if:set="cc.properties.exists">CC Client config: ${cc.properties}</echo>
 
 		<ccsetup configurationFile="${cc.properties}" />
 
@@ -119,20 +142,33 @@ Make sure you bootstrap Command Central client on this host
 
 	<target name="waitcc" description="Wait for Command Central ready" depends="sagccInit" >
 		<echo>Waiting for Command Central ready status ...</echo>
-		<cc command="get monitoring runtimestatus local OSGI-CCE" format="tsv" 
-            expectedvalues="ONLINE" wait="300" checkevery="5" />
-		<echo>Command Central is ready</echo>
+		<cc command="get monitoring runtimestatus local OSGI-CCE" expectedvalues="ONLINE" waitforcc="300" format="tsv" checkevery="5" />
+		<cc command="get inventory products local CCE includeHeaders=false properties=product.version.string" outputproperty="cce.version" format="tsv" />
+		<echo>
+			Command Central ${cce.version} is ready
+		</echo>
+
+		<!-- REQUIRES: 10.1 server -->
+		<fail>
+			<condition>
+				<islessthan arg1="${cce.version}" arg2="10.1"/>
+			</condition>
+			Unsupported Command Central server version: ${cce.version}. 
+Upgrade Command Central server to version 10.1 or newer
+		</fail>		
 	</target>
 
-	<target name="restartcc" description="Restart Command Central" depends="sagccInit" >
+	<target name="restartcc" description="Restart Command Central" depends="waitcc" >
 		<echo>Restart Command Central</echo>
-		<cc command="exec lifecycle restart local OSGI-CCE" format="tsv" />
-		<cc command="get monitoring runtimestatus local OSGI-CCE" format="tsv" 
-            expectedvalues="Connection refused,ONLINE" wait="300" checkevery="5" />
-		<echo>Command Central restarted</echo>
+		<cc command="exec lifecycle restart local OSGI-CCE" syncjob="true" expectedvalues="RUNNING" checkevery="2" wait="10" format="tsv" />
+		<antcall target="waitcc" />
+		<antcall target="log" />
 	</target>
 
 	<target name="jobs" description="List Command Central jobs" depends="sagccInit" >
+    	<echo>
+    		Command Central job list >>>
+    	</echo>
 		<cc command="list jobmanager jobs properties=status,description" format="tsv" />
 	</target>
 
@@ -148,7 +184,7 @@ Make sure you bootstrap Command Central client on this host
 
     <target name="log" description="Command Central server default log" depends="sagccInit" >
     	<echo>
-    		Command Central >>>
+    		Command Central default.log >>>
     	</echo>
         <cc command="get diagnostics logs local OSGI-CCE default.log tail lines=40" format="text/plain" />
     </target>
@@ -169,6 +205,7 @@ Make sure you bootstrap Command Central client on this host
         <cc command="list inventory components runtimeComponentCategory=PROCESS properties=runtimeComponent.displayName,nodeAlias" format="tsv" />
     </target>
 
+	<!-- DEPRECATED: not needed for 10.2 client -->
 	<macrodef name="waitforjob" >
 		<attribute name="jobid" default="${jobid}"/>
 		<attribute name="wait" default="120" />

@@ -10,9 +10,10 @@
 		<echo>
 Environment variables:
 
-CC_INSTALLER=name                Command Central bootstrap installer name
-CC_BOOT=other                    Command Central bootstrap configuration name
-CC_PASSWORD=password             Command Central server Administrator password
+CC_INSTALLER_URL=url             Command Central disibution site
+CC_INSTALLER=name                Command Central installer name
+CC_BOOT=other                    Command Central configuration name
+CC_PASSWORD=password             Command Central Administrator password
 
 Optional parameter for any target:	
 
@@ -22,9 +23,9 @@ Optional parameter for any target:
                                  or custom 'bootstrap/other.properties'
 Targets:
 
-ant boot                         Bootstrap local Command Central server
-ant client                       Bootstrap local CC CLI (client)
-ant agent                        Bootstrap local SPM (agent)
+ant boot                         Bootstrap local Command Central server (CCE)
+ant client                       Bootstrap local Command Central client (CLI)
+ant agent                        Bootstrap local Command Central agent  (SPM)
 ant installers                   Download bootstrap installers
 ant upgrade                      Upgrade local Command Central server
 ant startcc                      Start local Command Central server
@@ -72,7 +73,7 @@ ant stopcc                       Stop local Command Central server
 		</condition>
 		
 		<!-- default is latest public GA version on SDC-->
-		<condition property="installer" value="${env.CC_INSTALLER}" else="cc-def-10.1-fix7-${platform}">
+		<condition property="installer" value="${env.CC_INSTALLER}" else="cc-def-10.2-milestone-${platform}">
 			<isset property="env.CC_INSTALLER"/>
 		</condition>
 
@@ -81,8 +82,10 @@ ant stopcc                       Stop local Command Central server
 		<!-- default download location -->
 		<property name="installer.dir" location="${user.home}/Downloads" />
 
-		<!-- default download site -->
-		<property name="installer.url" value="http://empowersdc.softwareag.com/ccinstallers" />
+		<!-- default public download site on SDC-->
+		<condition property="installer.url" value="${env.CC_INSTALLER_URL}" else="http://empowersdc.softwareag.com/ccinstallers">
+			<isset property="env.CC_INSTALLER_URL"/>
+		</condition>
 
 	    <!-- default installation directory in Dev -->
 		<property name="install.dir" location="${user.home}/sag/cc" />

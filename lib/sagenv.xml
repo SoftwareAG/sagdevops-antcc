@@ -23,9 +23,11 @@ Targets:
 ant nodes -Dnodes=n1,n2          Connect existing nodes as alias[:host[:port]],alias2...
 ant up                           Import and apply all 'templates/*'
 ant templates                    Import templates from 'templates/*' and list
-ant import -Dt=templateFolder    Reimport single template
+ant import -Dt=p/templateFolder  Reimport single template folder/
+ant import -Dt=p/f/template.yaml Reimport single template .yaml file
 ant apply -Dalias=template       Apply single template using its alias
-ant apply -Dt=templateFolder     Reimport and apply template from source folder
+ant apply -Dt=p/templateFolder   Reimport and apply template from source folder
+ant apply -Dt=p/f/template.yaml  Reimport and apply template from source template .yaml file
 ant migrate -Dt=templateFolder   Migrate using template from source folder
 ant clean                        Clean project from build artifacts
 		</echo>
@@ -51,20 +53,25 @@ ant clean                        Clean project from build artifacts
 		<!-- optional extra parameters for template apply operations -->
 		<property name="apply.params" value="" />
 
-	    <fail unless="env.properties.exists">
+	    <!-- <fail unless="env.properties.exists">
 	    	Environment configuration .properties file does not exist for: ${env}
-	    </fail>
+	    </fail> -->
+
+		<!-- default to empty.properties -->
+		<property name="env.properties" value="build/empty.properties" />
+		<echo file="build/empty.properties" append="false" />
 
 		<echo>Environment configuration: ${env.properties}</echo>
 	</target>
 
 	<target name="sagenvInit2" depends="_prepare,sagenvInit">
+
 		<!-- load env properties, keeping existing props -->
 		<property file="${env.properties}" />
 
 		<!-- expand resolved properties into new env.properties -->
 		<property name="env.properties.expanded.file" value="build/${env.properties}" />
-		<copy file="${env.properties}" tofile="${env.properties.expanded.file}" verbose="true" overwrite="true">
+		<copy file="${env.properties}" tofile="${env.properties.expanded.file}" verbose="true" overwrite="true" >
 			<filterchain>
 				<expandproperties/>
 			</filterchain>
@@ -110,11 +117,12 @@ ant clean                        Clean project from build artifacts
 			Applying template '${alias}' with '${env.properties}' ${apply.params} ...
 		</echo>
 
-		<cc command="exec templates composite apply ${alias} ${apply.params} includeHeaders=false properties=id" format="csv" outputproperty="jobid" input="${env.properties}" />
+		<cc command="exec templates composite apply ${alias} ${apply.params}" syncjob="true" waitforcc="300" format="tsv" wait="${w}" checkevery="15" retry="2" input="${env.properties}" />
+		<!--
 		<cc command="list jobmanager jobs ${jobid} properties=status,description,statusAsString includeHeaders=false" expectedvalues="DONE|ERROR|WARNING|TIMEDOUT|ConnectException" wait="${w}" checkevery="20" error="build/logs/waiting" format="tsv" />
         <cc command="list jobmanager jobs ${jobid} properties=status includeHeaders=false" outputproperty="job.status" format="tsv" />
 		<cc command="list jobmanager jobs ${jobid} properties=statusAsString includeHeaders=false" outputproperty="job.status.description" format="tsv" />
-
+		
 		<fail>
 			<condition>
 				<not>
@@ -123,7 +131,7 @@ ant clean                        Clean project from build artifacts
 			</condition>
 			Job execution failed with '${job.status}' status: ${job.status.description}
 		</fail>
-
+		-->
 	</target>
 
 	<target name="up" description="Provision environment using templates" depends="sagccInit" >
@@ -142,36 +150,10 @@ ant clean                        Clean project from build artifacts
         </for>
 	</target>
 
-	<target name="migrate" description="Migrate environment" depends="import" >
-		<echo>
-			Migrating using template ${alias} with ${env.properties} ${apply.params} ...
-		</echo>
-
-		<cc command="exec templates composite apply ${alias} ${apply.params} environment.mode=migration includeHeaders=false properties=id" format="csv" outputproperty="jobid" input="${env.properties}" />
-		<cc command="list jobmanager jobs ${jobid} properties=status,statusAsString includeHeaders=false" expectedvalues="DONE|ERROR|WARNING|TIMEDOUT|ConnectException" wait="${w}" checkevery="20" error="build/logs/waiting" format="tsv" />
-		<cc command="list jobmanager jobs ${jobid} properties=status includeHeaders=false" outputproperty="job.status" format="tsv" />
-		<cc command="list jobmanager jobs ${jobid} properties=statusAsString includeHeaders=false" outputproperty="job.status.description" format="tsv" />
-
-		<fail>
-			<condition>
-				<not>
-					<equals arg1="${job.status}" arg2="DONE" />
-				</not>
-			</condition>
-			Job execution failed with '${job.status}' status: ${job.status.description}
-		</fail>
-	</target>
-
-	<target name="stop" description="Stop environment" depends="sagenvInit2" >
-		<echo>Not implemented</echo>
-	</target>
-
-	<target name="start" description="Start environment" depends="sagenvInit2" >
-        <echo>Not implemented</echo>
-	</target>
-
-	<target name="restart" description="Restart environment" depends="sagenvInit2" >
-        <echo>Not implemented</echo>
+	<target name="migrate" description="Migrate environment" >
+		<antcall target="apply">
+			<param name="apply.params" value="environment.mode=migration" />
+		</antcall>
 	</target>
 
 	<target name="nodes" depends="waitcc,sagenvInit2" description="Connect existing nodes">
