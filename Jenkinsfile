@@ -93,12 +93,12 @@ pipeline {
             steps {
                 unstash 'scripts'
                 timeout (time:10, unit:'MINUTES') {
-                    sh "ant -f main.xml -Dinstall.dir=`pwd`/build/cli client"
+                    sh "./sagccantw -f main.xml -Dinstall.dir=`pwd`/build/cli client"
                 }
             }
             post {
                 always {
-                    sh "ant -f main.xml -Dinstall.dir=`pwd`/build/cc/cli uninstall"
+                    sh "./sagccantw -f main.xml -Dinstall.dir=`pwd`/build/cc/cli uninstall"
                 }
             }
         }        
