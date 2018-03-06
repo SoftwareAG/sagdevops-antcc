@@ -78,6 +78,7 @@ pipeline {
     environment {
         CC_INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/cc/installers" // internal download site
         CC_ENV_FILE = "tests/test.properties"
+        CC_PASSWORD = "manage"
     }
     stages {
         stage("Prepare") {
