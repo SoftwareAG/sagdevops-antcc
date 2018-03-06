@@ -1,0 +1,32 @@
+#!/bin/sh
+
+###
+# Command Central client tools wrapper
+###
+
+CC_VERSION=10.2-milestone
+
+case "`uname`" in
+  Darwin) CC_INSTALLER=cc-def-$CC_VERSION-osx.sh ;;
+       *) CC_INSTALLER=cc-def-$CC_VERSION-lnxamd64.sh ;;
+esac
+
+# default public download site
+URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers}
+
+export SAG_TOOLS_HOME="$HOME/.sag/tools"
+export CC_CLI_HOME="$SAG_TOOLS_HOME/CommandCentral/client"
+export JAVA_HOME="$SAG_TOOLS_HOME/jvm/jvm"
+
+if [ ! -f "$CC_CLI_HOME/bin/sagccant" ]; then
+    echo "Software AG tools not found in $SAG_TOOLS_HOME"
+    mkdir -p "$HOME/Downloads"
+    file="$HOME/Downloads/$CC_INSTALLER"
+    echo "Downloading from ${URL} ..."
+    curl -o "$file" "${URL}/${CC_INSTALLER}"
+    chmod +x $file
+    echo "Installing ..."
+    $file -D CLI -L -d "$SAG_TOOLS_HOME"
+fi
+
+$CC_CLI_HOME/bin/sagccant -Dcc.cli.home=$CC_CLI_HOME $*
