@@ -17,6 +17,15 @@ def ant (command) {
     }
 }
 
+def sagccantw (command) {
+    if (isUnix()) {
+        sh "./sagccantw $command"
+    } else {
+        // TODO: implement sagccantw for Windows
+        bat "ant $command"
+    }
+}
+
 def gradlew (command) {
     if (isUnix()) {
         sh "./gradlew $command"
@@ -59,8 +68,8 @@ def test(propfile) {
         builders[label] = {
             node(label) {
                 unstash 'scripts'
-                ant "-f main.xml -Daccept.license=true boot"
-                ant "-f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
+                sagccantw "-f main.xml -Daccept.license=true boot"
+                sagccantw "-f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
             }
         }                        
     }
@@ -93,12 +102,12 @@ pipeline {
             steps {
                 unstash 'scripts'
                 timeout (time:10, unit:'MINUTES') {
-                    sh "./sagccantw -f main.xml -Dinstall.dir=`pwd`/build/cli client"
+                    sagccantw "-f main.xml -Dinstall.dir=`pwd`/build/cli client"
                 }
             }
             post {
                 always {
-                    sh "./sagccantw -f main.xml -Dinstall.dir=`pwd`/build/cc/cli uninstall"
+                    sagccantw "-f main.xml -Dinstall.dir=`pwd`/build/cc/cli uninstall"
                 }
             }
         }        
