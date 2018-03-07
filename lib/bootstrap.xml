@@ -148,7 +148,6 @@ ant stopcc                       Stop local Command Central server
 		<propertyfile file="${user.home}/.sag/cc.properties">
 			<entry key="cc.cli.home" value="${cc.cli.home}" />
 		</propertyfile>
-		
 	</target>
 
 	<target name="stopcc" depends="_prepare" description="Stop local Command Central Server" if="install.dir.exists">
@@ -182,9 +181,14 @@ ant stopcc                       Stop local Command Central server
 	</target>
 
 	<target name="boot" description="Bootstrap local Command Central">
-		<antcall target="_install" />
+		<antcall target="_install" />		
 	</target>
 
+	<target name="register-installer" description="Register installer in Command Central" depends="_prepare,_download,_check-installer">
+			 <echo>register installer ${installer}.${file.extension} in CCE installers </echo>
+		     <copy file="${installer.dir}/${installer}.${file.extension}" todir="${install.dir}/profiles/CCE/data/installers"/>
+	</target>
+	
 	<target name="backup" description="Backup local Command Central" depends="_prepare,stopcc" if="install.dir.exists">
 		<move todir="${install.dir}.bak" overwrite="true" preservelastmodified="true" >
 			<fileset dir="${install.dir}" includes="**"/>
