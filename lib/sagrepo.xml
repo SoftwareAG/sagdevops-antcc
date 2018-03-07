@@ -127,9 +127,66 @@ ant images                       Import product and fix images
 		<cc command="list provisioning bootstrap installers" format="tsv"/>
 	</target>	
 
+	<target name="credentials" depends="waitcc,sagenvInit" description="Configure credentials" >
+		<!-- env vars have presedence over env.properties -->
+		<property name="empower.username" value="${env.EMPOWER_USR}" if:set="env.EMPOWER_USR" />
+		<property name="empower.password" value="${env.EMPOWER_PSW}" if:set="env.EMPOWER_PSW"/>
+		<property name="cc.password"      value="${env.CC_PASSWORD}" if:set="env.CC_PASSWORD"/>
+
+		<!-- load the from propertes file -->
+		<property file="${env.properties}" />
+
+		<!-- if stil don't have credentials, ask for them -->
+		<echo unless:set="empower.password">
+			Provide https://empower.softwareag.com/ Download Center credentials:
+		</echo>
+
+		<input message="Enter your https://empower.softwareag.com/ username (email address): " 
+			addproperty="empower.username" unless:set="empower.username" />
+
+		<input message="Enter your https://empower.softwareag.com/ password (will NOT be masked!): " 
+			addproperty="empower.password" unless:set="empower.password"/>
+
+		<mkdir dir="build" />
+		<delete file="build/.env.properties" />
+		<propertyfile file="build/.env.properties">
+			<entry key="empower.username" value="${empower.username}" />
+			<entry key="empower.password" value="${empower.password}" />
+			<entry key="cc.password" value="${cc.password}" if:set="cc.password" />
+		</propertyfile>
+
+		<echo>
+			Securely store Empower credentials in Command Central ...
+		</echo>
+
+		<antcall target="apply">
+			<param name="alias" value="sag-creds" />
+			<param name="env.properties" value="build/.env.properties" />
+		</antcall>
+		<delete file="build/.env.properties" />
+
+		<echo>
+			List of configured credentials
+		</echo>
+		<cc command="list configuration instances nodeAlias=local runtimeComponentId=OSGI-CCE-ENGINE configurationTypeId=COMMON-CREDENTIALS refresh=true properties=id" format="tsv" />
+
+	</target>
+
+	<target name="masters" depends="waitcc,sagenvInit2" description="Register master repositories">
+		<antcall target="apply">
+			<param name="alias" value="sag-repos" />
+		</antcall>
+	</target>
+
+	<target name="mirrors2" depends="waitcc,sagenvInit2" description="Connect remote mirrors">
+		<antcall target="apply">
+			<param name="alias" value="sag-mirrors" />
+		</antcall>
+	</target>
+
 	<macrodef name="mirror" >
 		<attribute name="type" default="products"/>
-		<attribute name="release" default="10.1"/>
+		<attribute name="release" default="10.2"/>
 		<attribute name="name" default="@{type}-@{release}"/>
 		<attribute name="from" default="webMethods-@{release}"/>
 		<attribute name="filter" default="webMethods-@{release}"/>
