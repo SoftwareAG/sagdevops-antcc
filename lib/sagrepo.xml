@@ -127,7 +127,7 @@ ant images                       Import product and fix images
 		<cc command="list provisioning bootstrap installers" format="tsv"/>
 	</target>	
 
-	<target name="credentials" depends="waitcc,sagenvInit" description="Configure credentials" >
+	<target name="credentials" depends="waitcc,sagenvInit2" description="Configure credentials" >
 		<!-- env vars have presedence over env.properties -->
 		<property name="empower.username" value="${env.EMPOWER_USR}" if:set="env.EMPOWER_USR" />
 		<property name="empower.password" value="${env.EMPOWER_PSW}" if:set="env.EMPOWER_PSW"/>
@@ -147,9 +147,7 @@ ant images                       Import product and fix images
 		<input message="Enter your https://empower.softwareag.com/ password (will NOT be masked!): " 
 			addproperty="empower.password" unless:set="empower.password"/>
 
-		<mkdir dir="build" />
-		<delete file="build/.env.properties" />
-		<propertyfile file="build/.env.properties">
+		<propertyfile file="${env.properties}">
 			<entry key="empower.username" value="${empower.username}" />
 			<entry key="empower.password" value="${empower.password}" />
 			<entry key="cc.password" value="${cc.password}" if:set="cc.password" />
@@ -161,9 +159,7 @@ ant images                       Import product and fix images
 
 		<antcall target="apply">
 			<param name="alias" value="sag-creds" />
-			<param name="env.properties" value="build/.env.properties" />
 		</antcall>
-		<delete file="build/.env.properties" />
 
 		<echo>
 			List of configured credentials

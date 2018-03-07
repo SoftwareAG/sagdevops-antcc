@@ -81,7 +81,7 @@ ant clean                        Clean project from build artifacts
 		<var name="env.properties" value="${env.properties.expanded.file}"/>
 		<echo>Environment configuration expanded and loaded: ${env.properties}</echo>
 
-		<property name="library.dir" value="library" />
+		<property name="library.dir" value="library/templates" />
 		<property name="templates.dir" value="templates" />		
 	</target>
 
