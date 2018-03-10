@@ -69,12 +69,12 @@ def test(propfile) {
             node(label) {
                 unstash 'scripts'
                 ant '-f main.xml -Daccept.license=true boot'
-                antcc 'startcc restartcc'
+                ant 'startcc restartcc'
                 // dir('tests') {
                 //     antcc 'apply'
                 // }
-                antcc 'ps jobs killjobs log logs'
-                antcc 'stopcc'
+                ant 'ps jobs killjobs log logs'
+                ant 'stopcc'
             }
         }                        
     }
