@@ -14,7 +14,9 @@ esac
 # default public download site
 URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers}
 
+# default installation dir
 export SAG_TOOLS_HOME="$HOME/.sag/tools"
+
 export CC_CLI_HOME="$SAG_TOOLS_HOME/CommandCentral/client"
 export JAVA_HOME="$SAG_TOOLS_HOME/jvm/jvm"
 
@@ -29,4 +31,4 @@ if [ ! -f "$CC_CLI_HOME/bin/sagccant" ]; then
     $file -D CLI -L -d "$SAG_TOOLS_HOME"
 fi
 
-$CC_CLI_HOME/bin/sagccant -Dcc.cli.home=$CC_CLI_HOME $*
+$CC_CLI_HOME/bin/sagccant "-Dcc.cli.home=$CC_CLI_HOME" $*

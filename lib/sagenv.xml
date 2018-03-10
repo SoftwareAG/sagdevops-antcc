@@ -28,6 +28,7 @@ ant import -Dt=p/f/template.yaml Reimport single template .yaml file
 ant apply -Dalias=template       Apply single template using its alias
 ant apply -Dt=p/templateFolder   Reimport and apply template from source folder
 ant apply -Dt=p/f/template.yaml  Reimport and apply template from source template .yaml file
+ant apply                        Reimport and apply ./template.yaml and ./env.properties
 ant migrate -Dt=templateFolder   Migrate using template from source folder
 ant clean                        Clean project from build artifacts
 		</echo>
@@ -238,6 +239,9 @@ ant clean                        Clean project from build artifacts
 
 	<target name="_params" >
 		<property name="w" value="4600" description="Wait time (seconds)"/>
+		
+		<!-- apply without parameters picks up template.yaml in the current folder -->
+		<property name="t" value="template.yaml" description="Default ./template.yaml"/>
 
 		<condition property="import.template">
 			<available file="${t}"/>

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# antcc library distribution
+export ANTCC_HOME="`dirname $0`/.."
+
+# use current project build.xml if available
+buildfile=build.xml
+if [ ! -f "$buildfile" ]; then
+    # otherwise use default build.xml
+    buildfile="$ANTCC_HOME/build.xml"
+fi
+
+$CC_CLI_HOME/bin/sagccant -f "$buildfile" "-Dantcc.home=$ANTCC_HOME" $*

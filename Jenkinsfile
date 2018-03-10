@@ -9,6 +9,15 @@
 // curl -X POST -F "jenkinsfile=<Jenkinsfile" $JENKINS_URL/pipeline-model-converter/validate
 
 
+def installClient (command) {
+    if (isUnix()) {
+        sh "bin/sagccantw $command"
+    } else {
+        // TODO: implement sagccantw for Windows
+        bat "ant $command"
+    }
+}
+
 def ant (command) {
     if (isUnix()) {
         sh "ant $command"
@@ -17,20 +26,11 @@ def ant (command) {
     }
 }
 
-def sagccantw (command) {
+def antcc (command) {
     if (isUnix()) {
-        sh "./sagccantw $command"
+        sh "$ANTCC_HOME/bin/antcc $command"
     } else {
-        // TODO: implement sagccantw for Windows
-        bat "ant $command"
-    }
-}
-
-def gradlew (command) {
-    if (isUnix()) {
-        sh "./gradlew $command"
-    } else {
-        bat "gradlew $command"
+        bat "$ANTCC_HOME/bin/ant $command"
     }
 }
 
@@ -68,8 +68,13 @@ def test(propfile) {
         builders[label] = {
             node(label) {
                 unstash 'scripts'
-                sagccantw "-f main.xml -Daccept.license=true boot"
-                sagccantw "-f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
+                ant '-f main.xml -Daccept.license=true boot'
+                antcc 'startcc restartcc'
+                // dir('tests') {
+                //     antcc 'apply'
+                // }
+                antcc 'ps jobs killjobs log logs'
+                antcc 'stopcc'
             }
         }                        
     }
@@ -97,17 +102,17 @@ pipeline {
         }        
         stage("Unit Test") {
             agent {
-                docker { image 'cloudbees/java-build-tools' }
+                docker { image 'cloudbees/java-build-tools' } // with ant
             }
             steps {
                 unstash 'scripts'
                 timeout (time:10, unit:'MINUTES') {
-                    sagccantw "-f main.xml -Dinstall.dir=`pwd`/build/cli client"
+                    sh "ant -Dinstall.dir=`pwd`/build/cli client"
                 }
             }
             post {
                 always {
-                    sagccantw "-f main.xml -Dinstall.dir=`pwd`/build/cc/cli uninstall"
+                    sh "ant -Dinstall.dir=`pwd`/build/cc/cli uninstall"
                 }
             }
         }        
