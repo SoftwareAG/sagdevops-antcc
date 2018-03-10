@@ -73,7 +73,7 @@ def test(propfile) {
                 // dir('tests') {
                 //     antcc 'apply'
                 // }
-                ant 'ps jobs killjobs log logs'
+                ant 'ps jobs log logs'
                 ant 'stopcc'
             }
         }                        
