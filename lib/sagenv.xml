@@ -91,7 +91,7 @@ ant clean                        Clean project from build artifacts
 		<cc command="exec templates composite import overwrite=true" input="${template.file}"/>
 	</target>
 
-	<target name="templates" description="Import project templates" depends="sagccInit" >
+	<target name="templates" description="Import project templates" depends="sagenvInit2" >
 		<fail>
 			<condition>
 				<not>
