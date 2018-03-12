@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project xmlns="antlib:org.apache.tools.ant" name="sagccant" basedir="." default="all" >
+<project default="all" >
 	<description>
 	    Default sagccant build script
     </description>

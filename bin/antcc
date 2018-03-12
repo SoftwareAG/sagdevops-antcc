@@ -20,6 +20,7 @@ abs_dirname() {
 
 # antcc library distribution
 export ANTCC_HOME="$(abs_dirname "$0")/.."
+basedir=`pwd`
 
 # use current project build.xml if available
 buildfile=build.xml
@@ -29,4 +30,4 @@ if [ ! -f "$buildfile" ]; then
 fi
 
 # $CC_CLI_HOME/bin/sagccant -f "$buildfile" "-Dantcc.home=$ANTCC_HOME" $*
-ant -f "$buildfile" $*
+ant -f "$buildfile" "-Dbasedir=$basedir" $*

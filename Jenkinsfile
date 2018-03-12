@@ -68,13 +68,11 @@ def test(propfile) {
         builders[label] = {
             node(label) {
                 unstash 'scripts'
-                ant '-Daccept.license=true boot'
-                ant 'startcc restartcc'
-                dir('tests') {
-                    antcc 'apply -Dt=tests/test-template.yaml'
-                }
-                ant 'ps jobs log logs'
-                ant 'stopcc'
+                antcc '-Daccept.license=true boot'
+                antcc 'startcc restartcc'
+                antcc 'apply -Dt=tests/test-template.yaml'
+                antcc 'ps jobs log logs'
+                antcc 'stopcc'
             }
         }                        
     }

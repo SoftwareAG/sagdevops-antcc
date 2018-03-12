@@ -241,7 +241,7 @@ ant clean                        Clean project from build artifacts
 		<property name="w" value="4600" description="Wait time (seconds)"/>
 		
 		<!-- apply without parameters picks up template.yaml in the current folder -->
-		<property name="t" value="template.yaml" description="Default ./template.yaml"/>
+		<property name="t" location="template.yaml" description="Default ./template.yaml"/>
 
 		<condition property="import.template">
 			<available file="${t}"/>
@@ -254,6 +254,7 @@ ant clean                        Clean project from build artifacts
 		<condition property="import.template.file">
 			<available file="${t}" type="file"/>
 		</condition>
+		
 	</target>
 
 	<target name="_zip" depends="_params" if="import.template.dir" >
