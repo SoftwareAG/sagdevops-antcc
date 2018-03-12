@@ -30,7 +30,7 @@ def antcc (command) {
     if (isUnix()) {
         sh "bin/antcc $command"
     } else {
-        bat "bin/antcc $command"
+        bat "bin\\antcc $command"
     }
 }
 
