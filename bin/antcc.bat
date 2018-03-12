@@ -18,5 +18,5 @@ REM 	)
 REM )
 
 REM %SAGCCANT% -f %BUILDFILE% "-Dantcc.home=%ANTCC_HOME%" %*
-ant -f %BUILDFILE% %*
+ant -f %BUILDFILE%" "-Dbasedir=%CD%" %*
 exit /b %ERRORLEVEL%
