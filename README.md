@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-antcc.svg?branch=master)](https://travis-ci.org/SoftwareAG/sagdevops-antcc/builds)
+[![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-antcc.svg?branch=release/102apr2018)](https://travis-ci.org/SoftwareAG/sagdevops-antcc/builds)
 
 # Command Central Project Automation Tool
 
@@ -14,27 +14,21 @@ and provides default targets (commands) for developing and testing.
 * [Apache Ant 1.9.x](https://ant.apache.org/)
 * [Java 1.8.x](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 
-## Zero-installation using wrapper
+## Installation
 
-If you don't have Apache Ant and Java on your system you can use wrapper to download and install
-them automatically to ~/.sag/cc/tools folder.
+Install client
 
 ```bash
-./sagccantw -version
+git clone https://github.com/SoftwareAG/sagdevops-antcc.git antcc
+cd antcc
+bin/antcc client
 ```
 
-## Quick Start
-
-Short usage help
+Add to the PATH
 
 ```bash
-ant -f main.xml -p
-```
-
-More help:
-
-```bash
-ant -f main.xml -S
+export ANTCC_HOME=/path/to/antcc
+export PATH=$PATH:$ANTCC_HOME/bin
 ```
 
 ## Project Structure and Default Targets
@@ -77,40 +71,6 @@ tests/
 ```
 
 Most folders and files are optional and each of them are described below.
-
-## Build.xml
-
-The project MUST have build.xml file in its root.
-
-The build.xml content at a minimum MUST import main.xml from the ANTCC distribution.
-
-```xml
-<?xml version="1.0"?>
-<project>
-  <import file="antcc/main.xml" />
-</project>
-```
-
-The import provides access to default ANTCC targets and is enough to start using
-the project, however more often you will add your own automation targets to this
-main build.xml script.
-
-The build.xml is a standard Apache Ant script you can use all the facilities
-that Ant provides for writing cross-platform automation scripts by leveraging
-
-* Generic targets imported from ANTCC
-* Any Command Central REST API available via CC CLI commands
-* Any generic automation facilities provided by Ant tasks and libraries
-* Any 3-rd party tooling that provide CLI or API
-
-For GIT based automation projects it is recommended to include ANTCC as a submodule
-
-```bash
-git submodule add _clone_url_to_this_project.git_ antcc
-```
-
-If your project is not on GIT you can clone ANTCC project anywhere on the local
-file system and reference it using relative or absolute path.
 
 ## Bootstrap
 
@@ -299,29 +259,47 @@ mkdir ~/myproj1
 cd ~/myproj1
 ```
 
-Initialze git repository (if not done yet) and add antcc submodule
+## Add optional build.xml
 
-```bash
-git init
-git submodule add <antcc_clone_url.git> antcc
-```
+The project does NOT have to have build.xml file in its root. In this case $ANTCC_HOME/build.xml will be used.
 
-Create build.xml in the root of the project: 
+The project MAY extend default $ANTCC_HOME/build.xml by placing build.xml with the following content in the project root:
 
 ```xml
 <?xml version="1.0"?>
 <project>
-  <import file="antcc/main.xml" />
+  <property environment="env" />
+  <condition property="antcc.home" value="${env.ANTCC_HOME}" else="antcc">
+    <isset property="env.ANTCC_HOME"/>
+  </condition>
+  <import file="${antcc.home}/build.xml" />
+
 </project>
 ```
 
-If the project is already Ant-enabled add this to the existing build.xml
+The import provides access to default ANTCC targets and is enough to start using
+the project, however more often you will add your own automation targets to this
+main build.xml script.
 
-```xml
-<import file="antcc/main.xml" />
+The build.xml is a standard Apache Ant script you can use all the facilities
+that Ant provides for writing cross-platform automation scripts by leveraging
+
+* Generic targets imported from ANTCC
+* Any Command Central REST API available via CC CLI commands
+* Any generic automation facilities provided by Ant tasks and libraries
+* Any 3-rd party tooling that provide CLI or API
+
+## Embedding antcc
+
+For GIT based automation projects you MAY include ANTCC as a submodule
+
+```bash
+git submodule add https://github.com/SoftwareAG/sagdevops-antcc.git antcc
 ```
 
-Create bootstrap configuration file, customize as needed.
+This makes the project completely independend and does not require antcc installed on the host.
+
+## Create bootstrap configuration file, customize as needed
 
 ```bash
 mkdir -p bootstrap

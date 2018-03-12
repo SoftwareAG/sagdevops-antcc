@@ -1,7 +1,25 @@
 #!/bin/sh
 
+resolve_link() {
+  $(type -p greadlink readlink | head -1) "$1"
+}
+
+abs_dirname() {
+  local cwd="$(pwd)"
+  local path="$1"
+
+  while [ -n "$path" ]; do
+    cd "${path%/*}"
+    local name="${path##*/}"
+    path="$(resolve_link "$name" || true)"
+  done
+
+  pwd
+  cd "$cwd"
+}
+
 # antcc library distribution
-export ANTCC_HOME="`dirname $0`/.."
+export ANTCC_HOME="$(abs_dirname "$0")/.."
 
 # use current project build.xml if available
 buildfile=build.xml
@@ -10,4 +28,5 @@ if [ ! -f "$buildfile" ]; then
     buildfile="$ANTCC_HOME/build.xml"
 fi
 
-$CC_CLI_HOME/bin/sagccant -f "$buildfile" "-Dantcc.home=$ANTCC_HOME" $*
+# $CC_CLI_HOME/bin/sagccant -f "$buildfile" "-Dantcc.home=$ANTCC_HOME" $*
+ant -f "$buildfile" $*

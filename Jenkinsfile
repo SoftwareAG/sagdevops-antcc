@@ -9,7 +9,7 @@
 // curl -X POST -F "jenkinsfile=<Jenkinsfile" $JENKINS_URL/pipeline-model-converter/validate
 
 
-def installClient (command) {
+def install (command) {
     if (isUnix()) {
         sh "bin/sagccantw $command"
     } else {
@@ -28,9 +28,9 @@ def ant (command) {
 
 def antcc (command) {
     if (isUnix()) {
-        sh "$ANTCC_HOME/bin/antcc $command"
+        sh "bin/antcc $command"
     } else {
-        bat "$ANTCC_HOME/bin/ant $command"
+        bat "bin/antcc $command"
     }
 }
 
@@ -68,11 +68,11 @@ def test(propfile) {
         builders[label] = {
             node(label) {
                 unstash 'scripts'
-                ant '-f main.xml -Daccept.license=true boot'
+                ant '-Daccept.license=true boot'
                 ant 'startcc restartcc'
-                // dir('tests') {
-                //     antcc 'apply'
-                // }
+                dir('tests') {
+                    antcc 'apply -Dt=tests/test-template.yaml'
+                }
                 ant 'ps jobs log logs'
                 ant 'stopcc'
             }
