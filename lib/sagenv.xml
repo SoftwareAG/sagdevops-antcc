@@ -193,21 +193,32 @@ ant clean                        Clean project from build artifacts
 		</antcall>
 	</target>
 
-	<target name="nodes" depends="waitcc,sagenvInit2" description="Connect existing nodes">
+	<target name="nodes" depends="waitcc,sagenvInit2" description="Register nodes">
 		<property file="${env.properties}" />
 		<property name="nodes" value="" />
-		<echo>Connecting to nodes [${nodes}] ...</echo>
+		
+		<echo>Registering nodes [${nodes}] ...</echo>
 		<for list="${nodes}" param="node" delimiter="," keepgoing="true" trim="yes">
 			<sequential>
-				<echo>Connecting to: @{node}</echo>
+				<echo>Registering: @{node}</echo>
 				<nodeProperties definition="@{node}" alias="node.alias" host="node.host" port="node.port" />
 				<cc command="add landscape nodes alias=${node.alias} url=http://${node.host}:${node.port}" expectedvalues="OK" />
-				<cc command="list landscape nodes ${node.alias}" expectedvalues="ONLINE" format="tsv" wait="180" />
 			</sequential>
 		</for>
 
 		<echo>Registered nodes</echo>
 		<cc command="list landscape nodes" format="tsv" />
+	</target>
+
+	<target name="waitnodes" depends="nodes" description="Waitfor nodes to come ONLINE">
+		<echo>Waiting for nodes [${nodes}] ...</echo>
+		<for list="${nodes}" param="node" delimiter="," keepgoing="true" trim="yes">
+			<sequential>
+				<echo>Waiting for ONLINE: @{node}</echo>
+				<nodeProperties definition="@{node}" alias="node.alias" host="node.host" port="node.port" />
+				<cc command="list landscape nodes ${node.alias}" expectedvalues="ONLINE" format="tsv" wait="180" />
+			</sequential>
+		</for>
 	</target>
 
 	<!-- TODO: more generic way to run any template -->
