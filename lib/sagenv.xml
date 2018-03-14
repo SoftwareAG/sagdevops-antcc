@@ -59,8 +59,8 @@ ant clean                        Clean project from build artifacts
 	    </fail> -->
 
 		<!-- default to empty.properties -->
-		<property name="env.properties" value="build/empty.properties" />
-		<echo file="build/empty.properties" append="false" />
+		<property name="env.properties" value="${build.dir}/empty.properties" />
+		<echo file="${build.dir}/empty.properties" append="false" />
 
 		<echo>Environment configuration: ${env.properties}</echo>
 	</target>
@@ -71,7 +71,7 @@ ant clean                        Clean project from build artifacts
 		<property file="${env.properties}" />
 
 		<!-- expand resolved properties into new env.properties -->
-		<property name="env.properties.expanded.file" value="build/${env.properties}" />
+		<property name="env.properties.expanded.file" value="${build.dir}/expanded.properties" />
 		<copy file="${env.properties}" tofile="${env.properties.expanded.file}" verbose="true" overwrite="true" >
 			<filterchain>
 				<expandproperties/>
@@ -143,7 +143,7 @@ ant clean                        Clean project from build artifacts
 		</echo>
 
 		<cc command="exec templates composite apply ${alias} ${apply.params} properties=id includeHeaders=false" waitforcc="300" format="tsv" wait="${w}" checkevery="15" input="${env.properties}" outputproperty="jobid" />
-		<cc command="list jobmanager jobs ${jobid} properties=status,description,statusAsString includeHeaders=false" expectedvalues="DONE|ERROR|WARNING|TIMEDOUT|ConnectException" wait="${w}" checkevery="20" error="build/logs/waiting" format="tsv" />
+		<cc command="list jobmanager jobs ${jobid} properties=status,description,statusAsString includeHeaders=false" expectedvalues="DONE|ERROR|WARNING|TIMEDOUT|ConnectException" wait="${w}" checkevery="20" error="${build.dir}/logs/waiting" format="tsv" />
         <cc command="list jobmanager jobs ${jobid} properties=status includeHeaders=false" outputproperty="job.status" format="tsv" />
 		<cc command="list jobmanager jobs ${jobid} properties=statusAsString includeHeaders=false" outputproperty="job.status.description" format="tsv" />
 		
@@ -270,7 +270,7 @@ ant clean                        Clean project from build artifacts
 
 	<target name="_zip" depends="_params" if="import.template.dir" >
 		<basename file="${t}" property="alias" />
-		<property name="template.file" value="build/templates/${alias}.zip" />
+		<property name="template.file" value="${build.dir}/templates/${alias}.zip" />
 		<delete file="${template.file}"/>
 		<zip destfile="${template.file}" basedir="${t}" />
 		<echo>alias: ${alias} projectdir: ${t}</echo>
@@ -310,7 +310,7 @@ ant clean                        Clean project from build artifacts
     </scriptdef>	
 	
 	<target name="clean" description="Clean project from build artifacts">
-		<delete dir="build" verbose="true" />
+		<delete dir="${build.dir}" verbose="true" />
 		<delete verbose="true" includeemptydirs="true">
 			<fileset dir="${basedir}" includes="**/build/**" />
 		</delete>

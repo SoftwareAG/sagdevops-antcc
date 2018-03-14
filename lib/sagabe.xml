@@ -33,7 +33,7 @@ ant push                         Push asset repo to Command Central 10.x
         <property name="install.dir" location="${cc.cli.home}/../.." />
         <property name="sag.install.dir" location="${install.dir}" />
         <property name="build.source.dir" location="${basedir}/assets" />
-        <property name="build.output.dir" location="${basedir}/build/assets" />
+        <property name="build.output.dir" location="${build.dir}/assets" />
 		<property name="build.number" location="1.0.0" />
 		<property name="repo.asset" value="${ant.project.name}" />
 
@@ -43,8 +43,7 @@ ant push                         Push asset repo to Command Central 10.x
                     <available file="${install.dir}/common/AssetBuildEnvironment/master_build" />
                 </not>
             </condition>
-            ERROR: AssetBuildEnvironment not found in ${install.dir}.
-			Use Command Central bootstrap installer to install client tools (with -D CLI)
+            ERROR: AssetBuildEnvironment not found in ${install.dir}
         </fail>
 	</target>
 
@@ -54,36 +53,36 @@ ant push                         Push asset repo to Command Central 10.x
 	</target>
 
     <target name="pushcc" depends="sagabeInit" description="Push flatfile asset repo to Command Central" >
-        <mkdir dir="build/dist" />
-        <zip destfile="build/dist/${repo.asset}.zip" basedir="${build.output.dir}" />
-		<cc command="add repository assets flatfile name=${repo.asset} overwrite=true" input="build/dist/${repo.asset}.zip" format="tsv" />	
+        <mkdir dir="${build.dir}/dist" />
+        <zip destfile="${build.dir}/dist/${repo.asset}.zip" basedir="${build.output.dir}" />
+		<cc command="add repository assets flatfile name=${repo.asset} overwrite=true" input="${build.dir}/dist/${repo.asset}.zip" format="tsv" />	
         <cc command="list repository assets content ${repo.asset}" format="tsv" />				
 	</target>
 
     <target name="pushgit" depends="sagabeInit" description="Push asset repo to Git, register in CC" >
 		<condition property="git.cloned" value="true" >
-			<available file="build/repo/.git/" />
+			<available file="${build.dir}/repo/.git/" />
 		</condition>
 
-		<mkdir dir="build/repo" />
+		<mkdir dir="${build.dir}/repo" />
 
-		<exec dir="build/repo" executable="git" vmlauncher="false" unless:true="${git.cloned}">
+		<exec dir="${build.dir}/repo" executable="git" vmlauncher="false" unless:true="${git.cloned}">
 			<arg line="clone ${repo.asset.git.push.url} ." />
 		</exec>
 
-		<exec dir="build/repo" executable="git" vmlauncher="false" if:true="${git.cloned}">
+		<exec dir="${build.dir}/repo" executable="git" vmlauncher="false" if:true="${git.cloned}">
 			<arg line="pull" />
 		</exec>
 
-		<copy todir="build/repo" verbose="true" overwrite="true">
+		<copy todir="${build.dir}/repo" verbose="true" overwrite="true">
 			<fileset dir="build/assets" includes="**" excludes="_*" />
 		</copy>
 
-		<exec dir="build/repo" executable="git" vmlauncher="false" >
+		<exec dir="${build.dir}/repo" executable="git" vmlauncher="false" >
 			<arg line="commit -am '${ant.project.name} build ${build.number}'" />
 		</exec>
 
-		<exec dir="build/repo" executable="git" vmlauncher="false" >
+		<exec dir="${build.dir}/repo" executable="git" vmlauncher="false" >
 			<arg line="push" />
 		</exec>
 	</target>

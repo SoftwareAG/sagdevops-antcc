@@ -136,6 +136,8 @@ Upgrade CC Client to version 10.2 or newer
 
 		<ccsetup configurationFile="${cc.properties}" />
 
+		<property name="build.dir" location="${basedir}/build" />
+
 	</target>
 
 	<!-- MAIN targets -->
