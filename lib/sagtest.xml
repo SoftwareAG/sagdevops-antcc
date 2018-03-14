@@ -61,6 +61,7 @@ ant test                         Run tests/test*.xml AntUnit tests
 				<propertyref name="cc.properties" />
 				<propertyref name="env" />
 				<propertyref name="env.properties" />
+				<propertyref builtin="commandline" />
 			</propertyset>
 
 			<fileset dir="${fileset.dir}">
