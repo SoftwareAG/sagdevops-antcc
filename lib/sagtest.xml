@@ -22,6 +22,9 @@ ant test                         Run tests/test*.xml AntUnit tests
 		<mkdir dir="${build.dir}/tests/temp" />
 		<mkdir dir="${build.dir}/tests/${env}" />
 
+		<!-- this is default -->
+		<property name="project.basedir" location="${basedir}" />
+
 		<property name="temp.dir" location="${build.dir}/tests/temp" />
 		<property name="tests.project.basedir" location="${project.basedir}" />
 		<property name="test.data.basedir" location="${tests.project.basedir}/tests/testData" />
