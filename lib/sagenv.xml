@@ -143,7 +143,7 @@ ant clean                        Clean project from build artifacts
 		</echo>
 
 		<cc command="exec templates composite apply ${alias} ${apply.params} properties=id includeHeaders=false" waitforcc="300" format="tsv" wait="${w}" checkevery="15" input="${env.properties}" outputproperty="jobid" />
-		<cc command="list jobmanager jobs ${jobid} properties=status,description,statusAsString includeHeaders=false" expectedvalues="DONE|ERROR|WARNING|TIMEDOUT|ConnectException" wait="${w}" checkevery="20" error="${build.dir}/logs/waiting" format="tsv" />
+		<cc command="list jobmanager jobs ${jobid} properties=status,description,statusAsString includeHeaders=false" expectedvalues="DONE|ERROR|WARNING|TIMEDOUT|ConnectException" wait="${w}" checkevery="10" error="${build.dir}/logs/waiting" format="tsv" />
         <cc command="list jobmanager jobs ${jobid} properties=status includeHeaders=false" outputproperty="job.status" format="tsv" />
 		<cc command="list jobmanager jobs ${jobid} properties=statusAsString includeHeaders=false" outputproperty="job.status.description" format="tsv" />
 		
@@ -169,19 +169,27 @@ ant clean                        Clean project from build artifacts
 
 		<cc command="exec templates composite apply ${alias} ${apply.params}" syncjob="true" waitforcc="300" format="tsv" wait="${w}" checkevery="15" retry="2" input="${env.properties}" expectedvalues="DONE" />
 	</target>
-	
 
-	<target name="up" description="Provision environment using templates" depends="sagenvInit2" >
-		<!-- default set of templates are all project templates/* -->
-		<path id="templates.list.ref">
+	<target name="up" description="Apply list of templates" depends="sagenvInit2" >
+		<!-- <path id="templates.list.ref">
     		<dirset dir="${templates.dir}" includes="*" />
   		</path>
- 	    <property name="templates" value="${toString:templates.list.ref}"/>
+ 	    <property name="templates.list" value="${toString:templates.list.ref}"/>
+		<propertyregex property="templates"
+              input="${templates.list}"
+              regexp="${path.separator}"
+              replace="," /> -->
 
-    	<for list="${templates}" param="t" delimiter="${path.separator}">
+		<fail unless="templates">
+			You must provide 'templates' properties as list of template aliases to apply
+		</fail>
+
+		<echo>Applying list of templates: ${templates}</echo>
+
+    	<for list="${templates}" param="t" delimiter=",">
 			<sequential>
 				<antcall target="apply">
-					<param name="t" value="@{t}" />
+					<param name="alias" value="@{t}" />
 				</antcall>
 			</sequential>
         </for>
