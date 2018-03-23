@@ -158,7 +158,7 @@ ant images                       Import product and fix images
 		</echo>
 
 		<antcall target="apply">
-			<param name="alias" value="sag-creds" />
+			<param name="alias" value="sag-cc-creds" />
 		</antcall>
 
 		<echo>
@@ -170,13 +170,13 @@ ant images                       Import product and fix images
 
 	<target name="masters" depends="waitcc,sagenvInit2" description="Register master repositories">
 		<antcall target="apply">
-			<param name="alias" value="sag-repos" />
+			<param name="alias" value="sag-cc-repos" />
 		</antcall>
 	</target>
 
 	<target name="mirrors2" depends="waitcc,sagenvInit2" description="Connect remote mirrors">
 		<antcall target="apply">
-			<param name="alias" value="sag-mirrors" />
+			<param name="alias" value="sag-cc-mirrors" />
 		</antcall>
 	</target>
 

@@ -128,7 +128,7 @@ ant clean                        Clean project from build artifacts
 
 	<target name="layers" depends="library" description="Register layer definition" >
 		<antcall target="apply">
-			<param name="alias" value="sag-layer-defs"/>
+			<param name="alias" value="sag-cc-layer-defs"/>
 		</antcall>
 		<cc command="list configuration instances local OSGI-CCE-ENGINE refresh=true" format="tsv" />
 	</target>	
