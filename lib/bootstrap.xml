@@ -184,6 +184,42 @@ ant stopcc                       Stop local Command Central server
 	<target name="boot" description="Bootstrap local Command Central">
 		<antcall target="_install" />
 	</target>
+	
+	<target name="boot-migration" description="Upgrade local Command Central" depends="_prepare">
+		<echo>Running: ${installer}.${file.extension} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -m ${install.dir.old}</echo>
+
+		<exec dir="${installer.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failonerror="true" >
+			<arg line="./${installer}.sh --accept-license -D ${distro} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -m ${install.dir.old}" />
+		</exec>
+
+		<fileset id="win.installers.fileset" dir="${installer.dir}" includes="**/*">
+			<filename name="cc-*-w64.bat" />
+		</fileset>
+
+		<property name="installer.bat.filename" refid="win.installers.fileset" />
+
+		<exec dir="${installer.dir}" executable="${installer.bat.filename}" osfamily="windows" vmlauncher="false" failonerror="true" >
+			<arg value="--accept-license" />
+			<arg value="-D" />
+			<arg value="${distro}" />
+			<arg value="-d" />
+			<!-- IMPORTANT: convert path to Windows format -->
+			<arg path="${install.dir}" />
+			<arg value="-c" />
+			<arg value="${cce.http.port}" />
+			<arg value="-C" />
+			<arg value="${cce.https.port}" />
+			<arg value="-s" />
+			<arg value="${spm.http.port}" />
+			<arg value="-S" />
+			<arg value="${spm.https.port}" />
+			<arg value="-p" />
+			<arg value="${password}" />
+			<arg value="-m" />
+			<arg value="${install.dir.old}" />
+		</exec>
+    </target>
+
 
 	<target name="backup" description="Backup local Command Central" depends="_prepare,stopcc" if="install.dir.exists">
 		<move todir="${install.dir}.bak" overwrite="true" preservelastmodified="true" >
