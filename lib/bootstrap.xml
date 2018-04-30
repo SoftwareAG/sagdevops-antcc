@@ -151,8 +151,7 @@ ant stopcc                       Stop local Command Central server
 		
 	</target>
 
-	<target name="stopcc" depends="_prepare" description="Stop local Command Central Server" if="install.dir.exists">
-		<exec dir="${install.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failifexecutionfails="false" >
+	<target name="stopcc" depends="_prepare" description="Stop local Command Central Server" if="install.dir.exists"		<exec dir="${install.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failifexecutionfails="false" >
 			<arg line="./profiles/SPM/bin/shutdown.sh" />
 		</exec>
 		<exec dir="${install.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failifexecutionfails="false" >
@@ -198,7 +197,7 @@ ant stopcc                       Stop local Command Central server
 
 		<property name="installer.bat.filename" refid="win.installers.fileset" />
 
-		<exec dir="${installer.dir}" executable="${installer.bat.filename}" osfamily="windows" vmlauncher="false" failonerror="true" >
+		<exec dir="${install.dir}" executable="${installer.bat.filename}" osfamily="windows" vmlauncher="false" failonerror="true" >
 			<arg value="--accept-license" />
 			<arg value="-D" />
 			<arg value="${distro}" />
