@@ -54,6 +54,9 @@ ant stopcc                       Stop local Command Central server
 		<condition property="file.extension" value="zip" else="sh">
 			<os family="windows" />
 		</condition>
+		<condition property="report.file.extension" value="bat" else="sh">
+			<os family="windows" />
+		</condition>		
 
 		<condition property="bootstrap" value="${env.CC_BOOT}" else="default">
 			<isset property="env.CC_BOOT"/>
@@ -113,7 +116,7 @@ ant stopcc                       Stop local Command Central server
 	<target name="_install" depends="_prepare,_download,_check-installer,_unzip-installer">
 		<echo>
 			Installing ${distro} using ${installer} from ${installer.dir} ...
-			Running ${installer}.${file.extension} ${license.agreement.switch} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -H ${cc.host}
+			Running ${installer}.${report.file.extension} ${license.agreement.switch} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -H ${cc.host}
 		</echo>
 
 		<exec dir="${installer.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failonerror="true" >
@@ -148,7 +151,6 @@ ant stopcc                       Stop local Command Central server
 		<propertyfile file="${user.home}/.sag/cc.properties">
 			<entry key="cc.cli.home" value="${cc.cli.home}" />
 		</propertyfile>
-		
 	</target>
 
 	<target name="stopcc" depends="_prepare" description="Stop local Command Central Server" if="install.dir.exists" >
@@ -182,7 +184,7 @@ ant stopcc                       Stop local Command Central server
 	</target>
 
 	<target name="boot" description="Bootstrap local Command Central">
-		<antcall target="_install" />
+		<antcall target="_install" />		
 	</target>
 	
 	<target name="boot-migration" description="Upgrade local Command Central" depends="_prepare,_download,_check-installer,_unzip-installer">
@@ -221,6 +223,11 @@ ant stopcc                       Stop local Command Central server
     </target>
 
 
+	<target name="register-installer" description="Register installer in Command Central" depends="_prepare,_download,_check-installer">
+			 <echo>register installer ${installer}.${file.extension} in CCE installers </echo>
+		     <copy file="${installer.dir}/${installer}.${file.extension}" todir="${install.dir}/profiles/CCE/data/installers"/>
+	</target>
+	
 	<target name="backup" description="Backup local Command Central" depends="_prepare,stopcc" if="install.dir.exists">
 		<move todir="${install.dir}.bak" overwrite="true" preservelastmodified="true" >
 			<fileset dir="${install.dir}" includes="**"/>
