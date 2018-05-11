@@ -4,7 +4,6 @@
     </description>
 
 	<import file="sagenv.xml" />
-	<dirname file="${ant.file.setup}" property="project.basedir" />
 
 	<target name="help-sagtest">
 		<echo>
@@ -19,11 +18,14 @@ ant test                         Run tests/test*.xml AntUnit tests
 	</target>
 
 	<target name="sagtestInit" depends="sagenvInit">
-		<mkdir dir="build/tests" />
-		<mkdir dir="build/tests/temp" />
-		<mkdir dir="build/tests/${env}" />
+		<mkdir dir="${build.dir}/tests" />
+		<mkdir dir="${build.dir}/tests/temp" />
+		<mkdir dir="${build.dir}/tests/${env}" />
 
-		<property name="temp.dir" location="${project.basedir}/build/tests/temp" />
+		<!-- this is default -->
+		<property name="project.basedir" location="${basedir}" />
+
+		<property name="temp.dir" location="${build.dir}/tests/temp" />
 		<property name="tests.project.basedir" location="${project.basedir}" />
 		<property name="test.data.basedir" location="${tests.project.basedir}/tests/testData" />
 		<property name="test.properties" location="${tests.project.basedir}/tests/test.properties" />
@@ -67,8 +69,8 @@ ant test                         Run tests/test*.xml AntUnit tests
 			<fileset dir="${fileset.dir}">
 				<include name="${tests}" />
 			</fileset>
-			<au:xmllistener todir="build/tests/${env}" />
-			<au:plainlistener todir="build/tests/${env}" loglevel="warn" sendlogto="both" />
+			<au:xmllistener todir="${build.dir}/tests/${env}" />
+			<au:plainlistener todir="${build.dir}/tests/${env}" loglevel="warn" sendlogto="both" />
 		</au:antunit>
 
 

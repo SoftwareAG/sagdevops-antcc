@@ -10,9 +10,10 @@
 		<echo>
 Environment variables:
 
-CC_INSTALLER=name                Command Central bootstrap installer name
-CC_BOOT=other                    Command Central bootstrap configuration name
-CC_PASSWORD=password             Command Central server Administrator password
+CC_INSTALLER_URL=url             Command Central disibution site
+CC_INSTALLER=name                Command Central installer name
+CC_BOOT=other                    Command Central configuration name
+CC_PASSWORD=password             Command Central Administrator password
 
 Optional parameter for any target:	
 
@@ -22,9 +23,9 @@ Optional parameter for any target:
                                  or custom 'bootstrap/other.properties'
 Targets:
 
-ant boot                         Bootstrap local Command Central server
-ant client                       Bootstrap local CC CLI (client)
-ant agent                        Bootstrap local SPM (agent)
+ant boot                         Bootstrap local Command Central server (CCE)
+ant client                       Bootstrap local Command Central client (CLI)
+ant agent                        Bootstrap local Command Central agent  (SPM)
 ant installers                   Download bootstrap installers
 ant upgrade                      Upgrade local Command Central server
 ant startcc                      Start local Command Central server
@@ -75,7 +76,7 @@ ant stopcc                       Stop local Command Central server
 		</condition>
 		
 		<!-- default is latest public GA version on SDC-->
-		<condition property="installer" value="${env.CC_INSTALLER}" else="cc-def-10.1-fix7-${platform}">
+		<condition property="installer" value="${env.CC_INSTALLER}" else="cc-def-10.2-fix1-${platform}">
 			<isset property="env.CC_INSTALLER"/>
 		</condition>
 
@@ -84,8 +85,10 @@ ant stopcc                       Stop local Command Central server
 		<!-- default download location -->
 		<property name="installer.dir" location="${user.home}/Downloads" />
 
-		<!-- default download site -->
-		<property name="installer.url" value="http://empowersdc.softwareag.com/ccinstallers" />
+		<!-- default public download site on SDC-->
+		<condition property="installer.url" value="${env.CC_INSTALLER_URL}" else="http://empowersdc.softwareag.com/ccinstallers">
+			<isset property="env.CC_INSTALLER_URL"/>
+		</condition>
 
 	    <!-- default installation directory in Dev -->
 		<property name="install.dir" location="${user.home}/sag/cc" />
@@ -150,8 +153,8 @@ ant stopcc                       Stop local Command Central server
 		</propertyfile>
 	</target>
 
-	<target name="stopcc" depends="_prepare" description="Stop local Command Central Server" if="install.dir.exists">
-		<exec dir="${install.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failifexecutionfails="false" >
+	<target name="stopcc" depends="_prepare" description="Stop local Command Central Server" if="install.dir.exists" >
+   	    <exec dir="${install.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failifexecutionfails="false" >
 			<arg line="./profiles/SPM/bin/shutdown.sh" />
 		</exec>
 		<exec dir="${install.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failifexecutionfails="false" >
@@ -183,6 +186,42 @@ ant stopcc                       Stop local Command Central server
 	<target name="boot" description="Bootstrap local Command Central">
 		<antcall target="_install" />		
 	</target>
+	
+	<target name="boot-migration" description="Upgrade local Command Central" depends="_prepare,_download,_check-installer,_unzip-installer">
+		<echo>Running: ${installer}.${file.extension} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -m ${install.dir.old}</echo>
+
+		<exec dir="${installer.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failonerror="true" >
+			<arg line="./${installer}.sh --accept-license -D ${distro} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -m ${install.dir.old}" />
+		</exec>
+
+		<fileset id="win.installers.fileset" dir="${installer.dir}" includes="**/*">
+			<filename name="cc-*-w64.bat" />
+		</fileset>
+
+		<property name="installer.bat.filename" refid="win.installers.fileset" />
+
+		<exec dir="${install.dir}" executable="${installer.bat.filename}" osfamily="windows" vmlauncher="false" failonerror="true" >
+			<arg value="--accept-license" />
+			<arg value="-D" />
+			<arg value="${distro}" />
+			<arg value="-d" />
+			<!-- IMPORTANT: convert path to Windows format -->
+			<arg path="${install.dir}" />
+			<arg value="-c" />
+			<arg value="${cce.http.port}" />
+			<arg value="-C" />
+			<arg value="${cce.https.port}" />
+			<arg value="-s" />
+			<arg value="${spm.http.port}" />
+			<arg value="-S" />
+			<arg value="${spm.https.port}" />
+			<arg value="-p" />
+			<arg value="${password}" />
+			<arg value="-m" />
+			<arg value="${install.dir.old}" />
+		</exec>
+    </target>
+
 
 	<target name="register-installer" description="Register installer in Command Central" depends="_prepare,_download,_check-installer">
 			 <echo>register installer ${installer}.${file.extension} in CCE installers </echo>

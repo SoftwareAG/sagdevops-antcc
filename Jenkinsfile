@@ -1,6 +1,24 @@
-#!groovy​
+#!/usr/bin/env groovy
 
-def antbuild (command) {
+// TODO: FINISH AND TEST ME !!!
+
+// https://jenkins.io/doc/book/pipeline/shared-libraries/
+// TODO: move to a Jenkins CC library
+
+// export JENKINS_URL=http://ccbvtauto.eur.ad.sag:8080
+// curl -X POST -F "jenkinsfile=<Jenkinsfile" $JENKINS_URL/pipeline-model-converter/validate
+
+
+def install (command) {
+    if (isUnix()) {
+        sh "bin/sagccantw $command"
+    } else {
+        // TODO: implement sagccantw for Windows
+        bat "ant $command"
+    }
+}
+
+def ant (command) {
     if (isUnix()) {
         sh "ant $command"
     } else {
@@ -8,68 +26,107 @@ def antbuild (command) {
     }
 }
 
-pipeline {
-    agent { label 'master' }
+def antcc (command) {
+    if (isUnix()) {
+        sh "bin/antcc $command"
+    } else {
+        bat "bin\\antcc $command"
+    }
+}
 
-    environment {
-        INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/cc/installers" // internal download site
+def restartVMs(propfile) {
+    def props = readProperties file: propfile
+    def vms = props['vm.names']?.split(',')
+    def vmserver = props['vm.server']
+    def vmwait = props['vm.wait']?.toInteger()
+
+    if (!vmserver) {
+        error message: "Required vm.server, vm.names properties are not set in ${params.CC_ENV} env.properties file"
+    }
+
+    def builders = [:]
+    for (x in vms) {
+        def vm = x
+        builders[vm] = {
+            node('master') {
+                vSphere buildStep: [$class: 'PowerOff', evenIfSuspended: false, shutdownGracefully: false, vm: vm], serverName: vmserver
+                vSphere buildStep: [$class: 'PowerOn', timeoutInSeconds: 180, vm: vm], serverName: vmserver
+                sleep vmwait
+            }
+        }                        
+    }
+    parallel builders // run in parallel
+}
+
+def test(propfile) {
+    def props = readProperties file: propfile
+    def vms = props['vm.names']?.split(',')
+    def vmdomain = props['vm.domain']
+    def builders = [:]
+    for (x in vms) {
+        def label = x + vmdomain // Need to bind the label variable before the closure - can't do 'for (label in labels)'
+        builders[label] = {
+            node(label) {
+                unstash 'scripts'
+                antcc '-Daccept.license=true boot'
+                antcc 'startcc restartcc'
+                antcc 'apply -Dt=tests/test-template.yaml'
+                antcc 'ps jobs log logs'
+                antcc 'stopcc'
+            }
+        }                        
+    }
+    parallel builders // kick off parallel provisioning    
+}
+
+pipeline {
+    agent {
+        label 'master'
     }
     options {
         buildDiscarder(logRotator(numToKeepStr:'10'))
         disableConcurrentBuilds()
     }
+    environment {
+        CC_INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/cc/installers" // internal download site
+        CC_ENV_FILE = "tests/test.properties"
+        CC_PASSWORD = "manage"
+    }
     stages {
         stage("Prepare") {
             steps {
-                //checkout scm
                 stash 'scripts'
             }
-        }
+        }        
         stage("Unit Test") {
-            // tools {
-            //     ant "ant-1.9"
-            //     jdk "jdk-1.8"
-            // }
+            agent {
+                docker { image 'cloudbees/java-build-tools' } // with ant
+            }
             steps {
                 unstash 'scripts'
-                timeout(time:10, unit:'MINUTES') {
-                    antbuild "-f main.xml -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=`pwd`/build/cli client"
+                timeout (time:10, unit:'MINUTES') {
+                    sh "ant -Dinstall.dir=`pwd`/build/cli client"
                 }
             }
             post {
                 always {
-                    antbuild "-f main.xml -Dinstall.dir=`pwd`/build/cc/cli uninstall"
+                    sh "ant -Dinstall.dir=`pwd`/build/cc/cli uninstall"
                 }
             }
-        }
-        stage("Platform Tests") {     
-            environment {
-                reboot = "-f main.xml -Daccept.license=true -Dinstaller.url=${env.INSTALLER_URL} -Dinstall.dir=${pwd()}/build/cc -Dport.range=33 uninstall boot"
-                test = "-f main.xml ps jobs killjobs log logs restartcc waitcc stopcc"
-            }
+        }        
+        stage ('Restart VMs') { 
             steps {
-                unstash 'scripts'
                 script {
-                    def labels = ['lnxamd64','w64','solamd64']
-                    def builders = [:]
-                    for (x in labels) {
-                        def label = x
-                        builders[label] = {
-                            node(label) {
-                                // tools {
-                                //     ant "ant-1.9"
-                                //     jdk "jdk-1.8"
-                                // }                                
-                                timeout(time:20, unit:'MINUTES') {
-                                    antbuild "${reboot}"
-                                    antbuild "${test}"
-                                }
-                            }
-                        }                        
-                    }
-                    parallel builders // kick off parallel provisioning
-                }                
+                    restartVMs env.CC_ENV_FILE
+                }              
             }
-        } 
+        }  
+        stage ('Platform Test') {
+            steps {
+                script {
+                    test env.CC_ENV_FILE
+                }         
+            }
+        }     
     }
 }

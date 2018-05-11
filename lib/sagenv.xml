@@ -23,9 +23,12 @@ Targets:
 ant nodes -Dnodes=n1,n2          Connect existing nodes as alias[:host[:port]],alias2...
 ant up                           Import and apply all 'templates/*'
 ant templates                    Import templates from 'templates/*' and list
-ant import -Dt=templateFolder    Reimport single template
+ant import -Dt=p/templateFolder  Reimport single template folder/
+ant import -Dt=p/f/template.yaml Reimport single template .yaml file
 ant apply -Dalias=template       Apply single template using its alias
-ant apply -Dt=templateFolder     Reimport and apply template from source folder
+ant apply -Dt=p/templateFolder   Reimport and apply template from source folder
+ant apply -Dt=p/f/template.yaml  Reimport and apply template from source template .yaml file
+ant apply                        Reimport and apply ./template.yaml and ./env.properties
 ant migrate -Dt=templateFolder   Migrate using template from source folder
 ant clean                        Clean project from build artifacts
 		</echo>
@@ -51,14 +54,19 @@ ant clean                        Clean project from build artifacts
 		<!-- optional extra parameters for template apply operations -->
 		<property name="apply.params" value="" />
 
-	    <fail unless="env.properties.exists">
+	    <!-- <fail unless="env.properties.exists">
 	    	Environment configuration .properties file does not exist for: ${env}
-	    </fail>
+	    </fail> -->
+
+		<!-- default to empty.properties -->
+		<property name="env.properties" value="${build.dir}/empty.properties" />
+		<echo file="${build.dir}/empty.properties" append="false" />
 
 		<echo>Environment configuration: ${env.properties}</echo>
 	</target>
 
 	<target name="sagenvInit2" depends="_prepare,sagenvInit">
+
 		<!-- load env properties, keeping existing props -->
 		<property file="${env.properties}" />
 
@@ -73,6 +81,9 @@ ant clean                        Clean project from build artifacts
 		<!-- change the env.properties var to the new file -->
 		<var name="env.properties" value="${env.properties.expanded.file}"/>
 		<echo>Environment configuration expanded and loaded: ${env.properties}</echo>
+
+		<property name="library.dir" value="library/templates" />
+		<property name="templates.dir" value="templates" />		
 	</target>
 
 	<target name="import" description="Import template and dont apply" depends="_zip,_file,sagenvInit2" if="import.template" >
@@ -80,9 +91,18 @@ ant clean                        Clean project from build artifacts
 		<cc command="exec templates composite import overwrite=true" input="${template.file}"/>
 	</target>
 
-	<target name="templates" description="Import and list all available templates" depends="sagccInit" >
+	<target name="templates" description="Import project templates" depends="sagenvInit2" >
+		<fail>
+			<condition>
+				<not>
+					<available file="${templates.dir}" />
+				</not>
+			</condition>
+			The project does not have any templates in '${templates.dir}' folder
+		</fail>
+
 		<path id="templates.list.ref">
-    		<dirset dir="templates" includes="*" />
+    		<dirset dir="${templates.dir}" includes="*" />
   		</path>
  	    <property name="templates" value="${toString:templates.list.ref}"/>
 
@@ -98,8 +118,20 @@ ant clean                        Clean project from build artifacts
 			Available templates:
 		</echo>
 		<cc command="list templates composite" format="tsv" />
-
 	</target>
+
+	<target name="library" depends="sagenvInit2" description="Import template library" >
+		<antcall target="templates">
+			<param name="templates.dir" value="${library.dir}"/>
+		</antcall>
+	</target>
+
+	<target name="layers" depends="library" description="Register layer definition" >
+		<antcall target="apply">
+			<param name="alias" value="sag-cc-layer-defs"/>
+		</antcall>
+		<cc command="list configuration instances local OSGI-CCE-ENGINE refresh=true" format="tsv" />
+	</target>	
 
 	<target name="apply" description="Apply template and wait" depends="import" >
 		<fail unless="alias">
@@ -110,11 +142,11 @@ ant clean                        Clean project from build artifacts
 			Applying template '${alias}' with '${env.properties}' ${apply.params} ...
 		</echo>
 
-		<cc command="exec templates composite apply ${alias} ${apply.params} includeHeaders=false properties=id" format="csv" outputproperty="jobid" input="${env.properties}" />
-		<cc command="list jobmanager jobs ${jobid} properties=status,description,statusAsString includeHeaders=false" expectedvalues="DONE|ERROR|WARNING|TIMEDOUT|ConnectException" wait="${w}" checkevery="20" error="build/logs/waiting" format="tsv" />
+		<cc command="exec templates composite apply ${alias} ${apply.params} properties=id includeHeaders=false" waitforcc="300" format="tsv" wait="${w}" checkevery="15" input="${env.properties}" outputproperty="jobid" />
+		<cc command="list jobmanager jobs ${jobid} properties=status,description,statusAsString includeHeaders=false" expectedvalues="DONE|ERROR|WARNING|TIMEDOUT|ConnectException" wait="${w}" checkevery="10" error="${build.dir}/logs/waiting" format="tsv" />
         <cc command="list jobmanager jobs ${jobid} properties=status includeHeaders=false" outputproperty="job.status" format="tsv" />
 		<cc command="list jobmanager jobs ${jobid} properties=statusAsString includeHeaders=false" outputproperty="job.status.description" format="tsv" />
-
+		
 		<fail>
 			<condition>
 				<not>
@@ -123,67 +155,62 @@ ant clean                        Clean project from build artifacts
 			</condition>
 			Job execution failed with '${job.status}' status: ${job.status.description}
 		</fail>
-
+		
 	</target>
 
-	<target name="up" description="Provision environment using templates" depends="sagccInit" >
-		<!-- default set of templates are all project templates/* -->
-		<path id="templates.list.ref">
-    		<dirset dir="templates" includes="*" />
-  		</path>
- 	    <property name="templates" value="${toString:templates.list.ref}"/>
+	<target name="apply2" description="Apply template and wait" depends="import" >
+		<fail unless="alias">
+            Neither template '${alias}' nor template source '${t}' are specified!
+        </fail>
 
-    	<for list="${templates}" param="t" delimiter="${path.separator}">
+		<echo>
+			Applying template '${alias}' with '${env.properties}' ${apply.params} ...
+		</echo>
+
+		<cc command="exec templates composite apply ${alias} ${apply.params}" syncjob="true" waitforcc="300" format="tsv" wait="${w}" checkevery="15" retry="2" input="${env.properties}" expectedvalues="DONE" />
+	</target>
+
+	<target name="up" description="Apply list of templates" depends="sagenvInit2" >
+		<!-- <path id="templates.list.ref">
+    		<dirset dir="${templates.dir}" includes="*" />
+  		</path>
+ 	    <property name="templates.list" value="${toString:templates.list.ref}"/>
+		<propertyregex property="templates"
+              input="${templates.list}"
+              regexp="${path.separator}"
+              replace="," /> -->
+
+		<fail unless="templates">
+			You must provide 'templates' properties as list of template aliases to apply
+		</fail>
+
+		<echo>Applying list of templates: ${templates}</echo>
+
+    	<for list="${templates}" param="t" delimiter=",">
 			<sequential>
 				<antcall target="apply">
-					<param name="t" value="@{t}" />
+					<param name="alias" value="@{t}" />
 				</antcall>
 			</sequential>
         </for>
 	</target>
 
-	<target name="migrate" description="Migrate environment" depends="import" >
-		<echo>
-			Migrating using template ${alias} with ${env.properties} ${apply.params} ...
-		</echo>
-
-		<cc command="exec templates composite apply ${alias} ${apply.params} environment.mode=migration includeHeaders=false properties=id" format="csv" outputproperty="jobid" input="${env.properties}" />
-		<cc command="list jobmanager jobs ${jobid} properties=status,statusAsString includeHeaders=false" expectedvalues="DONE|ERROR|WARNING|TIMEDOUT|ConnectException" wait="${w}" checkevery="20" error="build/logs/waiting" format="tsv" />
-		<cc command="list jobmanager jobs ${jobid} properties=status includeHeaders=false" outputproperty="job.status" format="tsv" />
-		<cc command="list jobmanager jobs ${jobid} properties=statusAsString includeHeaders=false" outputproperty="job.status.description" format="tsv" />
-
-		<fail>
-			<condition>
-				<not>
-					<equals arg1="${job.status}" arg2="DONE" />
-				</not>
-			</condition>
-			Job execution failed with '${job.status}' status: ${job.status.description}
-		</fail>
+	<target name="migrate" description="Migrate environment" >
+		<antcall target="apply">
+			<param name="apply.params" value="environment.mode=migration" />
+		</antcall>
 	</target>
 
-	<target name="stop" description="Stop environment" depends="sagenvInit2" >
-		<echo>Not implemented</echo>
-	</target>
-
-	<target name="start" description="Start environment" depends="sagenvInit2" >
-        <echo>Not implemented</echo>
-	</target>
-
-	<target name="restart" description="Restart environment" depends="sagenvInit2" >
-        <echo>Not implemented</echo>
-	</target>
-
-	<target name="nodes" depends="waitcc,sagenvInit2" description="Connect existing nodes">
+	<target name="nodes" depends="waitcc,sagenvInit2" description="Register nodes">
 		<property file="${env.properties}" />
 		<property name="nodes" value="" />
-		<echo>Connecting to nodes [${nodes}] ...</echo>
+		
+		<echo>Registering nodes [${nodes}] ...</echo>
 		<for list="${nodes}" param="node" delimiter="," keepgoing="true" trim="yes">
 			<sequential>
-				<echo>Connecting to: @{node}</echo>
+				<echo>Registering: @{node}</echo>
 				<nodeProperties definition="@{node}" alias="node.alias" host="node.host" port="node.port" />
 				<cc command="add landscape nodes alias=${node.alias} url=http://${node.host}:${node.port}" expectedvalues="OK" />
-				<cc command="list landscape nodes ${node.alias}" expectedvalues="ONLINE" format="tsv" wait="180" />
 			</sequential>
 		</for>
 
@@ -191,8 +218,49 @@ ant clean                        Clean project from build artifacts
 		<cc command="list landscape nodes" format="tsv" />
 	</target>
 
+	<target name="waitnodes" depends="nodes" description="Waitfor nodes to come ONLINE">
+		<echo>Waiting for nodes [${nodes}] ...</echo>
+		<for list="${nodes}" param="node" delimiter="," keepgoing="true" trim="yes">
+			<sequential>
+				<echo>Waiting for ONLINE: @{node}</echo>
+				<nodeProperties definition="@{node}" alias="node.alias" host="node.host" port="node.port" />
+				<cc command="list landscape nodes ${node.alias}" expectedvalues="ONLINE" format="tsv" wait="180" />
+			</sequential>
+		</for>
+	</target>
+
+	<!-- TODO: more generic way to run any template -->
+	<target name="oracledb" depends="waitcc,sagenvInit2">
+		<antcall target="apply">
+			<param name="alias" value="sag-db-oracle"/>
+		</antcall>
+	</target>
+	
+	<target name="proxy" depends="waitcc,sagenvInit2" description="Configure proxy">
+		<antcall target="apply">
+			<param name="alias" value="sag-spm-proxy" />
+		</antcall>
+		<echo>Restart is required!</echo>
+	</target>
+
+	<target name="tuneup" depends="waitcc,sagenvInit2" description="Tune up Command Central">
+		<antcall target="apply">
+			<param name="alias" value="sag-cc-tuneup" />
+		</antcall>
+		<echo>Restart is required!</echo>
+	</target>	
+
+	<target name="update" depends="waitcc,sagenvInit2" description="Self update Command Central">
+		<antcall target="apply2">
+			<param name="alias" value="sag-update" />
+		</antcall>
+	</target>
+
 	<target name="_params" >
 		<property name="w" value="4600" description="Wait time (seconds)"/>
+		
+		<!-- apply without parameters picks up template.yaml in the current folder -->
+		<property name="t" location="template.yaml" description="Default ./template.yaml"/>
 
 		<condition property="import.template">
 			<available file="${t}"/>
@@ -205,11 +273,12 @@ ant clean                        Clean project from build artifacts
 		<condition property="import.template.file">
 			<available file="${t}" type="file"/>
 		</condition>
+		
 	</target>
 
 	<target name="_zip" depends="_params" if="import.template.dir" >
 		<basename file="${t}" property="alias" />
-		<property name="template.file" value="build/templates/${alias}.zip" />
+		<property name="template.file" value="${build.dir}/templates/${alias}.zip" />
 		<delete file="${template.file}"/>
 		<zip destfile="${template.file}" basedir="${t}" />
 		<echo>alias: ${alias} projectdir: ${t}</echo>
@@ -249,7 +318,7 @@ ant clean                        Clean project from build artifacts
     </scriptdef>	
 	
 	<target name="clean" description="Clean project from build artifacts">
-		<delete dir="build" verbose="true" />
+		<delete dir="${build.dir}" verbose="true" />
 		<delete verbose="true" includeemptydirs="true">
 			<fileset dir="${basedir}" includes="**/build/**" />
 		</delete>

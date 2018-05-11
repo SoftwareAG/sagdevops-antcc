@@ -1,40 +1,41 @@
-[![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-antcc.svg?branch=master)](https://travis-ci.org/SoftwareAG/sagdevops-antcc/builds)
-
-
+[![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-antcc.svg?branch=release/102apr2018)](https://travis-ci.org/SoftwareAG/sagdevops-antcc/builds)
 
 # Command Central Project Automation Tool
 
-AntCC is Software AG DevOps library to support Infrastructure as Code 
+AntCC is Software AG DevOps library to support Infrastructure as Code
 projects for Command Central.
 It is based on well-known Apache Ant build automation framework.
 
 The tool defines a typical Command Central Infrastructure project structure
-and provides default targets (commands) for developing and testing 
+and provides default targets (commands) for developing and testing.
 
 ## Requirements and Dependencies
 
 * [Apache Ant 1.9.x](https://ant.apache.org/)
 * [Java 1.8.x](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 
-## Quick Start
+## Installation
 
-Short usage help
+Install client
 
-```
-ant -f main.xml -p
-```
-
-More help:
-
-```
-ant -f main.xml -S
+```bash
+git clone https://github.com/SoftwareAG/sagdevops-antcc.git antcc
+cd antcc
+bin/antcc client
 ```
 
-# Project Structure and Default Targets
+Add to the PATH
+
+```bash
+export ANTCC_HOME=/path/to/antcc
+export PATH=$PATH:$ANTCC_HOME/bin
+```
+
+## Project Structure and Default Targets
 
 Complete project structure looks like this:
 
-```
+```bash
 build.xml
 
 bootstrap/
@@ -71,47 +72,13 @@ tests/
 
 Most folders and files are optional and each of them are described below.
 
-## Build.xml
-
-The project MUST have build.xml file in its root.
-
-The build.xml content at a minimum MUST import main.xml from the ANTCC distribution.
-
-```
-<?xml version="1.0"?>
-<project>
-	<import file="antcc/main.xml" />
-</project>
-```
-
-The import provides access to default ANTCC targets and is enough to start using
-the project, however more often you will add your own automation targets to this
-main build.xml script.
-
-The build.xml is a standard Apache Ant script you can use all the facilities
-that Ant provides for writing cross-platform automation scripts by leveraging
-
-* Generic targets imported from ANTCC
-* Any Command Central REST API available via CC CLI commands
-* Any generic automation facilities provided by Ant tasks and libraries
-* Any 3-rd party tooling that provide CLI or API
-
-For GIT based automation projects it is recommended to include ANTCC as a submodule
-
-```
-git submodule add _clone_url_to_this_project.git_ antcc
-```
-
-If your project is not on GIT you can clone ANTCC project anywhere on the local
-file system and reference it using relative or absolute path.
-
 ## Bootstrap
 
 ANTCC tool provides generic targets to download
 and then bootstrap Command Central server, CC CLI or SPM.
 Bootstrap folder is optional and allows to customize bootstrap parameters.
 
-```
+```bash
 bootstrap
   default.properties
   custom.properties
@@ -119,7 +86,7 @@ bootstrap
 
 Default targets provided by bootstrap plugin:
 
-```
+```bash
 ant -f lib/bootstrap.xml -S
 
 Optional parameter for any target:
@@ -153,7 +120,7 @@ the configuration file and store it as client/default.properties.
 
 You can have as many client configuration files as you need.
 
-```
+```bash
 clients
   default.properties
   custom.properties
@@ -161,7 +128,7 @@ clients
 
 Default targets provided by sagcc plugin:
 
-```
+```bash
 ant -f lib/sagcc.xml -S
 
 Optional parameter for any target:
@@ -190,7 +157,7 @@ environments/default/env.properties file.
 For additonal environments create a separate folder and place env.properties
 file there. The final structure looks like this:
 
-```
+```bash
 environments
   default
     env.properties
@@ -202,7 +169,7 @@ After the environments are defined you can apply existing templates
 
 Default targets provided by sagenv plugin:
 
-```
+```bash
 ant -f lib/sagenv.xml -S
 
 Optional parameter for any target:
@@ -223,7 +190,7 @@ The templates are placed under templates/ folder, each template in a separate
 folder. The template folder must have at least template.yaml file but may provide
 any additional files to package with the template.
 
-```
+```bash
 templates
    template1
      template.yaml
@@ -237,7 +204,7 @@ After the template(s) have been created they can be imported and applied.
 
 Default targets provided by sagenv plugin:
 
-```
+```bash
 ant -f lib/sagenv.xml -S
 
 Optional parameter for any target:
@@ -256,13 +223,13 @@ ant migrate -Dt=templateFolder   Reimport and migrate using template from source
 
 ## Tests
 
-Your project should have tests. 
+Your project should have tests
 
 ANTCC allows you easily define tests using [AntUnit](https://ant.apache.org/antlibs/antunit/) framework.
 
 Create AntUnit tests and save them as tests/test*.xml files.
 
-```
+```bash
 tests
   test1.xml
   test2.xml
@@ -270,7 +237,7 @@ tests
 
 Default targets provided by sagtest.xml plugin:
 
-```
+```bash
 ant -f lib/sagtest.xml -S
 
 Optional parameter for any target:
@@ -292,30 +259,47 @@ mkdir ~/myproj1
 cd ~/myproj1
 ```
 
-Initialze git repository (if not done yet) and add antcc submodule
+## Add optional build.xml
 
-```bash
-git init
-git submodule add <antcc_clone_url.git> antcc
-```
+The project does NOT have to have build.xml file in its root. In this case $ANTCC_HOME/build.xml will be used.
 
-Create build.xml in the root of the project: 
+The project MAY extend default $ANTCC_HOME/build.xml by placing build.xml with the following content in the project root:
 
 ```xml
 <?xml version="1.0"?>
 <project>
-	<import file="antcc/main.xml" />
+  <property environment="env" />
+  <condition property="antcc.home" value="${env.ANTCC_HOME}" else="antcc">
+    <isset property="env.ANTCC_HOME"/>
+  </condition>
+  <import file="${antcc.home}/build.xml" />
+
 </project>
 ```
 
-If the project is already Ant-enabled add this to the existing build.xml
+The import provides access to default ANTCC targets and is enough to start using
+the project, however more often you will add your own automation targets to this
+main build.xml script.
 
-```xml
-<import file="antcc/main.xml" />
+The build.xml is a standard Apache Ant script you can use all the facilities
+that Ant provides for writing cross-platform automation scripts by leveraging
+
+* Generic targets imported from ANTCC
+* Any Command Central REST API available via CC CLI commands
+* Any generic automation facilities provided by Ant tasks and libraries
+* Any 3-rd party tooling that provide CLI or API
+
+## Embedding antcc
+
+For GIT based automation projects you MAY include ANTCC as a submodule
+
+```bash
+git submodule add https://github.com/SoftwareAG/sagdevops-antcc.git antcc
 ```
 
-Create bootstrap configuration file, customize as needed.
+This makes the project completely independend and does not require antcc installed on the host.
 
+## Create bootstrap configuration file, customize as needed
 
 ```bash
 mkdir -p bootstrap
@@ -371,10 +355,9 @@ EOF
 Apply template, check logs and jobs
 
 ```bash
-ant up 
+ant up
 ant jobs log logs
 ```
-
 
 ## Working with remote servers
 
@@ -395,6 +378,7 @@ Any command will now execute against this remote server by default.
 ```bash
 ant waitcc up jobs log logs
 ```
+
 _____________
 Contact us at [TECHcommunity](mailto:technologycommunity@softwareag.com?subject=Github/SoftwareAG) if you have any questions.
 _____________

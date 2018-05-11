@@ -4,7 +4,7 @@
 	    Common include for all plugins
     </description>
 
-	<dirname file="${ant.file.antcc}" property="ant.file.antcc.basedir"/>
+	<dirname file="${ant.file.antcc}" property="antcc.home" />
 
 	<import file="lib/bootstrap.xml" />
 
@@ -22,6 +22,6 @@
 		help-sagabe
 	" />
 
-	<target name="all" description="End to end automation" depends="boot,up,test" />
+	<target name="all" description="End to end automation" depends="up,test" />
 
 </project>
