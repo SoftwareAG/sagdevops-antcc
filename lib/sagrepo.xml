@@ -172,12 +172,34 @@ ant images                       Import product and fix images
 		<antcall target="apply">
 			<param name="alias" value="sag-cc-repos" />
 		</antcall>
+
+		<echo>
+			Registered product repositories
+		</echo>
+		<cc command="list repository products" format="tsv"/>
+		
+		<echo>
+			Registered fix repositories
+		</echo>
+		<cc command="list repository fixes" format="tsv"/>
+		
 	</target>
 
 	<target name="mirrors2" depends="waitcc,sagenvInit2" description="Connect remote mirrors">
 		<antcall target="apply">
 			<param name="alias" value="sag-cc-mirrors" />
 		</antcall>
+
+		<echo>
+			Registered product repositories
+		</echo>
+		<cc command="list repository products" format="tsv"/>
+		
+		<echo>
+			Registered fix repositories
+		</echo>
+		<cc command="list repository fixes" format="tsv"/>
+		
 	</target>
 
 	<macrodef name="mirror" >
@@ -189,6 +211,7 @@ ant images                       Import product and fix images
 		<attribute name="platforms" default="${platform.uppercase}"/>
 		<attribute name="artifacts" default="ALL"/>
 		<attribute name="wait" default="3600" />
+		<attribute name="noProductFilter" default="false" />
 
 		<sequential>
 			<!-- get list of all repositories -->
@@ -200,10 +223,20 @@ ant images                       Import product and fix images
 			<!-- check if we already have this repository -->
 			<contains list="${names}" item="@{name}" property="exists" />
 
-			<!-- if we don't, add it-->
-			<cc unless:true="${exists}" 
-				command="add repository @{type} mirror name=@{name} sourceRepos=@{from} productRepos=@{filter} artifacts=@{artifacts} platforms=@{platforms} includeHeaders=false properties=id" format="csv" outputproperty="jobid"/>
-			
+			<if>
+				<isfalse value="@{noProductFilter}" />
+				<then>
+					<echo>Filtering per products repo </echo>
+					<!-- if we don't, add it-->
+					<cc unless:true="${exists}" command="add repository @{type} mirror name=@{name} sourceRepos=@{from} productRepos=@{filter} artifacts=@{artifacts} platforms=@{platforms} includeHeaders=false properties=id" format="csv" outputproperty="jobid" />
+				</then>
+				<else>
+					<!-- if we don't, add it-->
+					<echo>Filtering only per fix artifacts </echo>
+					<cc unless:true="${exists}" command="add repository @{type} mirror name=@{name} sourceRepos=@{from} artifacts=@{artifacts} platforms=@{platforms} includeHeaders=false properties=id" format="csv" outputproperty="jobid" />
+				</else>
+			</if>
+						
 			<!-- if we do, update it -->
 			<echo if:true="${exists}">@{name} repository already exists. Updating ...</echo>
 			<cc if:true="${exists}"     

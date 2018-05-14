@@ -71,8 +71,8 @@ ant clean                        Clean project from build artifacts
 		<property file="${env.properties}" />
 
 		<!-- expand resolved properties into new env.properties -->
-		<property name="env.properties.expanded.file" value="${build.dir}/expanded.properties" />
-		<copy file="${env.properties}" tofile="${env.properties.expanded.file}" verbose="true" overwrite="true" >
+		<property name="env.properties.expanded.file" value="build/${env}/env.properties" />
+		<copy file="${env.properties}" tofile="${env.properties.expanded.file}" verbose="true" overwrite="true">
 			<filterchain>
 				<expandproperties/>
 			</filterchain>
@@ -238,7 +238,7 @@ ant clean                        Clean project from build artifacts
 	
 	<target name="proxy" depends="waitcc,sagenvInit2" description="Configure proxy">
 		<antcall target="apply">
-			<param name="alias" value="sag-cc-proxy" />
+			<param name="alias" value="sag-spm-proxy" />
 		</antcall>
 		<echo>Restart is required!</echo>
 	</target>
