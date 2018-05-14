@@ -100,7 +100,7 @@ pipeline {
         }        
         stage("Unit Test") {
             agent {
-                docker { image 'cloudbees/java-build-tools' } // with ant
+                docker { image 'ccdevops/java-build-tools' } // with ant
             }
             steps {
                 unstash 'scripts'
