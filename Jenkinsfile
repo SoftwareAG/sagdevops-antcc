@@ -128,5 +128,11 @@ pipeline {
                 }         
             }
         }     
+        stage ('Dockerize') {
+            steps {
+                sh 'docker-compose build'
+                sh 'docker-compose push'        
+            }
+        }     
     }
 }

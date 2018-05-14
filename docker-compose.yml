@@ -1,0 +1,7 @@
+version: "3.2"
+services:
+  antcc:
+    image: daerepository03.eur.ad.sag:4443/ccdevops/commandcentral-client:10.3-antcc
+    build:
+      context: .
+    command: help
