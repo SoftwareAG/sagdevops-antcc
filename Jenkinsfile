@@ -113,7 +113,13 @@ pipeline {
                     sh "ant -Dinstall.dir=`pwd`/build/cc/cli uninstall"
                 }
             }
-        }        
+        }    
+        stage ('Dockerize') {
+            steps {
+                sh 'docker-compose build'
+                sh 'docker-compose push'        
+            }
+        }     
         stage ('Restart VMs') { 
             steps {
                 script {
@@ -126,12 +132,6 @@ pipeline {
                 script {
                     test env.CC_ENV_FILE
                 }         
-            }
-        }     
-        stage ('Dockerize') {
-            steps {
-                sh 'docker-compose build'
-                sh 'docker-compose push'        
             }
         }     
     }
