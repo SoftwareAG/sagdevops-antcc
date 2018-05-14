@@ -115,9 +115,13 @@ pipeline {
             }
         }    
         stage ('Dockerize') {
+            agent {
+              label 'docker'
+            } 
             steps {
-                sh 'docker-compose build'
-                sh 'docker-compose push'        
+              unstash 'scripts'
+              sh 'docker-compose build'
+              sh 'docker-compose push'        
             }
         }     
         stage ('Restart VMs') { 
