@@ -110,7 +110,7 @@ pipeline {
             }
             post {
                 always {
-                    sh "ant -Dinstall.dir=`pwd`/build/cc/cli uninstall"
+                    sh "ant -Dinstall.dir=`pwd`/build/cc/cli uninstall clean"
                 }
             }
         }    
