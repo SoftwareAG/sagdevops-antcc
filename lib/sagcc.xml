@@ -106,7 +106,6 @@ Make sure you bootstrap Command Central client on this host
 		<taskdef description="core CLI support" resource="com/softwareag/platform/management/client/ant/antlib.xml" classpathref="cc.ant.classpath" />
 
 		<taskdef description="conditions,cycles,etc" resource="net/sf/antcontrib/antlib.xml" classpathref="cc.ant.classpath" />
-		<taskdef description="xml processing" name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask" classpathref="cc.ant.classpath" />
 		<taskdef description="unit testing" uri="antlib:org.apache.ant.antunit" resource="org/apache/ant/antunit/antlib.xml" classpathref="cc.ant.classpath" />
 
 		<loadproperties>
