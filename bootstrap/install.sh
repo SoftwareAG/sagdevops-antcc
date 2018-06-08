@@ -17,10 +17,9 @@ esac
 URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers}
 
 # default installation dir
-export CC_HOME="$HOME/.sag/sagcc"
+export CC_HOME="$HOME/.sag/tools"
 export CC_CLI_HOME="$CC_HOME/CommandCentral/client"
 
-echo "Software AG Command Central tools not found in $CC_HOME"
 mkdir -p "$HOME/Downloads"
 file="$HOME/Downloads/$CC_INSTALLER"
 echo "Downloading ${URL}/${CC_INSTALLER} ..."
