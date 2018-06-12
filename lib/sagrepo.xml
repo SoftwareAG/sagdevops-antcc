@@ -172,12 +172,34 @@ ant images                       Import product and fix images
 		<antcall target="apply">
 			<param name="alias" value="sag-cc-repos" />
 		</antcall>
+
+		<echo>
+			Registered product repositories
+		</echo>
+		<cc command="list repository products" format="tsv"/>
+		
+		<echo>
+			Registered fix repositories
+		</echo>
+		<cc command="list repository fixes" format="tsv"/>
+		
 	</target>
 
 	<target name="mirrors2" depends="waitcc,sagenvInit2" description="Connect remote mirrors">
 		<antcall target="apply">
 			<param name="alias" value="sag-cc-mirrors" />
 		</antcall>
+
+		<echo>
+			Registered product repositories
+		</echo>
+		<cc command="list repository products" format="tsv"/>
+		
+		<echo>
+			Registered fix repositories
+		</echo>
+		<cc command="list repository fixes" format="tsv"/>
+		
 	</target>
 
 	<macrodef name="mirror" >

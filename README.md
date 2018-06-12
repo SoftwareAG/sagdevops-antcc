@@ -9,14 +9,12 @@ It is based on well-known Apache Ant build automation framework.
 The tool defines a typical Command Central Infrastructure project structure
 and provides default targets (commands) for developing and testing.
 
-## Requirements and Dependencies
+## Basic Installation
+
+### Requirements and Dependencies
 
 * [Apache Ant 1.9.x](https://ant.apache.org/)
 * [Java 1.8.x](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-
-## Installation
-
-Install client
 
 ```bash
 git clone https://github.com/SoftwareAG/sagdevops-antcc.git antcc
@@ -27,6 +25,23 @@ bin/antcc client
 Add to the PATH
 
 ```bash
+export ANTCC_HOME=/path/to/antcc
+export PATH=$PATH:$ANTCC_HOME/bin
+```
+
+## Zero dependencies installation
+
+If you don't have Java and Apache Ant you can use bootstrap installation script to install the clients
+along with Java and Ant:
+
+```bash
+curl https://raw.githubusercontent.com/SoftwareAG/sagdevops-antcc/release/102apr2018/bootstrap/install.sh | sh
+```
+
+Then pull the antcc library:
+
+```bash
+git clone https://github.com/SoftwareAG/sagdevops-antcc.git
 export ANTCC_HOME=/path/to/antcc
 export PATH=$PATH:$ANTCC_HOME/bin
 ```

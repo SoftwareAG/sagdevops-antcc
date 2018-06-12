@@ -100,7 +100,7 @@ pipeline {
         }        
         stage("Unit Test") {
             agent {
-                docker { image 'cloudbees/java-build-tools' } // with ant
+                docker { image 'ccdevops/java-build-tools' } // with ant
             }
             steps {
                 unstash 'scripts'
@@ -110,10 +110,20 @@ pipeline {
             }
             post {
                 always {
-                    sh "ant -Dinstall.dir=`pwd`/build/cc/cli uninstall"
+                    sh "ant -Dinstall.dir=`pwd`/build/cc/cli uninstall clean"
                 }
             }
-        }        
+        }    
+        stage ('Dockerize') {
+            agent {
+              label 'docker'
+            } 
+            steps {
+              unstash 'scripts'
+              sh 'docker-compose build'
+              sh 'docker-compose push'        
+            }
+        }     
         stage ('Restart VMs') { 
             steps {
                 script {
