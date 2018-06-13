@@ -60,7 +60,7 @@ ant clean                        Clean project from build artifacts
 
 		<!-- default to empty.properties -->
 		<property name="env.properties" value="${build.dir}/empty.properties" />
-		<echo file="${build.dir}/empty.properties" append="false" />
+		<echo file="${build.dir}/empty.properties" append="false" force="true" />
 
 		<echo>Environment configuration: ${env.properties}</echo>
 	</target>
