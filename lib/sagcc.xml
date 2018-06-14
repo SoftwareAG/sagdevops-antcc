@@ -58,6 +58,7 @@ ant logs                         Show tail of agents default log
 	<!-- call this target internally to initialize connection to CC using cc.properties -->
 	<target name="sagccInit">
 
+		<antversion property="ant.version"/>
 		<antversion atleast="1.9" property="ant.version.ok" />
 		<fail unless="ant.version.ok">
 			ERROR: Unsupported Ant version: ${ant.version}. 
@@ -96,7 +97,7 @@ Make sure you bootstrap Command Central client on this host
 		</fail>
 
 		<echo>CC Client HOME: ${cc.cli.home}</echo>
-
+		<echo>Ant version: ${ant.version} </echo>
 		<path description="" id="cc.ant.classpath">
 			<fileset dir="${cc.cli.home}" includes="lib/*.jar" /> 
 			<!-- to support 10.1 common/ant distro -->
