@@ -60,7 +60,7 @@ ant clean                        Clean project from build artifacts
 
 		<!-- default to empty.properties -->
 		<exec executable="/bin/bash">
-			<arg value="/bin/ls"/>
+			<arg value="ls"/>
 			<arg value="-la"/>
 			<arg value="${build.dir}"/>
 		</exec>
