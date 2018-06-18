@@ -59,12 +59,22 @@ ant clean                        Clean project from build artifacts
 	    </fail> -->
 
 		<!-- default to empty.properties -->
-		<!--
 		<exec executable="sh">
 			<arg value="-c"/>
 			<arg value="ls -la ${build.dir}"/>
 		</exec>
--->
+		<echo> build folder = ${build.dir}</echo>
+
+		<exec executable="sh">
+			<arg value="-c"/>
+			<arg value="ps -ef"/>
+		</exec>
+		<echo>try to sudo</echo>
+		<exec executable="sh">
+			<arg value="-c"/>
+			<arg value="sudo id"/>
+		</exec>
+		
 		<property name="env.properties" value="${build.dir}/empty.properties" />
 		<echo output="${build.dir}/empty.properties" append="false" force="true" />
 		<echo>Environment configuration: ${env.properties}</echo>
