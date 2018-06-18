@@ -349,5 +349,9 @@ ant clean                        Clean project from build artifacts
 			<fileset dir="${basedir}" includes="**/build/**" />
 		</delete>
 	</target>
+	
+	<target name="clean-file" description="Clean empty.properties from build artifacts">
+		<delete file="${build.dir}/empty.properties" verbose="true" failonerror="false"/>
+	</target>
 
 </project>
