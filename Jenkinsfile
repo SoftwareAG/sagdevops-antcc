@@ -1,20 +1,13 @@
 #!/usr/bin/env groovy
 
-// TODO: FINISH AND TEST ME !!!
+// curl -X POST -F "jenkinsfile=<Jenkinsfile" http://ccbvtauto.eur.ad.sag:8080/pipeline-model-converter/validate
 
-// https://jenkins.io/doc/book/pipeline/shared-libraries/
-// TODO: move to a Jenkins CC library
-
-// export JENKINS_URL=http://ccbvtauto.eur.ad.sag:8080
-// curl -X POST -F "jenkinsfile=<Jenkinsfile" $JENKINS_URL/pipeline-model-converter/validate
-
-
-def install (command) {
+def installAntcc () {
     if (isUnix()) {
-        sh "bin/sagccantw $command"
+        sh "curl https://raw.githubusercontent.com/SoftwareAG/sagdevops-antcc/${BRANCH}/bootstrap/install.sh | sh"
     } else {
-        // TODO: implement sagccantw for Windows
-        bat "ant $command"
+        // TODO: implement install.ps1 for Windows
+        // bat ".... powershell bootstrap\\install.ps1"
     }
 }
 
@@ -67,9 +60,12 @@ def test(propfile) {
         def label = x + vmdomain // Need to bind the label variable before the closure - can't do 'for (label in labels)'
         builders[label] = {
             node(label) {
+                // TODO: enable one-liner installation
+                // installAntcc
+
                 unstash 'scripts'
                 antcc '-Daccept.license=true boot'
-                antcc 'startcc restartcc'
+                // antcc 'startcc restartcc'
                 antcc 'apply -Dt=tests/test-template.yaml'
                 antcc 'ps jobs log logs'
                 antcc 'stopcc'
@@ -121,6 +117,7 @@ pipeline {
             steps {
               unstash 'scripts'
               sh 'docker-compose build'
+              sh 'docker-compose run --rm antcc'
               sh 'docker-compose push'        
             }
         }     
