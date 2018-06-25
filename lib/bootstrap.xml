@@ -14,6 +14,7 @@ CC_INSTALLER_URL=url             Command Central disibution site
 CC_INSTALLER=name                Command Central installer name
 CC_BOOT=other                    Command Central configuration name
 CC_PASSWORD=password             Command Central Administrator password
+CC_INSTALLER_IS_EXE              Command centtal installer type exe if set
 
 Optional parameter for any target:	
 
@@ -47,7 +48,7 @@ ant stopcc                       Stop local Command Central server
 
 	<target name="_prepare" depends="_check-os-distribution">
 		<echo>platform: ${platform}</echo>
-
+<!--
 		<condition property="unzip.file" value="true">
 			<os family="windows" />
 		</condition>
@@ -57,7 +58,63 @@ ant stopcc                       Stop local Command Central server
 		<condition property="report.file.extension" value="bat" else="sh">
 			<os family="windows" />
 		</condition>		
+-->
+		<condition property="file.extension" value="sh">
+		  <or>
+		    <os family="unix" />
+		    <os family="mac" />
+		  </or>
+		</condition>
+		<condition property="report.file.extension" value="sh">
+		  <or>
+		    <os family="unix" />
+		    <os family="mac" />
+		  </or>
+		</condition>
 
+		<condition property="file.extension" value="exe">
+		  <and>
+		    <os family="windows" />
+		    <equals arg1="${env.CC_INSTALLER_IS_EXE}" arg2="true" />
+		  </and>
+		</condition>
+
+		<condition property="report.file.extension" value="exe">
+		  <and>
+		    <os family="windows" />
+		    <equals arg1="${env.CC_INSTALLER_IS_EXE}" arg2="true" />
+		  </and>
+		</condition>
+
+		<condition property="file.extension" value="bat">
+		  <and>
+		    <os family="windows" />
+		    <not>
+		      <equals arg1="${env.CC_INSTALLER_IS_EXE}" arg2="true" />
+		    </not>
+		  </and>
+		</condition>
+		<condition property="report.file.extension" value="bat">
+		  <and>
+		    <os family="windows" />
+		  <not>
+		    <equals arg1="${env.CC_INSTALLER_IS_EXE}" arg2="true" />
+		  </not>
+		</and>
+		</condition>
+		<condition property="unzip.file" value="true">
+		  <and>
+		    <os family="windows" />
+		    <not>
+		      <equals arg1="${env.CC_INSTALLER_IS_EXE}" arg2="true" />
+		    </not>
+		  </and>
+		</condition>
+
+		<echo> "file ext ${file.extension}"</echo>
+		<echo> "report ext ${report.file.extension}"</echo>
+		<echo> "should unzip? ${unzip.file}" </echo>
+		
 		<condition property="bootstrap" value="${env.CC_BOOT}" else="default">
 			<isset property="env.CC_BOOT"/>
 		</condition>
