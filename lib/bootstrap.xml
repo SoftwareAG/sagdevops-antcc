@@ -271,13 +271,13 @@ ant stopcc                       Stop local Command Central server
 	<target name="_downloadSh" if="is.notWin">
 	  <property name="file.extension" value="sh" />
 	  <property name="report.file.extension" value="sh" />
-	  <mkdir dir="${installer.dir" />
+	  <mkdir dir="${installer.dir}" />
 	  <get src="${installer.url}/${installer}.sh" dest="${installer.dir}" usetimestamp="true" />
 	  <property name="skipWin" value="true" />
 	</target>
 
 	<target name="_downloadExe" unless="skipWin">
-      <mkdir dir="${installer.dir" />
+      <mkdir dir="${installer.dir}" />
 	  <get src="${installer.url}/${installer}.exe" dest="${installer.dir}" usetimestamp="true" ignoreerrors="true"/>
 	  <available file="${installer.dir}/${installer}.exe" property="skipZip" />
 	  <condition property="file.extension" value="exe">
