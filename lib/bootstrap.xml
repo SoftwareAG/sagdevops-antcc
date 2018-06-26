@@ -14,7 +14,6 @@ CC_INSTALLER_URL=url             Command Central disibution site
 CC_INSTALLER=name                Command Central installer name
 CC_BOOT=other                    Command Central configuration name
 CC_PASSWORD=password             Command Central Administrator password
-CC_INSTALLER_IS_EXE              Command centtal installer type exe if set
 
 Optional parameter for any target:	
 
@@ -45,6 +44,13 @@ ant stopcc                       Stop local Command Central server
 	<condition property="is.mac" value="true">
 		<os family="mac" />
 	</condition>
+	
+	<condition property="is.notWin" value="true">
+		<not>
+		    <os family="windows" />
+		</not>
+	</condition>
+	
 
 	<target name="_prepare" depends="_check-os-distribution">
 		<echo>platform: ${platform}</echo>
@@ -58,7 +64,7 @@ ant stopcc                       Stop local Command Central server
 		<condition property="report.file.extension" value="bat" else="sh">
 			<os family="windows" />
 		</condition>		
--->
+
 		<condition property="file.extension" value="sh">
 		  <or>
 		    <os family="unix" />
@@ -71,50 +77,7 @@ ant stopcc                       Stop local Command Central server
 		    <os family="mac" />
 		  </or>
 		</condition>
-
-		<condition property="file.extension" value="exe">
-		  <and>
-		    <os family="windows" />
-		    <equals arg1="${env.CC_INSTALLER_IS_EXE}" arg2="true" />
-		  </and>
-		</condition>
-
-		<condition property="report.file.extension" value="exe">
-		  <and>
-		    <os family="windows" />
-		    <equals arg1="${env.CC_INSTALLER_IS_EXE}" arg2="true" />
-		  </and>
-		</condition>
-
-		<condition property="file.extension" value="bat">
-		  <and>
-		    <os family="windows" />
-		    <not>
-		      <equals arg1="${env.CC_INSTALLER_IS_EXE}" arg2="true" />
-		    </not>
-		  </and>
-		</condition>
-		<condition property="report.file.extension" value="bat">
-		  <and>
-		    <os family="windows" />
-		  <not>
-		    <equals arg1="${env.CC_INSTALLER_IS_EXE}" arg2="true" />
-		  </not>
-		</and>
-		</condition>
-		<condition property="unzip.file" value="true">
-		  <and>
-		    <os family="windows" />
-		    <not>
-		      <equals arg1="${env.CC_INSTALLER_IS_EXE}" arg2="true" />
-		    </not>
-		  </and>
-		</condition>
-
-		<echo> "file ext ${file.extension}"</echo>
-		<echo> "report ext ${report.file.extension}"</echo>
-		<echo> "should unzip? ${unzip.file}" </echo>
-		
+-->
 		<condition property="bootstrap" value="${env.CC_BOOT}" else="default">
 			<isset property="env.CC_BOOT"/>
 		</condition>
@@ -136,9 +99,9 @@ ant stopcc                       Stop local Command Central server
 		<condition property="installer" value="${env.CC_INSTALLER}" else="cc-def-10.2-fix1-${platform}">
 			<isset property="env.CC_INSTALLER"/>
 		</condition>
-
+<!-- to remove
 		<property name="installer.file" value="${installer}.${file.extension}" />
-
+-->
 		<!-- default download location -->
 		<property name="installer.dir" location="${user.home}/Downloads" />
 
@@ -301,11 +264,35 @@ ant stopcc                       Stop local Command Central server
 		</antcall>
 	</target>
 
-	<target name="_download" depends="_prepare" if="installer.url">
-		<mkdir dir="${installer.dir}" />
-		<echo>Downloading bootstrap installer from ${installer.url}/${installer.file} ...</echo>
-		<get src="${installer.url}/${installer.file}" dest="${installer.dir}" usetimestamp="true" />
-		<echo>Finished downloading bootstrap installer.</echo>
+	<target name="_download" depends="_prepare,_downloadSh,_downloadExe,_downloadZip" if="installer.url">
+			<echo>Finished downloading bootstrap installer from ${installer.url}/${installer}.${file.extension} ...</echo>
+	</target>
+	
+	<target name="_downloadSh" if="is.notWin">
+	  <property name="file.extension" value="sh" />
+	  <property name="report.file.extension" value="sh" />
+	  <mkdir dir="${installer.dir" />
+	  <get src="${installer.url}/${installer}.sh" dest="${installer.dir}" usetimestamp="true" />
+	  <property name="skipWin" value="true" />
+	</target>
+
+	<target name="_downloadExe" unless="skipWin">
+      <mkdir dir="${installer.dir" />
+	  <get src="${installer.url}/${installer}.exe" dest="${installer.dir}" usetimestamp="true" ignoreerrors="true"/>
+	  <available file="${installer.dir}/${installer}.exe" property="skipZip" />
+	  <condition property="file.extension" value="exe">
+	    <isset property="skipZip"/>
+	  </condition>
+	  <condition property="report.file.extension" value="exe">
+	    <isset property="skipZip"/>
+	  </condition>
+	</target>
+
+	<target name="_downloadZip" unless="skipZip">
+	  <property name="file.extension" value="zip" />
+	  <property name="report.file.extension" value="bat" />
+	  <property name="unzip.file" value="true" />
+	  <get src="${installer.url}/${installer}.zip" dest="${installer.dir}" usetimestamp="true" />
 	</target>
 
 	<target name="_check-installer" depends="_prepare">
