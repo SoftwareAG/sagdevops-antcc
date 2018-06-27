@@ -145,13 +145,18 @@ ant stopcc                       Stop local Command Central server
 		<condition property="installer.win" value="${installer.bat.filename}" else="${installer}.exe" >
 		    <isset property="installer.bat.filename"/>
 		</condition>
-		<exec dir="${install.dir}" executable="${installer.win}" osfamily="windows" vmlauncher="false" failonerror="true" >
+		<pathconvert  targetos="windows" property="install.dir.win" >
+		    <path>
+		      <pathelement location="${install.dir}" />
+		    </path>
+		</pathconvert>
+		<exec dir="${install.dir.win}" executable="${installer.win}" osfamily="windows" vmlauncher="false" failonerror="true" >
 			<arg line="${license.agreement.switch}" />
 			<arg value="-D" />
 			<arg value="${distro}" />
 			<arg value="-d" />
 			<!-- IMPORTANT: convert path to Windows format -->
-			<arg path="${install.dir}" />
+			<arg path="${install.dir.win}" />
 			<arg value="-c" />
 			<arg value="${cce.http.port}" />
 			<arg value="-C" />
@@ -210,6 +215,16 @@ ant stopcc                       Stop local Command Central server
 	</target>
 	
 	<target name="boot-migration-default" description="Upgrade local Command Central" depends="_prepare,_download,_check-installer,_unzip-installer">
+		<pathconvert  targetos="windows" property="install.dir.win" >
+		    <path>
+		      <pathelement location="${install.dir}" />
+		    </path>
+		</pathconvert>
+		<pathconvert  targetos="windows" property="install.dir.win.old" >
+		    <path>
+		      <pathelement location="${install.dir.old}" />
+		    </path>
+		</pathconvert>		
 		<echo>Running: ${installer}.${file.extension} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -m ${install.dir.old}</echo>
 
 		<exec dir="${installer.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failonerror="true" >
@@ -224,17 +239,17 @@ ant stopcc                       Stop local Command Central server
 		<condition property="installer.win" value="${installer.bat.filename}" else="${installer}.exe" >
 		    <isset property="installer.bat.filename"/>
 		</condition>
-		<exec dir="${install.dir}" executable="${installer.win}" osfamily="windows" vmlauncher="false" failonerror="true" >
+		<exec dir="${install.dir.win}" executable="${installer.win}" osfamily="windows" vmlauncher="false" failonerror="true" >
 			<arg value="--accept-license" />
 			<arg value="-D" />
 			<arg value="${distro}" />
 			<arg value="-d" />
 			<!-- IMPORTANT: convert path to Windows format -->
-			<arg path="${install.dir}" />
+			<arg path="${install.dir.win}" />
 			<arg value="-p" />
 			<arg value="${password}" />
 			<arg value="-m" />
-			<arg value="${install.dir.old}" />
+			<arg value="${install.dir.win.old}" />
 		</exec>
     </target>
 
