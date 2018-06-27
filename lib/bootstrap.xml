@@ -290,9 +290,17 @@ ant stopcc                       Stop local Command Central server
 	  <condition property="report.file.extension" value="exe">
 	    <isset property="skipZip"/>
 	  </condition>
+	  <condition property="downloadZip" value="true">
+		<and>
+	  	  <not>
+	  	  	<isset property="skipZip" />
+		  </not>
+		  <isset property="is.windows" />
+		</and>
+	  </condition>
 	</target>
 
-	<target name="_downloadZip" unless="skipZip">
+	<target name="_downloadZip" if="downloadZip">
 	  <property name="file.extension" value="zip" />
 	  <property name="report.file.extension" value="bat" />
 	  <property name="unzip.file" value="true" />
