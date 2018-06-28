@@ -150,7 +150,7 @@ ant stopcc                       Stop local Command Central server
 		      <pathelement location="${install.dir}" />
 		    </path>
 		</pathconvert>
-		<exec dir="${install.dir.win}" executable="${installer.win}" osfamily="windows" vmlauncher="false" failonerror="true" >
+		<exec dir="${installer.dir}" executable="${installer.win}" osfamily="windows" vmlauncher="false" failonerror="true" >
 			<arg line="${license.agreement.switch}" />
 			<arg value="-D" />
 			<arg value="${distro}" />
@@ -239,7 +239,7 @@ ant stopcc                       Stop local Command Central server
 		<condition property="installer.win" value="${installer.bat.filename}" else="${installer}.exe" >
 		    <isset property="installer.bat.filename"/>
 		</condition>
-		<exec dir="${install.dir.win}" executable="${installer.win}" osfamily="windows" vmlauncher="false" failonerror="true" >
+		<exec dir="${installer.dir}" executable="${installer.win}" osfamily="windows" vmlauncher="false" failonerror="true" >
 			<arg value="--accept-license" />
 			<arg value="-D" />
 			<arg value="${distro}" />
