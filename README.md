@@ -1,10 +1,7 @@
-[![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-antcc.svg?branch=release/102apr2018)](https://travis-ci.org/SoftwareAG/sagdevops-antcc/builds)
-
 # Command Central Project Automation Tool
 
-AntCC is Software AG DevOps library to support Infrastructure as Code
-projects for Command Central.
-It is based on well-known Apache Ant build automation framework.
+AntCC is Software AG Command Central automation tool that supports Infrastructure as Code
+projects.
 
 The tool defines a typical Command Central Infrastructure project structure
 and provides default targets (commands) for developing and testing.
@@ -25,7 +22,7 @@ bin/antcc client
 Add to the PATH
 
 ```bash
-export ANTCC_HOME=/path/to/antcc
+export ANTCC_HOME=`pwd`
 export PATH=$PATH:$ANTCC_HOME/bin
 ```
 
@@ -35,16 +32,15 @@ If you don't have Java and Apache Ant you can use bootstrap installation script 
 along with Java and Ant:
 
 ```bash
-curl https://raw.githubusercontent.com/SoftwareAG/sagdevops-antcc/release/102apr2018/bootstrap/install.sh | sh
+git clone https://github.com/SoftwareAG/sagdevops-antcc.git antcc
+antcc/bootstrap/install.sh
 ```
 
-Then pull the antcc library:
+## Build and Test status of default branches
 
-```bash
-git clone https://github.com/SoftwareAG/sagdevops-antcc.git
-export ANTCC_HOME=/path/to/antcc
-export PATH=$PATH:$ANTCC_HOME/bin
-```
+| AppVeyor (Windows)       | Travis CI (Linux / macOS) |
+|--------------------------|--------------------------|
+| [![Build status](https://ci.appveyor.com/api/projects/status/5uipdyp849lsk21t?svg=true)](https://ci.appveyor.com/project/sergeipogrebnyak/sagdevops-antcc) | [![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-antcc.svg?branch=release%2F102apr2018)](https://travis-ci.org/SoftwareAG/sagdevops-antcc/builds) |
 
 ## Project Structure and Default Targets
 
