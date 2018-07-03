@@ -19,6 +19,7 @@ URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers}
 
 # default installation dir
 export CC_HOME="$HOME/.sag/tools"
+export ANT_HOME="$CC_HOME/common/lib/ant"
 export CC_CLI_HOME="$CC_HOME/CommandCentral/client"
 export ANTCC_HOME="`dirname $0`/.."
 
@@ -37,12 +38,14 @@ echo "Installing ..."
 $file -D CLI -d "$CC_HOME"
 
 echo "Update your environment:"
-
+echo ""
 echo "export CC_CLI_HOME=${CC_CLI_HOME}"
+echo "export ANT_HOME=${ANT_HOME}"
 echo "export ANTCC_HOME=${ANTCC_HOME}"
-echo "export PATH=\$PATH:\$CC_CLI_HOME/bin:\$ANTCC_HOME/bin"
-
+echo "export PATH=\$PATH:\$CC_CLI_HOME/bin:\$ANT_HOME/bin:\$ANTCC_HOME/bin"
+echo ""
 echo "Verify by running 'antcc help'"
 
+#echo "ln -s ${ANT_HOME}/bin/ant /usr/local/bin/"
 #echo "ln -s ${CC_CLI_HOME}/bin/sagcc /usr/local/bin/"
 #echo "ln -s ${ANTCC_HOME}/bin/antcc  /usr/local/bin/"
