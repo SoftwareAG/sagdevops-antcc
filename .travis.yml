@@ -17,12 +17,17 @@ matrix:
 env:
   global:
     - CC_ENV=travis
+    # TODO: all below should be set by install.sh
     - CC_CLI_HOME="$HOME/.sag/tools/CommandCentral/client"
+    - ANT_HOME="$HOME/.sag/tools/common/lib/ant"
+    - ANTCC_HOME=`pwd`
+    - PATH=$PATH:$ANTCC_HOME/bin:$ANT_HOME/bin
 
 script:
   - mkdir -p environments/$CC_ENV && echo test=true>environments/$CC_ENV/env.properties
   - bootstrap/install.sh
-  - bin/antcc -Daccept.license=true boot
+  - antcc help
+#  - bin/antcc -Daccept.license=true boot
 
 cache:
   directories:
