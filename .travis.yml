@@ -1,8 +1,25 @@
 language: java
 jdk:
   - oraclejdk8
+
+git:
+  depth: 100
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+    - os: osx
+    # - os: linux
+    #   sudo: required
+  fast_finish: true
+
+env:
+  global:
+    - CC_ENV=travis
+
 script:
-  - export CC_ENV=travis && mkdir -p environments/$CC_ENV && echo test=true>environments/$CC_ENV/env.properties
+  - mkdir -p environments/$CC_ENV && echo test=true>environments/$CC_ENV/env.properties
   - ant client
   - ant -Daccept.license=true boot
 
