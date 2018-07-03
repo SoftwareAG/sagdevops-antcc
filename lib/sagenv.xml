@@ -58,35 +58,6 @@ ant clean                        Clean project from build artifacts
 	    	Environment configuration .properties file does not exist for: ${env}
 	    </fail> -->
 
-		<!-- default to empty.properties -->
-		<exec executable="sh">
-			<arg value="-c"/>
-			<arg value="ls -la ${build.dir}"/>
-		</exec>
-		<echo> build folder = ${build.dir}</echo>
-
-		<exec executable="sh">
-			<arg value="-c"/>
-			<arg value="ps -ef"/>
-		</exec>
-		<echo>get user ID</echo>
-		<exec executable="sh">
-			<arg value="-c"/>
-			<arg value="id"/>
-		</exec>
-		<echo>get pid</echo>
-		<exec executable="sh">
-			<arg value="-c"/>
-			<arg value="echo $$"/>
-		</exec>
-		<!--
-		<echo>try do wipe the empty properties</echo>
-		<exec executable="sh">
-			<arg value="-c"/>
-			<arg value="echo > ${build.dir}/empty.properties"/>
-		</exec>
--->
-		
 		<property name="env.properties" value="${build.dir}/empty.properties" />
 		<echo output="${build.dir}/empty.properties" append="false" force="true" />
 		<echo>Environment configuration: ${env.properties}</echo>

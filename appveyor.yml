@@ -1,5 +1,11 @@
 version: 1.0.{build}
+image: Visual Studio 2017
+install:
+- cmd: choco install ant
+cache: C:\Users\appveyor\Downloads
 build_script:
 - cmd: >-
-    mvn -f .pom.xml integration-test
+    ant client
+
+    ant boot -Daccept.license=true
 deploy: off
