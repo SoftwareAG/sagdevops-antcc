@@ -44,10 +44,17 @@ ant stopcc                       Stop local Command Central server
 	<condition property="is.mac" value="true">
 		<os family="mac" />
 	</condition>
+	
+	<condition property="is.notWin" value="true">
+		<not>
+		    <os family="windows" />
+		</not>
+	</condition>
+	
 
 	<target name="_prepare" depends="_check-os-distribution">
 		<echo>platform: ${platform}</echo>
-
+<!--
 		<condition property="unzip.file" value="true">
 			<os family="windows" />
 		</condition>
@@ -58,6 +65,19 @@ ant stopcc                       Stop local Command Central server
 			<os family="windows" />
 		</condition>		
 
+		<condition property="file.extension" value="sh">
+		  <or>
+		    <os family="unix" />
+		    <os family="mac" />
+		  </or>
+		</condition>
+		<condition property="report.file.extension" value="sh">
+		  <or>
+		    <os family="unix" />
+		    <os family="mac" />
+		  </or>
+		</condition>
+-->
 		<condition property="bootstrap" value="${env.CC_BOOT}" else="default">
 			<isset property="env.CC_BOOT"/>
 		</condition>
@@ -79,9 +99,9 @@ ant stopcc                       Stop local Command Central server
 		<condition property="installer" value="${env.CC_INSTALLER}" else="cc-def-10.2-fix1-${platform}">
 			<isset property="env.CC_INSTALLER"/>
 		</condition>
-
+<!-- to remove
 		<property name="installer.file" value="${installer}.${file.extension}" />
-
+-->
 		<!-- default download location -->
 		<property name="installer.dir" location="${user.home}/Downloads" />
 
@@ -122,14 +142,21 @@ ant stopcc                       Stop local Command Central server
 		<exec dir="${installer.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failonerror="true" >
 			<arg line="./${installer}.sh ${license.agreement.switch} -D ${distro} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -H ${cc.host}" />
 		</exec>
-
-		<exec dir="${install.dir}" executable="${installer.bat.filename}" osfamily="windows" vmlauncher="false" failonerror="true" >
+		<condition property="installer.win" value="${installer.bat.filename}" else="${installer}.exe" >
+		    <isset property="installer.bat.filename"/>
+		</condition>
+		<pathconvert  targetos="windows" property="install.dir.win" >
+		    <path>
+		      <pathelement location="${install.dir}" />
+		    </path>
+		</pathconvert>
+		<exec dir="${installer.dir}" executable="${installer.win}" osfamily="windows" vmlauncher="false" failonerror="true" >
 			<arg line="${license.agreement.switch}" />
 			<arg value="-D" />
 			<arg value="${distro}" />
 			<arg value="-d" />
 			<!-- IMPORTANT: convert path to Windows format -->
-			<arg path="${install.dir}" />
+			<arg path="${install.dir.win}" />
 			<arg value="-c" />
 			<arg value="${cce.http.port}" />
 			<arg value="-C" />
@@ -188,6 +215,16 @@ ant stopcc                       Stop local Command Central server
 	</target>
 	
 	<target name="boot-migration-default" description="Upgrade local Command Central" depends="_prepare,_download,_check-installer,_unzip-installer">
+		<pathconvert  targetos="windows" property="install.dir.win" >
+		    <path>
+		      <pathelement location="${install.dir}" />
+		    </path>
+		</pathconvert>
+		<pathconvert  targetos="windows" property="install.dir.win.old" >
+		    <path>
+		      <pathelement location="${install.dir.old}" />
+		    </path>
+		</pathconvert>		
 		<echo>Running: ${installer}.${file.extension} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -m ${install.dir.old}</echo>
 
 		<exec dir="${installer.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failonerror="true" >
@@ -199,18 +236,20 @@ ant stopcc                       Stop local Command Central server
 		</fileset>
 
 		<property name="installer.bat.filename" refid="win.installers.fileset" />
-
-		<exec dir="${install.dir}" executable="${installer.bat.filename}" osfamily="windows" vmlauncher="false" failonerror="true" >
+		<condition property="installer.win" value="${installer.bat.filename}" else="${installer}.exe" >
+		    <isset property="installer.bat.filename"/>
+		</condition>
+		<exec dir="${installer.dir}" executable="${installer.win}" osfamily="windows" vmlauncher="false" failonerror="true" >
 			<arg value="--accept-license" />
 			<arg value="-D" />
 			<arg value="${distro}" />
 			<arg value="-d" />
 			<!-- IMPORTANT: convert path to Windows format -->
-			<arg path="${install.dir}" />
+			<arg path="${install.dir.win}" />
 			<arg value="-p" />
 			<arg value="${password}" />
 			<arg value="-m" />
-			<arg value="${install.dir.old}" />
+			<arg value="${install.dir.win.old}" />
 		</exec>
     </target>
 
@@ -244,11 +283,43 @@ ant stopcc                       Stop local Command Central server
 		</antcall>
 	</target>
 
-	<target name="_download" depends="_prepare" if="installer.url">
-		<mkdir dir="${installer.dir}" />
-		<echo>Downloading bootstrap installer from ${installer.url}/${installer.file} ...</echo>
-		<get src="${installer.url}/${installer.file}" dest="${installer.dir}" usetimestamp="true" />
-		<echo>Finished downloading bootstrap installer.</echo>
+	<target name="_download" depends="_prepare,_downloadSh,_downloadExe,_downloadZip" if="installer.url">
+			<echo>Finished downloading bootstrap installer from ${installer.url}/${installer}.${file.extension} ...</echo>
+	</target>
+	
+	<target name="_downloadSh" if="is.notWin">
+	  <property name="file.extension" value="sh" />
+	  <property name="report.file.extension" value="sh" />
+	  <mkdir dir="${installer.dir}" />
+	  <get src="${installer.url}/${installer}.sh" dest="${installer.dir}" usetimestamp="true" />
+	  <property name="skipWin" value="true" />
+	</target>
+
+	<target name="_downloadExe" unless="skipWin">
+      <mkdir dir="${installer.dir}" />
+	  <get src="${installer.url}/${installer}.exe" dest="${installer.dir}" usetimestamp="true" ignoreerrors="true"/>
+	  <available file="${installer.dir}/${installer}.exe" property="skipZip" />
+	  <condition property="file.extension" value="exe">
+	    <isset property="skipZip"/>
+	  </condition>
+	  <condition property="report.file.extension" value="exe">
+	    <isset property="skipZip"/>
+	  </condition>
+	  <condition property="downloadZip" value="true">
+		<and>
+	  	  <not>
+	  	  	<isset property="skipZip" />
+		  </not>
+		  <isset property="is.windows" />
+		</and>
+	  </condition>
+	</target>
+
+	<target name="_downloadZip" if="downloadZip">
+	  <property name="file.extension" value="zip" />
+	  <property name="report.file.extension" value="bat" />
+	  <property name="unzip.file" value="true" />
+	  <get src="${installer.url}/${installer}.zip" dest="${installer.dir}" usetimestamp="true" />
 	</target>
 
 	<target name="_check-installer" depends="_prepare">
@@ -266,7 +337,7 @@ ant stopcc                       Stop local Command Central server
 	
 	<target name="_unzip-installer" if="unzip.file">
 		<echo>Unzipping file ${installer.dir}\${installer}.${file.extension} into ${install.dir} ... </echo>
-		<unzip src="${installer.dir}/${installer}.${file.extension}" dest="${install.dir}" />
+		<unzip src="${installer.dir}/${installer}.${file.extension}" dest="${installer.dir}" />
 
 		<fileset id="win.installers.fileset" dir="${install.dir}" includes="**/*">
 			<filename name="cc-*-w64.bat" />
