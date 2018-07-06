@@ -150,7 +150,7 @@ ant stopcc                       Stop local Command Central server
 		      <pathelement location="${install.dir}" />
 		    </path>
 		</pathconvert>
-		<exec dir="${install.dir}" executable="${installer.win}" osfamily="windows" vmlauncher="false" failonerror="true" >
+		<exec dir="${installer.dir}" executable="${installer.win}" osfamily="windows" vmlauncher="false" failonerror="true" >
 			<arg line="${license.agreement.switch}" />
 			<arg value="-D" />
 			<arg value="${distro}" />
@@ -337,7 +337,7 @@ ant stopcc                       Stop local Command Central server
 	
 	<target name="_unzip-installer" if="unzip.file">
 		<echo>Unzipping file ${installer.dir}\${installer}.${file.extension} into ${install.dir} ... </echo>
-		<unzip src="${installer.dir}/${installer}.${file.extension}" dest="${install.dir}" />
+		<unzip src="${installer.dir}/${installer}.${file.extension}" dest="${installer.dir}" />
 
 		<fileset id="win.installers.fileset" dir="${install.dir}" includes="**/*">
 			<filename name="cc-*-w64.bat" />
