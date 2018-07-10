@@ -11,11 +11,20 @@ function die
 
 function addEnvVars
 {
-cat >> $1 << _EOF_
+INATALL_LABEL="#Installed by antcc cli installer"
+grep -q "^$INATALL_LABEL" $1
+if [ $? -ne 0 ]
+then
+  echo "Adding variables to $1"
+  echo $INATALL_LABEL >> $1
+  cat >> $1 << _EOF_
 export CC_CLI_HOME=${CC_CLI_HOME}
 export ANTCC_HOME=${CC_CLI_HOME}
 export PATH=$PATH:$CC_CLI_HOME/bin:$ANTCC_HOME/bin
 _EOF_
+else
+  echo "Skipping $1"
+fi
 }
 if [ -z $CC_INSTALLER ]; then
   # latest public GA version
@@ -66,22 +75,18 @@ else
   fi
   die "Download failed with http code: $HTTP_CODE, curl exit code: $EXIT_CODE" 1
 fi
-echo "Trying to add  vatiables to $HOME/.bash_profile and $HOME/.profile if exist"
-if [ -f "$HOME/.bash_profile" ]
-then
-  echo .bash_profile
-  addEnvVars  "$HOME/.bash_profile"
-elif [ -f "$HOME/.profile" ]
-then
-  echo .profile
-  addEnvVars  "$HOME/.profile"
-else
-  echo "It was not possible to add the environment variables to shell profile."
-fi
-echo "Please run the following commands manually"
+echo "Trying to add  vatiables to all shell profiles in $HOME"
+for profile in .profile .bashrc .zshrc .cshrc
+do
+  if [ -f "$HOME/$profile" ]
+  then
+    addEnvVars $HOME/$profile
+  fi
+done
+echo "Please run the following commands manually or logout and login again."
 echo
 echo "export CC_CLI_HOME=${CC_CLI_HOME}"
 echo "export ANTCC_HOME=${CC_CLI_HOME}"
-echo "export PATH=$PATH:$CC_CLI_HOME/bin"
+echo "export PATH=$PATH:$CC_CLI_HOME/bin:$ANTCC_HOME/bin"
 
 echo "Verify by running 'antcc'"
