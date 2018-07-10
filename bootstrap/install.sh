@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ###
 # Command Central client tools install script
@@ -18,9 +18,11 @@ then
   echo "Adding variables to $1"
   echo $INATALL_LABEL >> $1
   cat >> $1 << _EOF_
-export CC_CLI_HOME=${CC_CLI_HOME}
-export ANTCC_HOME=${CC_CLI_HOME}
-export PATH=$PATH:$CC_CLI_HOME/bin:$ANTCC_HOME/bin
+export CC_CLI_HOME=$CC_CLI_HOME
+export ANTCC_HOME=$ANTCC_HOME
+export ANT_HOME=$CC_HOME/common/lib/ant
+export JAVA_HOME=${JAVA_HOME:-$CC_CLI_HOME//jvm/jvm/}
+export PATH=$PATH:$CC_CLI_HOME/bin:$ANTCC_HOME/bin:$ANT_HOME/bin
 _EOF_
 else
   echo "Skipping $1"
@@ -40,8 +42,15 @@ fi
 URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers}
 
 # default installation dir
+export ANTCC_URL=https://github.com/SoftwareAG/sagdevops-antcc.git
 export CC_HOME="$HOME/.sag/tools"
 export CC_CLI_HOME="$CC_HOME/CommandCentral/client"
+export ANTCC_HOME=$CC_HOME/sagdevops-antcc
+
+export ANT_HOME=$CC_HOME/common/lib/ant
+export JAVA_HOME=$CC_HOME/jvm/jvm/
+
+
 
 mkdir -p "$HOME/Downloads"
 file="$HOME/Downloads/$CC_INSTALLER"
@@ -57,7 +66,7 @@ else
 fi
 if [ "$EXIT_CODE" -eq 0  -a  "$HTTP_CODE" -eq 200 ]
 then
-  echo "Installing ..."
+  echo "Installing CCE CLI"
   chmod +x $file
   $file -D CLI -L -d "$CC_HOME"
   if [ $? -ne 0 ]
@@ -75,6 +84,18 @@ else
   fi
   die "Download failed with http code: $HTTP_CODE, curl exit code: $EXIT_CODE" 1
 fi
+echo "Cloning antcc repo to $ANTCC_HOME"
+if [ -d "$ANTCC_HOME" ]
+then
+  rm -rf $ANTCC_HOME
+fi
+git clone $ANTCC_URL $ANTCC_HOME
+EXIT_CODE=$?
+if [ "$EXIT_CODE" -ne 0 ]
+then
+  die "Failed to clone antcc repo" 3
+fi
+
 echo "Trying to add  vatiables to all shell profiles in $HOME"
 for profile in .profile .bashrc .zshrc .cshrc
 do
@@ -83,10 +104,12 @@ do
     addEnvVars $HOME/$profile
   fi
 done
-echo "Please run the following commands manually or logout and login again."
+echo "Please run the following commands manually, logout and login again or source your shell profile (.profile, .bash_profile etc)"
 echo
-echo "export CC_CLI_HOME=${CC_CLI_HOME}"
-echo "export ANTCC_HOME=${CC_CLI_HOME}"
-echo "export PATH=$PATH:$CC_CLI_HOME/bin:$ANTCC_HOME/bin"
-
-echo "Verify by running 'antcc'"
+echo export CC_CLI_HOME=$CC_CLI_HOME
+echo export ANTCC_HOME=$ANTCC_HOME
+echo export ANT_HOME=$CC_HOME/common/lib/ant
+echo export JAVA_HOME=${JAVA_HOME:-$CC_CLI_HOME//jvm/jvm/}
+echo export PATH=$PATH:$CC_CLI_HOME/bin:$ANTCC_HOME/bin:$ANT_HOME/bin
+echo
+echo "Verify by running 'antcc --help'"
