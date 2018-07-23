@@ -22,7 +22,7 @@ env:
 script:
   - mkdir -p environments/$CC_ENV && echo test=true>environments/$CC_ENV/env.properties
   - bootstrap/install.sh
-  - . /Users/travis/.profile
+  - . $HOME/.profile
   - env
   - antcc help
 #  - bin/antcc -Daccept.license=true boot
