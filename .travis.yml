@@ -1,9 +1,30 @@
-language: java
-jdk:
-  - oraclejdk8
+# language: java
+# jdk:
+#   - oraclejdk8
+
+git:
+  depth: 100
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+    - os: osx
+    # - os: linux
+    #   sudo: required
+  fast_finish: true
+
 env:
-  - CC_INSTALLER=cc-def-10.2-fix2-lnxamd64
+  global:
+    - CC_ENV=travis
+    # TODO: all below should be set by install.sh
+
 script:
-  - export CC_ENV=travis && mkdir -p environments/$CC_ENV && echo test=true>environments/$CC_ENV/env.properties
-  - ant -f main.xml client
-  - ant -f main.xml -Daccept.license=true boot
+  - mkdir -p environments/$CC_ENV && echo test=true>environments/$CC_ENV/env.properties
+  - bootstrap/install.sh
+  - antcc help
+#  - bin/antcc -Daccept.license=true boot
+
+cache:
+  directories:
+    - $HOME/Downloads
