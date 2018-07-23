@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ###
 # Command Central client tools install script
