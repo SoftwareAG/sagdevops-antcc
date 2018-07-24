@@ -211,6 +211,16 @@ ant stopcc                       Stop local Command Central server
 			<arg value="${password}" />
 			<arg value="-m" />
 			<arg value="${install.dir.old}" />
+			<arg value="-c" />
+			<arg value="${cce.http.port}" />
+			<arg value="-C" />
+			<arg value="${cce.https.port}" />
+			<arg value="-s" />
+			<arg value="${spm.http.port}" />
+			<arg value="-S" />
+			<arg value="${spm.https.port}" />
+			<arg value="-H" />
+			<arg value="${cc.host}" />
 		</exec>
     </target>
 
