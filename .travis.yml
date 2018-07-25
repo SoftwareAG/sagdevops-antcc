@@ -2,7 +2,7 @@ language: java
 jdk:
   - oraclejdk8
 env:
-  - CC_INSTALLER=cc-def-10.1-fix11-lnxamd64
+  - CC_INSTALLER=cc-def-10.1-fix12-lnxamd64
   - CC_INSTALLER=cc-def-9.12-fix18-lnxamd64
 script:
   - export CC_ENV=travis && mkdir -p environments/$CC_ENV && echo test=true>environments/$CC_ENV/env.properties
