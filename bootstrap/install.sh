@@ -70,13 +70,41 @@ then
   chmod +x $file
   $file -D CLI -L -d "$CC_HOME"
   if [ $? -ne 0 ]
-    then
+  then
     echo "Something went wrong with executable file:"
     echo "$file"
     echo "Try to remove it manually and rerun the command"
     die "file not executable" 2
   fi
-  echo $?
+  echo "Cloning antcc repo to $ANTCC_HOME"
+  if [ -d "$ANTCC_HOME" ]
+  then
+    rm -rf $ANTCC_HOME
+  fi
+  git clone $ANTCC_URL $ANTCC_HOME
+  EXIT_CODE=$?
+  if [ "$EXIT_CODE" -ne 0 ]
+  then
+    die "Failed to clone antcc repo" 3
+  fi
+
+  echo "Trying to add  vatiables to all shell profiles in $HOME"
+  for profile in .profile .bashrc .zshrc .cshrc
+  do
+    if [ -f "$HOME/$profile" ]
+    then
+      addEnvVars $HOME/$profile
+    fi
+  done
+  echo "Please run the following commands manually, logout and login again or source your shell profile (.profile, .bash_profile etc)"
+  echo
+  echo export CC_CLI_HOME=$CC_CLI_HOME
+  echo export ANTCC_HOME=$ANTCC_HOME
+  echo export ANT_HOME=$CC_HOME/common/lib/ant
+  echo export JAVA_HOME=${JAVA_HOME:-$CC_CLI_HOME//jvm/jvm/}
+  echo export PATH=$PATH:$CC_CLI_HOME/bin:$ANTCC_HOME/bin:$ANT_HOME/bin
+  echo
+  echo "Verify by running 'antcc help'"
 else
   if [ -f "$file" ]
   then
@@ -84,32 +112,3 @@ else
   fi
   die "Download failed with http code: $HTTP_CODE, curl exit code: $EXIT_CODE" 1
 fi
-echo "Cloning antcc repo to $ANTCC_HOME"
-if [ -d "$ANTCC_HOME" ]
-then
-  rm -rf $ANTCC_HOME
-fi
-git clone $ANTCC_URL $ANTCC_HOME
-EXIT_CODE=$?
-if [ "$EXIT_CODE" -ne 0 ]
-then
-  die "Failed to clone antcc repo" 3
-fi
-
-echo "Trying to add  vatiables to all shell profiles in $HOME"
-for profile in .profile .bashrc .zshrc .cshrc
-do
-  if [ -f "$HOME/$profile" ]
-  then
-    addEnvVars $HOME/$profile
-  fi
-done
-echo "Please run the following commands manually, logout and login again or source your shell profile (.profile, .bash_profile etc)"
-echo
-echo export CC_CLI_HOME=$CC_CLI_HOME
-echo export ANTCC_HOME=$ANTCC_HOME
-echo export ANT_HOME=$CC_HOME/common/lib/ant
-echo export JAVA_HOME=${JAVA_HOME:-$CC_CLI_HOME//jvm/jvm/}
-echo export PATH=$PATH:$CC_CLI_HOME/bin:$ANTCC_HOME/bin:$ANT_HOME/bin
-echo
-echo "Verify by running 'antcc --help'"
