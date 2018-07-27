@@ -108,18 +108,11 @@ ant images                       Import product and fix images
 		<for list="${installers}" param="i" delimiter=",">
 			<sequential>
 				<antcall target="_download">
-					<param name="installer.file" value="@{i}" />
+					<param name="installer" value="@{i}" />
+					<param name="installer.dir" value="${installers.dir}" />
 				</antcall>
 			</sequential>
         </for>
-
-		<echo>
-			Copying downloaded installers
-		</echo>
-
-		<copy todir="${installers.dir}">
-			<fileset dir="${installer.dir}" includes="${installers}" />
-		</copy>
 
 		<echo>
 			Registered bootstrap installers
