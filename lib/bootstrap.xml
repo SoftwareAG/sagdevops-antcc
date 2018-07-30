@@ -202,8 +202,6 @@ ant stopcc                       Stop local Command Central server
 
 		<exec dir="${install.dir}" executable="${installer.bat.filename}" osfamily="windows" vmlauncher="false" failonerror="true" >
 			<arg value="--accept-license" />
-			<arg value="-D" />
-			<arg value="${distro}" />
 			<arg value="-d" />
 			<!-- IMPORTANT: convert path to Windows format -->
 			<arg path="${install.dir}" />
@@ -211,16 +209,6 @@ ant stopcc                       Stop local Command Central server
 			<arg value="${password}" />
 			<arg value="-m" />
 			<arg value="${install.dir.old}" />
-			<arg value="-c" />
-			<arg value="${cce.http.port}" />
-			<arg value="-C" />
-			<arg value="${cce.https.port}" />
-			<arg value="-s" />
-			<arg value="${spm.http.port}" />
-			<arg value="-S" />
-			<arg value="${spm.https.port}" />
-			<arg value="-H" />
-			<arg value="${cc.host}" />
 		</exec>
     </target>
 
