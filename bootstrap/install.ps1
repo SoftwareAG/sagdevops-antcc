@@ -44,7 +44,6 @@ if(test-path $file){
 	}
     $ProgressPreference = 'Continue'
 }
-$HTTP_CODE
 if ( $HTTP_CODE -eq 200 ){
 	"Installing CCE CLI"
 	$LASTEXITCODE=0
@@ -71,22 +70,35 @@ if ( $HTTP_CODE -eq 200 ){
 	}
 	"Trying to add  environment variables to current user's profile"
 	[Environment]::SetEnvironmentVariable("CC_CLI_HOME",$CC_CLI_HOME,"User")
+    [Environment]::SetEnvironmentVariable("CC_CLI_HOME",$CC_CLI_HOME,"Process")
 	[Environment]::SetEnvironmentVariable("ANTCC_HOME",$ANTCC_HOME,"User")
+    [Environment]::SetEnvironmentVariable("ANTCC_HOME",$ANTCC_HOME,"Process")
     $ANT_HOME="$CC_HOME\common\lib\ant"
 	[Environment]::SetEnvironmentVariable("ANT_HOME","$ANT_HOME","User")
-	$JAVA_HOME=set-unless($env:JAVA_HOME,"$CC_CLI_HOME\jvm\jvm\")
+	[Environment]::SetEnvironmentVariable("ANT_HOME","$ANT_HOME","Process")
+	$JAVA_HOME=set-unless $env:JAVA_HOME "$CC_CLI_HOME\jvm\jvm\"
 	[Environment]::SetEnvironmentVariable("JAVA_HOME","$JAVA_HOME","User")
+	[Environment]::SetEnvironmentVariable("JAVA_HOME","$JAVA_HOME","Process")
 	# checking if antcc is not in path already
-	if(! ($env:Path.Contains("$CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin"))){
-		[Environment]::SetEnvironmentVariable("Path","$env:Path;$CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin","User")
+    $USER_PATH=[Environment]::GetEnvironmentVariable("Path","User")
+    $PROCESS_PATH=[Environment]::GetEnvironmentVariable("Path","Process")
+	if(! ($PROCESS_PATH.Contains("$CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin"))){
+        "Adding $CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin to current shell PATH variable"
+		[Environment]::SetEnvironmentVariable("Path","$PROCESS_PATH;$CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin","Process")
 	}
-	"Please run the following commands manually, logout and login again or open a new command prompt"
-	"set CC_CLI_HOME=$CC_CLI_HOME"
-	"set ANTCC_HOME=$ANTCC_HOME"
-	"set ANT_HOME=$CC_HOME\common\lib\ant"
-	"set JAVA_HOME=$JAVA_HOME"
-	"set PATH=$env:PATH;$CC_CLI_HOME\bin:$ANTCC_HOME\bin:$ANT_HOME\bin"
+	if(! ($USER_PATH.Contains("$CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin"))){
+        "Adding $CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin to PATH for all session of current user"
+		[Environment]::SetEnvironmentVariable("Path","$USER_PATH;$CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin","User")
+	}
+
+    ""
+    "Verify by running 'antcc help'"
+    #"Please run the following commands manually, logout and login again or open a new command prompt"
+	#"set CC_CLI_HOME=$CC_CLI_HOME"
+	#"set ANTCC_HOME=$ANTCC_HOME"
+	#"set ANT_HOME=$CC_HOME\common\lib\ant"
+	#"set JAVA_HOME=$JAVA_HOME"
+	#"set PATH=$env:PATH;$CC_CLI_HOME\bin:$ANTCC_HOME\bin:$ANT_HOME\bin"
 }else{
 	die "Download failed with http code: $HTTP_CODE" 1
 }
-	
