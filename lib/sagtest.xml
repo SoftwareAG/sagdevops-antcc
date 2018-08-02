@@ -26,6 +26,7 @@ ant test                         Run tests/test*.xml AntUnit tests
 		<property name="project.basedir" location="${basedir}" />
 
 		<property name="temp.dir" location="${build.dir}/tests/temp" />
+		<property name="automation.basedir" location="${project.basedir}/../.." />
 		<property name="tests.project.basedir" location="${project.basedir}" />
 		<property name="test.data.basedir" location="${tests.project.basedir}/tests/testData" />
 		<property name="test.properties" location="${tests.project.basedir}/tests/test.properties" />
@@ -40,7 +41,7 @@ ant test                         Run tests/test*.xml AntUnit tests
 		</condition>
 		<property name="tests" value="test*.xml" />
 		
-		
+		<echo>Automation is located in: ${automation.basedir} ...</echo>
 		<echo>Running tests from: ${fileset.dir} ...</echo>
 		<echo>Using test data from: ${test.data.basedir} ...</echo>
 		<echo>Using test properties from:  ${test.properties} ...</echo>
@@ -53,6 +54,7 @@ ant test                         Run tests/test*.xml AntUnit tests
 			<!-- pass in important properties -->
 			<propertyset>
 				<propertyref name="temp.dir" />
+				<propertyref name="automation.basedir"/>
 				<propertyref name="tests.project.basedir" />
 				<propertyref name="test.data.basedir" />
 				<propertyref name="project.test.properties" />
