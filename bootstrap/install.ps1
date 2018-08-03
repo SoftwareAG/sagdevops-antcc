@@ -48,7 +48,7 @@ if ( $HTTP_CODE -eq 200 ){
 	"Installing CCE CLI"
 	$LASTEXITCODE=0
 	try{
-		invoke-expression "$file -D CLI -L -d $CC_HOME"
+		Start-Process -Wait -FilePath "$file" -ArgumentList "-D","CLI","-L", "-d","$CC_HOME"
 	}catch{
 		$LASTEXITCODE=1
 	}
