@@ -16,15 +16,13 @@ matrix:
 
 env:
   global:
-    - CC_ENV=travis
-    # TODO: all below should be set by install.sh
+    - CC_ENV=travis 
 
 script:
   - mkdir -p environments/$CC_ENV && echo test=true>environments/$CC_ENV/env.properties
   - bootstrap/install.sh
   - . $HOME/.profile
-  - env
-  - antcc help
+    - antcc help
 #  - bin/antcc -Daccept.license=true boot
 
 cache:
