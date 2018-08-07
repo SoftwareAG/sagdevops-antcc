@@ -16,7 +16,6 @@ function set-unless($name,$value){
 if ( $env:CC_INSTALLER.Length -eq 0 ) {
 	$CC_VERSION=set-unless $env:CC_VERSION "10.2-fix1"
 	$CC_INSTALLER="cc-def-$CC_VERSION-w64.exe"
-"Version '$CC_VERSION'"
 }
 
 $URL=set-unless $env:CC_INSTALLER_URL "http://empowersdc.softwareag.com/ccinstallers"
@@ -30,7 +29,8 @@ if(! (test-path "$env:USERPROFILE\Downloads")){
 $file="$env:USERPROFILE\Downloads\$CC_INSTALLER"
 $HTTP_CODE=0
 if(test-path $file){
-	"found $file"
+	"Found local copy of $file"
+	"Download skipped"
 	$EXIT_CODE=0
 	$HTTP_CODE=200
 } else {
