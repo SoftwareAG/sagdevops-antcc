@@ -6,8 +6,7 @@ def installAntcc () {
     if (isUnix()) {
         sh "curl https://raw.githubusercontent.com/SoftwareAG/sagdevops-antcc/${BRANCH}/bootstrap/install.sh | sh"
     } else {
-        // TODO: implement install.ps1 for Windows
-        // bat ".... powershell bootstrap\\install.ps1"
+    	bat 'powershell.exe -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;iex ((New-Object System.Net.WebClient).DownloadString(\'https://github.com/SoftwareAG/sagdevops-antcc/raw/oneliners/bootstrap/install.ps1\'))"'
     }
 }
 
@@ -87,6 +86,7 @@ pipeline {
         CC_INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/cc/installers" // internal download site
         CC_ENV_FILE = "tests/test.properties"
         CC_PASSWORD = "manage"
+        CC_VERSION = "10.3-milestone"
     }
     stages {
         stage("Prepare") {
