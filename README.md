@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/SoftwareAG/sagdevops-antcc.svg?branch=release/102apr2018)](https://travis-ci.org/SoftwareAG/sagdevops-antcc/builds)
-
 # Command Central Project Automation Tool
 
 AntCC is Software AG DevOps library to support Infrastructure as Code
@@ -25,25 +23,25 @@ bin/antcc client
 Add to the PATH
 
 ```bash
-export ANTCC_HOME=/path/to/antcc
+export ANTCC_HOME=`pwd`
 export PATH=$PATH:$ANTCC_HOME/bin
 ```
 
 ## Zero dependencies installation
 
 If you don't have Java and Apache Ant you can use bootstrap installation script to install the clients
-along with Java and Ant:
+along with Java and Ant.
+
+On Linux and Mac OS:
 
 ```bash
-curl https://raw.githubusercontent.com/SoftwareAG/sagdevops-antcc/release/102apr2018/bootstrap/install.sh | sh
+curl https://raw.githubusercontent.com/SoftwareAG/sagdevops-antcc/release/103oct2018/bootstrap/install.sh | sh
 ```
 
-Then pull the antcc library:
+On Windows:
 
-```bash
-git clone https://github.com/SoftwareAG/sagdevops-antcc.git
-export ANTCC_HOME=/path/to/antcc
-export PATH=$PATH:$ANTCC_HOME/bin
+```powershell
+powershell.exe -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;iex ((New-Object System.Net.WebClient).DownloadString(\'https://raw.githubusercontent.com/SoftwareAG/sagdevops-antcc/release/103oct2018/bootstrap/install.ps1\'))"
 ```
 
 ## Project Structure and Default Targets
