@@ -1,8 +1,8 @@
 version: 1.0.{build}
 image: Visual Studio 2017
 cache: C:\Users\appveyor\Downloads
+install:
+- ps: bootstrap/install.ps1
 build_script:
-- cmd: >-
-  - bootstrap/install.ps1
-  - antcc help
+- cmd: antcc --help
 deploy: off

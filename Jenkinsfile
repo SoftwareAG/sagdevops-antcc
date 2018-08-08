@@ -60,14 +60,15 @@ def test(propfile) {
         builders[label] = {
             node(label) {
                 // TODO: enable one-liner installation
-                // installAntcc
+                installAntcc()
 
-                unstash 'scripts'
-                antcc '-Daccept.license=true boot'
+                antcc '--help'
+                // unstash 'scripts'
+                // antcc '-Daccept.license=true boot'
                 // antcc 'startcc restartcc'
-                antcc 'apply -Dt=tests/test-template.yaml'
-                antcc 'ps jobs log logs'
-                antcc 'stopcc'
+                // antcc 'apply -Dt=tests/test-template.yaml'
+                // antcc 'ps jobs log logs'
+                // antcc 'stopcc'
             }
         }                        
     }
