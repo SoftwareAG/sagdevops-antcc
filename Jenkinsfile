@@ -4,9 +4,9 @@
 
 def installAntcc () {
     if (isUnix()) {
-        sh "curl https://raw.githubusercontent.com/SoftwareAG/sagdevops-antcc/${BRANCH}/bootstrap/install.sh | sh"
+        sh "curl https://raw.githubusercontent.com/SoftwareAG/sagdevops-antcc/${env.BRANCH}/bootstrap/install.sh | sh"
     } else {
-    	bat 'powershell.exe -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;iex ((New-Object System.Net.WebClient).DownloadString(\'https://github.com/SoftwareAG/sagdevops-antcc/raw/oneliners/bootstrap/install.ps1\'))"'
+    	bat 'powershell.exe -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;iex ((New-Object System.Net.WebClient).DownloadString(\'https://github.com/SoftwareAG/sagdevops-antcc/raw/${env.BRANCH}/bootstrap/install.ps1\'))"'
     }
 }
 
@@ -59,7 +59,6 @@ def test(propfile) {
         def label = x + vmdomain // Need to bind the label variable before the closure - can't do 'for (label in labels)'
         builders[label] = {
             node(label) {
-                // TODO: enable one-liner installation
                 installAntcc()
 
                 antcc '--help'
