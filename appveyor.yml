@@ -1,5 +1,8 @@
 version: 1.0.{build}
+image: Visual Studio 2017
+cache: C:\Users\appveyor\Downloads
 build_script:
 - cmd: >-
-    mvn -f .pom.xml integration-test
+  - bootstrap/install.ps1
+  - antcc help
 deploy: off
