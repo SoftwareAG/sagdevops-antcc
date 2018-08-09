@@ -6,7 +6,7 @@ def installAntcc () {
     if (isUnix()) {
         sh "curl https://raw.githubusercontent.com/SoftwareAG/sagdevops-antcc/release/103oct2018/bootstrap/install.sh | sh"
     } else {
-    	bat 'powershell.exe -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;iex ((New-Object System.Net.WebClient).DownloadString(\'https://github.com/SoftwareAG/sagdevops-antcc/raw/release/103oct2018/bootstrap/install.ps1\'))"'
+    	bat 'powershell.exe -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls;iex ((New-Object System.Net.WebClient).DownloadString(\'https://github.com/SoftwareAG/sagdevops-antcc/raw/release/103oct2018/bootstrap/install.ps1\'))"'
     }
 }
 
@@ -20,9 +20,9 @@ def ant (command) {
 
 def antcc (command) {
     if (isUnix()) {
-        sh "bin/antcc $command"
+        sh "antcc $command"
     } else {
-        bat "bin\\antcc $command"
+        bat "antcc $command"
     }
 }
 
@@ -60,8 +60,8 @@ def test(propfile) {
         builders[label] = {
             node(label) {
                 installAntcc()
-
-                antcc '--help'
+                sh '$HOME/.profile'
+                antcc 'help'
                 // unstash 'scripts'
                 // antcc '-Daccept.license=true boot'
                 // antcc 'startcc restartcc'
