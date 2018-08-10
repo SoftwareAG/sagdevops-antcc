@@ -20,7 +20,7 @@ def ant (command) {
 
 def antcc (command) {
     if (isUnix()) {
-        sh "antcc $command"
+        sh "$HOME/.profile && antcc $command"
     } else {
         bat "antcc $command"
     }
@@ -60,7 +60,8 @@ def test(propfile) {
         builders[label] = {
             node(label) {
                 installAntcc()
-                sh '. $HOME/.profile && antcc help'
+                //sh '. $HOME/.profile && antcc help'
+                antcc 'help'
                 // unstash 'scripts'
                 // antcc '-Daccept.license=true boot'
                 // antcc 'startcc restartcc'
