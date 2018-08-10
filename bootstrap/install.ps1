@@ -80,15 +80,17 @@ if ( $HTTP_CODE -eq 200 ){
 	[Environment]::SetEnvironmentVariable("JAVA_HOME","$JAVA_HOME","User")
 	[Environment]::SetEnvironmentVariable("JAVA_HOME","$JAVA_HOME","Process")
 	# checking if antcc is not in path already
-    $USER_PATH=[Environment]::GetEnvironmentVariable("Path","User")
+	$ANTCC_CUSTOM_PATH="$CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin"
     $PROCESS_PATH=[Environment]::GetEnvironmentVariable("Path","Process")
-	if(! ($PROCESS_PATH.Contains("$CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin"))){
-        "Adding $CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin to current shell PATH variable"
-		[Environment]::SetEnvironmentVariable("Path","$PROCESS_PATH;$CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin","Process")
+	if(! ($PROCESS_PATH.Contains($ANTCC_CUSTOM_PATH))){
+        "Adding $ANTCC_CUSTOM_PATH to current shell PATH variable"
+		[Environment]::SetEnvironmentVariable("Path","$PROCESS_PATH;$ANTCC_CUSTOM_PATH","Process")
 	}
-	if( $USER_PATH -and ! ($USER_PATH.Contains("$CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin"))){
-        "Adding $CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin to PATH for all session of current user"
-		[Environment]::SetEnvironmentVariable("Path","$USER_PATH;$CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin","User")
+	$USER_PATH=[Environment]::GetEnvironmentVariable("Path","User")
+	$USER_PATH=set-unless $USER_PATH $ANTCC_CUSTOM_PATH
+	if( $USER_PATH -and ! ($USER_PATH.Contains($ANTCC_CUSTOM_PATH))){
+        "Adding $ANTCC_CUSTOM_PATH to PATH for all sessions of current user"
+		[Environment]::SetEnvironmentVariable("Path","$USER_PATH;$ANTCC_CUSTOM_PATH","User")
 	}
 
     ""
