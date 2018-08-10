@@ -86,7 +86,7 @@ if ( $HTTP_CODE -eq 200 ){
         "Adding $CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin to current shell PATH variable"
 		[Environment]::SetEnvironmentVariable("Path","$PROCESS_PATH;$CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin","Process")
 	}
-	if(! ($USER_PATH.Contains("$CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin"))){
+	if( $USER_PATH -and ! ($USER_PATH.Contains("$CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin"))){
         "Adding $CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin to PATH for all session of current user"
 		[Environment]::SetEnvironmentVariable("Path","$USER_PATH;$CC_CLI_HOME\bin;$ANTCC_HOME\bin;$ANT_HOME\bin","User")
 	}
