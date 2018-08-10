@@ -87,8 +87,10 @@ if ( $HTTP_CODE -eq 200 ){
 		[Environment]::SetEnvironmentVariable("Path","$PROCESS_PATH;$ANTCC_CUSTOM_PATH","Process")
 	}
 	$USER_PATH=[Environment]::GetEnvironmentVariable("Path","User")
-	$USER_PATH=set-unless $USER_PATH $ANTCC_CUSTOM_PATH
-	if( $USER_PATH -and ! ($USER_PATH.Contains($ANTCC_CUSTOM_PATH))){
+	if(! $USER_PATH ){
+		"Setting $ANTCC_CUSTOM_PATH to PATH for all sessions of current user"
+		[Environment]::SetEnvironmentVariable("Path",$ANTCC_CUSTOM_PATH","User")
+	}elseif(! ($USER_PATH.Contains($ANTCC_CUSTOM_PATH))){
         "Adding $ANTCC_CUSTOM_PATH to PATH for all sessions of current user"
 		[Environment]::SetEnvironmentVariable("Path","$USER_PATH;$ANTCC_CUSTOM_PATH","User")
 	}
