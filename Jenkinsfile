@@ -22,7 +22,7 @@ def antcc (command) {
     if (isUnix()) {
         sh ". $HOME/.profile && antcc $command"
     } else {
-        bat 'set PATH=%PATH%;%USERPROFILE%\\.sag\\tools\\CommandCentral\\client\\bin;%USERPROFILE%\\.sag\\tools\\sagdevops-antcc\\bin;%USERPROFILE%\\.sag\\tools\\common\\lib\\ant\\bin && antcc $command'
+        bat "set PATH=%PATH%;%USERPROFILE%\\.sag\\tools\\CommandCentral\\client\\bin;%USERPROFILE%\\.sag\\tools\\sagdevops-antcc\\bin;%USERPROFILE%\\.sag\\tools\\common\\lib\\ant\\bin && antcc $command"
     }
 }
 
