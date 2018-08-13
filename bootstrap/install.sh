@@ -30,7 +30,7 @@ fi
 }
 if [ -z $CC_INSTALLER ]; then
   # latest public GA version
-  CC_VERSION=${CC_VERSION:-10.2-fix1}
+  CC_VERSION=${CC_VERSION:-10.3-milestone}
   case "`uname`" in
     Darwin) CC_INSTALLER=cc-def-$CC_VERSION-osx.sh ;;
      Linux) CC_INSTALLER=cc-def-$CC_VERSION-lnxamd64.sh ;;

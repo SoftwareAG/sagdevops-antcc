@@ -14,7 +14,7 @@ function set-unless($name,$value){
 }	
 
 if ( $env:CC_INSTALLER.Length -eq 0 ) {
-	$CC_VERSION=set-unless $env:CC_VERSION "10.2-fix1"
+	$CC_VERSION=set-unless $env:CC_VERSION "10.3-milestone"
 	$CC_INSTALLER="cc-def-$CC_VERSION-w64.exe"
 }
 
