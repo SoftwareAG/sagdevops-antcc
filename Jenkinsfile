@@ -22,7 +22,7 @@ def antcc (command) {
     if (isUnix()) {
         sh ". $HOME/.profile && antcc $command"
     } else {
-        bat "antcc $command"
+        bat "set && antcc $command"
     }
 }
 
