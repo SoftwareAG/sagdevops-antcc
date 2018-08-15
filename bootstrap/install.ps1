@@ -13,6 +13,20 @@ function set-unless($name,$value){
 "$rv".trim()
 }	
 
+function getUrlDate($url){
+    try{
+        $LAST_MODIFIED_HEADER=((Invoke-WebRequest -URI $url -Method Head).headers['Last-modified'])
+    } catch {
+		"Thursday, January 1, 1970"
+    }
+    if($LAST_MODIFIED_HEADER){
+        "$LAST_MODIFIED_HEADER"
+    }else{
+        (Get-Date)
+    }
+}
+
+
 if ( $env:CC_INSTALLER.Length -eq 0 ) {
 	$CC_VERSION=set-unless $env:CC_VERSION "10.3-milestone"
 	$CC_INSTALLER="cc-def-$CC_VERSION-w64.exe"
@@ -28,9 +42,10 @@ if(! (test-path "$env:USERPROFILE\Downloads")){
 }
 $file="$env:USERPROFILE\Downloads\$CC_INSTALLER"
 $HTTP_CODE=0
-if(test-path $file){
-	"Found local copy of $file"
-	"Download skipped"
+
+$LAST_MODIFIED_URL_DATE=getUrlDate "$URL/$CC_INSTALLER"
+if( (test-path $file) -and !(Test-Path $file -OlderThan $LAST_MODIFIED_URL_DATE)){
+	"Found newer file $file locally, skipping download"
 	$EXIT_CODE=0
 	$HTTP_CODE=200
 } else {
