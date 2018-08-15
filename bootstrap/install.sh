@@ -28,6 +28,28 @@ else
   echo "Skipping $1"
 fi
 }
+function getUrlDate
+{
+
+        LAST_MODIFIED_HEADER=`curl -sI $1 | grep 'Last-Modified'`
+        if [ -z "$LAST_MODIFIED_HEADER" ]
+        then
+                date +%s
+        else
+                date -d "`echo $LAST_MODIFIED_HEADER| cut -f2- -d:`" +%s
+        fi
+}
+
+function getFileDate
+{
+        if [ -f $1 ]
+        then
+                date -r $1 +%s
+        else
+                echo 0
+        fi
+}
+
 if [ -z $CC_INSTALLER ]; then
   # latest public GA version
   CC_VERSION=${CC_VERSION:-10.3-milestone}
@@ -55,13 +77,17 @@ export JAVA_HOME=$CC_HOME/jvm/jvm/
 mkdir -p "$HOME/Downloads"
 file="$HOME/Downloads/$CC_INSTALLER"
 
-if [ -f "$file" ]; then
-  echo "Found $file"
+LAST_MODIFIED_URL_DATE=`getUrlDate ${URL}/${CC_INSTALLER}`
+LAST_MODIFIED_FILE_DATE=`getFileDate $file`
+
+if [ $LAST_MODIFIED_FILE_DATE -ge $LAST_MODIFIED_URL_DATE  ]; then
+  echo "Found newer file $file locally, skipping download"
+
   EXIT_CODE=0
   HTTP_CODE=200
 else
   echo "Downloading ${URL}/${CC_INSTALLER} ..."
-  HTTP_CODE=`curl -o "$file" -w "%{http_code}"  "${URL}/${CC_INSTALLER}"`
+  HTTP_CODE=`curl -o "$file" -w "%{http_code}" --remote-time "${URL}/${CC_INSTALLER}"`
   EXIT_CODE=$?
 fi
 if [ "$EXIT_CODE" -eq 0  -a  "$HTTP_CODE" -eq 200 ]
