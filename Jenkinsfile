@@ -64,7 +64,6 @@ def test(propfile) {
         builders[label] = {
             node(label) {
                 installAntcc()
-                //sh '. $HOME/.profile && antcc help'
                 antcc 'help'
                 // unstash 'scripts'
                 // antcc '-Daccept.license=true boot'
