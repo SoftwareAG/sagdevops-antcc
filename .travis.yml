@@ -18,9 +18,15 @@ script:
   - . $HOME/.profile
   - antcc help
 
-after_success:
-  - bash ./deploy/deploy.sh
+before_deploy:
+  - bash ./deploy/pack.sh
 
+deploy:
+  provider: releases
+  file: "antcc-nojava-10.3-stable.zip"
+  skip_cleanup: true
+  on:
+    tags: true
   
 cache:
   directories:
