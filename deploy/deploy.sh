@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 # Execute only on linux and skip osx
 if [ `uname` = "Linux" ]
 then

@@ -19,7 +19,7 @@ script:
   - antcc help
 
 after_success:
-  - ./deploy/deploy.sh
+  - bash ./deploy/deploy.sh
 
   
 cache:
