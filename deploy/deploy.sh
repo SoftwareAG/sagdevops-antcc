@@ -12,6 +12,6 @@ then
 	echo "Environment variables values:"
 	env
 	echo
-	echo "zipping built project to  "
-	zip -r $CC_DISTRO_FILENAME ./sag/tools/CommandCentral ./sag/tools/common ./sag/tools/sagdevops-antcc
+	echo "zipping built project to  $CC_DISTRO_FILENAME"
+	zip -r $CC_DISTRO_FILENAME ./.sag/tools/CommandCentral ./.sag/tools/common ./.sag/tools/sagdevops-antcc
 fi
