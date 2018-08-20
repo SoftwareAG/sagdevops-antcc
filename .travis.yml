@@ -18,6 +18,9 @@ script:
   - . $HOME/.profile
   - antcc help
 
+after_success:
+  - $HOME/deploy/deploy.sh
+  
 cache:
   directories:
     - $HOME/Downloads
