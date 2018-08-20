@@ -20,10 +20,10 @@ script:
 
 after_success:
   - echo "after success"
+  - pwd
+  - ls -la
   - $HOME/deploy/deploy.sh
-before_deploy:
-  - echo "befire deployment"
-  - $HOME/deploy/deploy.sh
+
   
 cache:
   directories:
