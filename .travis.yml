@@ -19,10 +19,7 @@ script:
   - antcc help
 
 after_success:
-  - echo "after success"
-  - pwd
-  - ls -la
-  - $HOME/deploy/deploy.sh
+  - ./deploy/deploy.sh
 
   
 cache:
