@@ -5,7 +5,7 @@ matrix:
   include:
     - os: linux
       dist: trusty
-    - os: osx
+#   - os: osx
   fast_finish: true
 
 env:
@@ -19,6 +19,10 @@ script:
   - antcc help
 
 after_success:
+  - echo "after success"
+  - $HOME/deploy/deploy.sh
+before_deploy:
+  - echo "befire deployment"
   - $HOME/deploy/deploy.sh
   
 cache:
