@@ -30,6 +30,7 @@ deploy:
   on:
     repo: SoftwareAG/sagdevops-antcc
 #    branch: release_develop
+  all_branches: true
   prerelease: true
   skip_cleanup: true
 #  on:
