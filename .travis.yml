@@ -37,6 +37,6 @@ deploy:
 #  on:
 #    tags: true
   
-cache:
-  directories:
-    - $HOME/Downloads
+#cache:
+#  directories:
+#    - $HOME/Downloads
