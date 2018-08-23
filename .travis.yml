@@ -18,6 +18,23 @@ script:
   - . $HOME/.profile
   - antcc help
 
-cache:
-  directories:
-    - $HOME/Downloads
+before_deploy:
+  - bash ./deploy/pack.sh
+
+deploy:
+  provider: releases
+  api_key:
+    secure: NBwwiFM797f183yRLeCpNjLAvusUxL7+Xl8hd2uIi1GWVK/lgCNpZNqYJwRJFVbSjR8R8Q8WsuvLrEWMSI1aZv2GJNWZPd63Y1TIqZk0oL7V/M5XuocM0UvscZZkp+zYzwDiKnRP/S+H8US4cxlbWWlU2nmVmmWisutRjcp2OOLfg+UsCeQmODGLYY0+JePWCzOTI8oIkAJtGCLh5WWHMtpjjOIYYcNKbxnBGu2FXa6ZJbafpWP7ddAftDiRoPWo+vAr0IPpDffLqpZxsT9mSX0GwWx5Mn6QbkIsF1z+Vt62WA2gAeFbX8zidKhZBjwI3QG2tg1Yv4Mrcv7cnAKMNDx3oWBS4FyTPwKTzpanG32KsCw44fQ6piZYJi4K/7SsOuanSb+6kTUhf3mFWq8awGZ9an9hD3ac8z51W6R4iX6PKFP1bKDj7kIBFYIttb6REa2F+9wvbjhYd1najt9KJaZTlKx++/lM0feTAFuS8Xtp9IFN36hwnWzgZtqgEfdF1C/NXiAhS/F8ZzOjynKT4PLFb8YycFeXam/amuexqn8yYazihTcDvVJo8qJ6Ng2hb+h1+GdFptv1VMKY0Vf5o/fWjMQE15Jnx1RKmHOiaWpgbxg7u1b61v0V83xcOmoY8CXMzvGp4rR0udqCm6xyXdc65grm7ns6ln/JY9gikgE=
+  file: 
+    - antcc-nojava-10.3-stable.zip
+  on:
+    repo: SoftwareAG/sagdevops-antcc
+#    branch: release_develop
+  prerelease: true
+  skip_cleanup: true
+#  on:
+#    tags: true
+  
+#cache:
+#  directories:
+#    - $HOME/Downloads
