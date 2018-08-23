@@ -29,7 +29,8 @@ deploy:
     - antcc-nojava-10.3-stable.zip
   on:
     repo: SoftwareAG/sagdevops-antcc
-    branch: 'release_develop'
+  branches:
+    - release_develop
   prerelease: true
   skip_cleanup: true
 #  on:
