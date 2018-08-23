@@ -5,7 +5,7 @@ matrix:
   include:
     - os: linux
       dist: trusty
-#   - os: osx
+    - os: osx
   fast_finish: true
 
 env:
@@ -29,7 +29,7 @@ deploy:
     - antcc-nojava-10.3-stable.zip
   on:
     repo: SoftwareAG/sagdevops-antcc
-    branch: release_develop
+#    branch: release_develop
   prerelease: true
   skip_cleanup: true
 #  on:
