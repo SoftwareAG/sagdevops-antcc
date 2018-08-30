@@ -4,7 +4,7 @@ matrix:
   include:
     - os: linux
       dist: trusty
-#    - os: osx
+    - os: osx
   fast_finish: true
 
 env:
@@ -19,12 +19,6 @@ script:
 
 before_deploy:
   - bash deploy/pack.sh
-  - ls -la
-  - echo "home folder"
-  - ls -la $HOME
-  - pwd 
-  - env
-  - cat .travis.yml
 deploy:
   provider: releases
   api_key:
@@ -34,6 +28,6 @@ deploy:
     repo: SoftwareAG/sagdevops-antcc
     branch: release/103oct2018
 #    all_branches: true
-#    tags: true
+    tags: true
   prerelease: true
   skip_cleanup: true
