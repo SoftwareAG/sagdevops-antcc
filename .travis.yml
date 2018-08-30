@@ -18,11 +18,10 @@ script:
   - antcc help
 
 before_deploy:
-  - bash $HOME/deploy/pack.sh
   - ls -la
   - pwd 
   - env
-
+  - bash $HOME/deploy/pack.sh
 deploy:
   provider: releases
   api_key:
