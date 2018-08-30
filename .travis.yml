@@ -1,6 +1,5 @@
 git:
   depth: 100
-
 matrix:
   include:
     - os: linux
