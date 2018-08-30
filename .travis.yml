@@ -37,4 +37,3 @@ deploy:
 #    tags: true
   prerelease: true
   skip_cleanup: true
-  verbose: true
