@@ -11,12 +11,12 @@ function die
 
 function addEnvVars
 {
-INATALL_LABEL="#Installed by antcc cli installer"
-grep -q "^$INATALL_LABEL" $1
+INSTALL_LABEL="#Installed by antcc cli installer"
+grep -q "^$INSTALL_LABEL" $1
 if [ $? -ne 0 ]
 then
   echo "Adding variables to $1"
-  echo $INATALL_LABEL >> $1
+  echo $INSTALL_LABEL >> $1
   cat >> $1 << _EOF_
 export CC_CLI_HOME=$CC_CLI_HOME
 export ANTCC_HOME=$ANTCC_HOME
