@@ -19,7 +19,7 @@ script:
 
 before_deploy:
   - bash ./deploy/pack.sh
-  - bash ls -la
+  - ls -la
 
 deploy:
   provider: releases
