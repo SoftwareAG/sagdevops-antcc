@@ -13,5 +13,5 @@ then
 #	env
 #	echo
 	echo "zipping built project to  $CC_DISTRO_FILENAME"
-	zip -r $CC_DISTRO_FILENAME ./.sag/tools/CommandCentral ./.sag/tools/common ./.sag/tools/sagdevops-antcc
+	zip -r $HOME/$CC_DISTRO_FILENAME ./.sag/tools/CommandCentral ./.sag/tools/common ./.sag/tools/sagdevops-antcc
 fi

@@ -18,8 +18,10 @@ script:
   - antcc help
 
 before_deploy:
-  - bash ./deploy/pack.sh
+  - bash $HOME/deploy/pack.sh
   - ls -la
+  - pwd 
+  - env
 
 deploy:
   provider: releases
