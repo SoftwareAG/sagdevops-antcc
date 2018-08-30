@@ -18,10 +18,12 @@ script:
   - antcc help
 
 before_deploy:
+  - bash deploy/pack.sh
   - ls -la
+  - echo "home folder"
+  - ls -la $home
   - pwd 
   - env
-  - bash deploy/pack.sh
 deploy:
   provider: releases
   api_key:
@@ -29,7 +31,8 @@ deploy:
   file: /home/travis/antcc-nojava-10.3-stable.zip
   on:
     repo: SoftwareAG/sagdevops-antcc
-    all_branches: true
+    branch: release/103oct2018
+#    all_branches: true
 #    tags: true
   prerelease: true
   skip_cleanup: true
