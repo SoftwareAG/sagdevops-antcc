@@ -21,7 +21,7 @@ before_deploy:
   - bash deploy/pack.sh
   - ls -la
   - echo "home folder"
-  - ls -la $home
+  - ls -la $HOME
   - pwd 
   - env
 deploy:
