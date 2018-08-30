@@ -19,6 +19,7 @@ script:
 
 before_deploy:
   - bash ./deploy/pack.sh
+  - bash ls -la
 
 deploy:
   provider: releases
@@ -28,6 +29,6 @@ deploy:
   on:
     repo: SoftwareAG/sagdevops-antcc
     all_branches: true
-    tags: true
+#    tags: true
   prerelease: true
   skip_cleanup: true
