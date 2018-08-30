@@ -21,7 +21,7 @@ before_deploy:
   - ls -la
   - pwd 
   - env
-  - bash $HOME/deploy/pack.sh
+  - bash deploy/pack.sh
 deploy:
   provider: releases
   api_key:
