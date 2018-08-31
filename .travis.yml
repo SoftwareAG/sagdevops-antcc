@@ -10,6 +10,7 @@ matrix:
 env:
   global:
     - CC_ENV=travis 
+    - IS_ANTCC_BUILDER=true
 
 script:
   - mkdir -p environments/$CC_ENV && echo test=true>environments/$CC_ENV/env.properties

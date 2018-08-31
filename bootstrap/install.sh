@@ -49,10 +49,51 @@ function getFileDate
                 echo 0
         fi
 }
-
+function installBuilder
+{
+  echo "Installing CCE CLI"
+  chmod +x $file
+  $file -D CLI -L -d "$CC_HOME"
+  if [ $? -ne 0 ]
+  then
+    echo "Something went wrong with executable file:"
+    echo "$file"
+    echo "Try to remove it manually and rerun the command"
+    die "file not executable" 2
+  fi
+  echo "Cloning antcc repo to $ANTCC_HOME"
+  if [ -d "$ANTCC_HOME" ]
+  then
+    rm -rf $ANTCC_HOME
+  fi
+  git clone $ANTCC_URL $ANTCC_HOME
+  EXIT_CODE=$?
+  if [ "$EXIT_CODE" -ne 0 ]
+  then
+    die "Failed to clone antcc repo" 3
+  fi
+}
+function installFromZip
+{
+  echo "Installing CCE CLI"
+  pushd `pwd`
+  cd $HOME
+  unzip -r $file
+  if [ $? -ne 0 ]
+  then
+    popd
+    echo "Something went wrong with zip file:"
+    echo "$file"
+    echo "Try to remove it manually and rerun the command"
+    die "Faild to unzip antcc" 4
+  fi
+  popd 
+}
+# latest public GA version
+CC_VERSION=${CC_VERSION:-10.3-stable}
+CC_DISTRO=${CC_DISTRO:-antcc-nojava}
+ 
 if [ -z $CC_INSTALLER ]; then
-  # latest public GA version
-  CC_VERSION=${CC_VERSION:-10.3-milestone}
   case "`uname`" in
     Darwin) CC_INSTALLER=cc-def-$CC_VERSION-osx.sh ;;
      Linux) CC_INSTALLER=cc-def-$CC_VERSION-lnxamd64.sh ;;
@@ -60,8 +101,11 @@ if [ -z $CC_INSTALLER ]; then
   esac
 fi
 
-# default public download site
-URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers}
+# default public download site used for builder
+#URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers}
+# default public download site used for antcc installation
+URL=${CC_INSTALLER_URL:-https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3/}
+
 
 # default installation dir
 export ANTCC_URL=https://github.com/SoftwareAG/sagdevops-antcc.git
@@ -92,28 +136,14 @@ else
 fi
 if [ "$EXIT_CODE" -eq 0  -a  "$HTTP_CODE" -eq 200 ]
 then
-  echo "Installing CCE CLI"
-  chmod +x $file
-  $file -D CLI -L -d "$CC_HOME"
-  if [ $? -ne 0 ]
+  if [ "IS_ANTCC_BUILDER" = "true" ]
   then
-    echo "Something went wrong with executable file:"
-    echo "$file"
-    echo "Try to remove it manually and rerun the command"
-    die "file not executable" 2
+    # build the installer
+    installBuilder
+  else
+    # install from zip
+    installFromZip
   fi
-  echo "Cloning antcc repo to $ANTCC_HOME"
-  if [ -d "$ANTCC_HOME" ]
-  then
-    rm -rf $ANTCC_HOME
-  fi
-  git clone $ANTCC_URL $ANTCC_HOME
-  EXIT_CODE=$?
-  if [ "$EXIT_CODE" -ne 0 ]
-  then
-    die "Failed to clone antcc repo" 3
-  fi
-
   echo "Trying to add  vatiables to all shell profiles in $HOME"
   for profile in .profile .bashrc .zshrc .cshrc
   do
