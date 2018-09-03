@@ -11,6 +11,10 @@ env:
   global:
     - CC_ENV=travis 
     - IS_ANTCC_BUILDER=true
+    - CC_VERSION=10.3-milestone 
+    - CC_DISTRO=cc-def 
+    - CC_INSTALLER_URL=http://empowersdc.softwareag.com/ccinstallers/
+
 
 script:
   - mkdir -p environments/$CC_ENV && echo test=true>environments/$CC_ENV/env.properties
@@ -29,6 +33,7 @@ deploy:
     repo: SoftwareAG/sagdevops-antcc
     branch: release/103oct2018
 #    all_branches: true
+
     tags: true
   prerelease: true
   skip_cleanup: true
