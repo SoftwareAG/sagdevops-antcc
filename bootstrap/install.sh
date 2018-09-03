@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 ###
 # Command Central client tools install script
@@ -92,14 +92,21 @@ function installFromZip
 # latest public GA version
 CC_VERSION=${CC_VERSION:-10.3-stable}
 CC_DISTRO=${CC_DISTRO:-antcc-nojava}
- 
-if [ -z $CC_INSTALLER ]; then
-  case "`uname`" in
-    Darwin) CC_INSTALLER=cc-def-$CC_VERSION-osx.sh ;;
-     Linux) CC_INSTALLER=cc-def-$CC_VERSION-lnxamd64.sh ;;
-         *) echo "Not supported OS" && exit 1 ;;
-  esac
+
+
+if [ "$IS_ANTCC_BUILDER" = "true" ]
+then
+  if [ -z $CC_INSTALLER ]; then
+    case "`uname`" in
+      Darwin) CC_INSTALLER=$CC_DISTRO-$CC_VERSION-osx.sh ;;
+       Linux) CC_INSTALLER=$CC_DISTRO-$CC_VERSION-lnxamd64.sh ;;
+           *) die "Not supported OS" && exit 4 ;;
+    esac
+  fi
+else
+ CC_INSTALLER=$CC_DISTRO-$CC_VERSION-any.zip
 fi
+
 
 # default public download site used for builder
 #URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers}
@@ -136,12 +143,14 @@ else
 fi
 if [ "$EXIT_CODE" -eq 0  -a  "$HTTP_CODE" -eq 200 ]
 then
-  if [ "IS_ANTCC_BUILDER" = "true" ]
+  if [ "$IS_ANTCC_BUILDER" = "true" ]
   then
     # build the installer
+    echo "Creating builder"
     installBuilder
   else
     # install from zip
+    echo "Installing from zip"
     installFromZip
   fi
   echo "Trying to add  vatiables to all shell profiles in $HOME"

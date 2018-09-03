@@ -7,7 +7,7 @@ then
 	CC_VERSION=${CC_VERSION:-10.3-stable}
 	CC_DISTRO=${CC_DISTRO:-antcc-nojava}
 	# set distribution filename
-	CC_DISTRO_FILENAME="$CC_DISTRO-$CC_VERSION.zip"
+	CC_DISTRO_FILENAME="$CC_DISTRO-$CC_VERSION-any.zip"
 #	echo "Currently in folder `pwd`"
 #	echo "Environment variables values:"
 #	env
