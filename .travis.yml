@@ -24,6 +24,10 @@ script:
 
 before_deploy:
   - bash deploy/pack.sh
+  - echo "folder"
+  - pwd
+  - echo "env"
+  - env
 deploy:
   provider: releases
   api_key:

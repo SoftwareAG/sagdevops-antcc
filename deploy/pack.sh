@@ -2,6 +2,7 @@
 # Execute only on linux and skip osx
 if [ `uname` = "Linux" ]
 then
+        pwd
 	cd $HOME
 	#setting default values
 #	CC_VERSION=${CC_VERSION:-10.3-stable}
