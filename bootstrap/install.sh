@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 ###
 # Command Central client tools install script
@@ -11,19 +11,19 @@ function die
 
 function addEnvVars
 {
-INATALL_LABEL="#Installed by antcc cli installer"
-grep -q "^$INATALL_LABEL" $1
+INSTALL_LABEL="#Installed by antcc cli installer"
+grep -q "^$INSTALL_LABEL" $1
 if [ $? -ne 0 ]
 then
   echo "Adding variables to $1"
-  echo $INATALL_LABEL >> $1
+  echo $INSTALL_LABEL >> $1
   cat >> $1 << _EOF_
 export CC_CLI_HOME=$CC_CLI_HOME
 export ANTCC_HOME=$ANTCC_HOME
 export ANT_HOME=$CC_HOME/common/lib/ant
-export JAVA_HOME=${JAVA_HOME:-$CC_CLI_HOME//jvm/jvm/}
 export PATH=$PATH:$CC_CLI_HOME/bin:$ANTCC_HOME/bin:$ANT_HOME/bin
 _EOF_
+  [ "$IS_ANTCC_BUILDER" = "true" ] &&  echo export "JAVA_HOME=${JAVA_HOME:-$CC_CLI_HOME//jvm/jvm/}" >> $1
 else
   echo "Skipping $1"
 fi
@@ -31,7 +31,7 @@ fi
 function getUrlDate
 {
 
-        LAST_MODIFIED_HEADER=`curl -sI $1 | grep 'Last-Modified'`
+        LAST_MODIFIED_HEADER=`curl -sIL $1 | grep 'Last-Modified'`
         if [ -z "$LAST_MODIFIED_HEADER" ]
         then
                 date +%s
@@ -78,7 +78,7 @@ function installFromZip
   echo "Installing CCE CLI"
   pushd `pwd`
   cd $HOME
-  unzip -r $file
+  unzip -o  $file
   if [ $? -ne 0 ]
   then
     popd
@@ -138,7 +138,7 @@ if [ $LAST_MODIFIED_FILE_DATE -ge $LAST_MODIFIED_URL_DATE  ]; then
   HTTP_CODE=200
 else
   echo "Downloading ${URL}/${CC_INSTALLER} ..."
-  HTTP_CODE=`curl -o "$file" -w "%{http_code}" --remote-time "${URL}/${CC_INSTALLER}"`
+  HTTP_CODE=`curl -o "$file" -w "%{http_code}" --remote-time -L "${URL}/${CC_INSTALLER}"`
   EXIT_CODE=$?
 fi
 if [ "$EXIT_CODE" -eq 0  -a  "$HTTP_CODE" -eq 200 ]
@@ -166,7 +166,7 @@ then
   echo export CC_CLI_HOME=$CC_CLI_HOME
   echo export ANTCC_HOME=$ANTCC_HOME
   echo export ANT_HOME=$CC_HOME/common/lib/ant
-  echo export JAVA_HOME=${JAVA_HOME:-$CC_CLI_HOME//jvm/jvm/}
+  [ "$IS_ANTCC_BUILDER" = "true" ] &&  echo export JAVA_HOME=${JAVA_HOME:-$CC_CLI_HOME//jvm/jvm/}
   echo export PATH=$PATH:$CC_CLI_HOME/bin:$ANTCC_HOME/bin:$ANT_HOME/bin
   echo
   echo "Verify by running 'antcc help'"

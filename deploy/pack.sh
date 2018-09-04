@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 # Execute only on linux and skip osx
 if [ `uname` = "Linux" ]
 then
@@ -14,6 +14,6 @@ then
 #	echo "Environment variables values:"
 #	env
 #	echo
-	echo "zipping built project to  $CC_DISTRO_FILENAME"
+	echo "zipping built project to  $HOME/$CC_DISTRO_FILENAME"
 	zip -r $HOME/$CC_DISTRO_FILENAME ./.sag/tools/CommandCentral ./.sag/tools/common ./.sag/tools/sagdevops-antcc
 fi
