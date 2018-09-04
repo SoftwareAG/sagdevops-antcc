@@ -35,7 +35,8 @@ deploy:
   file: /home/travis/antcc-nojava-10.3-stable.zip
   on:
     repo: SoftwareAG/sagdevops-antcc
-    branch: release/103oct2018
+#    branch: release/103oct2018
+    branch: releases/103oct2018_develop
 #    all_branches: true
 
     tags: true
