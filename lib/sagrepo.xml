@@ -99,7 +99,7 @@ ant images                       Import product and fix images
 		<property file="${env.properties}" />
 		
 		<!-- default value: comma delimited list of all installers to download -->
-		<property name="installers" value="${installer}.${file.extension}" />
+		<property name="installers" value="${installer}" />
 
 		<echo>
 			Downloading requested installers: ${installers} ...
