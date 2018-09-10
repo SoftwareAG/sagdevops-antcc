@@ -18,7 +18,7 @@ function getUrlDate($url){
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         $LAST_MODIFIED_HEADER=((Invoke-WebRequest -URI $url -Method Head).headers['Last-modified'])
     } catch {
-		"Thursday, January 1, 1970"
+		(Get-Date)
         return
     }
     if($LAST_MODIFIED_HEADER){
