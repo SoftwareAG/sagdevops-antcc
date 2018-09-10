@@ -11,19 +11,19 @@ function die
 
 function addEnvVars
 {
-INATALL_LABEL="#Installed by antcc cli installer"
-grep -q "^$INATALL_LABEL" $1
+INSTALL_LABEL="#Installed by antcc cli installer"
+grep -q "^$INSTALL_LABEL" $1
 if [ $? -ne 0 ]
 then
   echo "Adding variables to $1"
-  echo $INATALL_LABEL >> $1
+  echo $INSTALL_LABEL >> $1
   cat >> $1 << _EOF_
 export CC_CLI_HOME=$CC_CLI_HOME
 export ANTCC_HOME=$ANTCC_HOME
 export ANT_HOME=$CC_HOME/common/lib/ant
-export JAVA_HOME=${JAVA_HOME:-$CC_CLI_HOME//jvm/jvm/}
 export PATH=$PATH:$CC_CLI_HOME/bin:$ANTCC_HOME/bin:$ANT_HOME/bin
 _EOF_
+  [ "$IS_ANTCC_BUILDER" = "true" ] &&  echo export "JAVA_HOME=${JAVA_HOME:-$CC_CLI_HOME//jvm/jvm/}" >> $1
 else
   echo "Skipping $1"
 fi
@@ -31,7 +31,7 @@ fi
 function getUrlDate
 {
 
-        LAST_MODIFIED_HEADER=`curl -sI $1 | grep 'Last-Modified'`
+        LAST_MODIFIED_HEADER=`curl -sIL $1 | grep 'Last-Modified'`
         if [ -z "$LAST_MODIFIED_HEADER" ]
         then
                 date +%s
@@ -49,19 +49,70 @@ function getFileDate
                 echo 0
         fi
 }
+function installBuilder
+{
+  echo "Installing CCE CLI"
+  chmod +x $file
+  $file -D CLI -L -d "$CC_HOME"
+  if [ $? -ne 0 ]
+  then
+    echo "Something went wrong with executable file:"
+    echo "$file"
+    echo "Try to remove it manually and rerun the command"
+    die "file not executable" 2
+  fi
+  echo "Cloning antcc repo to $ANTCC_HOME"
+  if [ -d "$ANTCC_HOME" ]
+  then
+    rm -rf $ANTCC_HOME
+  fi
+  git clone $ANTCC_URL $ANTCC_HOME
+  EXIT_CODE=$?
+  if [ "$EXIT_CODE" -ne 0 ]
+  then
+    die "Failed to clone antcc repo" 3
+  fi
+}
+function installFromZip
+{
+  echo "Installing CCE CLI"
+  pushd `pwd`
+  cd $HOME
+  unzip -o  $file
+  if [ $? -ne 0 ]
+  then
+    popd
+    echo "Something went wrong with zip file:"
+    echo "$file"
+    echo "Try to remove it manually and rerun the command"
+    die "Faild to unzip antcc" 4
+  fi
+  popd 
+}
+# latest public GA version
+CC_VERSION=${CC_VERSION:-10.3-stable}
+CC_DISTRO=${CC_DISTRO:-antcc-nojava}
 
-if [ -z $CC_INSTALLER ]; then
-  # latest public GA version
-  CC_VERSION=${CC_VERSION:-10.3-milestone}
-  case "`uname`" in
-    Darwin) CC_INSTALLER=cc-def-$CC_VERSION-osx.sh ;;
-     Linux) CC_INSTALLER=cc-def-$CC_VERSION-lnxamd64.sh ;;
-         *) echo "Not supported OS" && exit 1 ;;
-  esac
+
+if [ "$IS_ANTCC_BUILDER" = "true" ]
+then
+  if [ -z $CC_INSTALLER ]; then
+    case "`uname`" in
+      Darwin) CC_INSTALLER=$CC_DISTRO-$CC_VERSION-osx.sh ;;
+       Linux) CC_INSTALLER=$CC_DISTRO-$CC_VERSION-lnxamd64.sh ;;
+           *) die "Not supported OS" && exit 4 ;;
+    esac
+  fi
+else
+ CC_INSTALLER=$CC_DISTRO-$CC_VERSION-any.zip
 fi
 
-# default public download site
-URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers}
+
+# default public download site used for builder
+#URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers}
+# default public download site used for antcc installation
+URL=${CC_INSTALLER_URL:-https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3/}
+
 
 # default installation dir
 export ANTCC_URL=https://github.com/SoftwareAG/sagdevops-antcc.git
@@ -87,33 +138,21 @@ if [ $LAST_MODIFIED_FILE_DATE -ge $LAST_MODIFIED_URL_DATE  ]; then
   HTTP_CODE=200
 else
   echo "Downloading ${URL}/${CC_INSTALLER} ..."
-  HTTP_CODE=`curl -o "$file" -w "%{http_code}" --remote-time "${URL}/${CC_INSTALLER}"`
+  HTTP_CODE=`curl -o "$file" -w "%{http_code}" --remote-time -L "${URL}/${CC_INSTALLER}"`
   EXIT_CODE=$?
 fi
 if [ "$EXIT_CODE" -eq 0  -a  "$HTTP_CODE" -eq 200 ]
 then
-  echo "Installing CCE CLI"
-  chmod +x $file
-  $file -D CLI -L -d "$CC_HOME"
-  if [ $? -ne 0 ]
+  if [ "$IS_ANTCC_BUILDER" = "true" ]
   then
-    echo "Something went wrong with executable file:"
-    echo "$file"
-    echo "Try to remove it manually and rerun the command"
-    die "file not executable" 2
+    # build the installer
+    echo "Creating builder"
+    installBuilder
+  else
+    # install from zip
+    echo "Installing from zip"
+    installFromZip
   fi
-  echo "Cloning antcc repo to $ANTCC_HOME"
-  if [ -d "$ANTCC_HOME" ]
-  then
-    rm -rf $ANTCC_HOME
-  fi
-  git clone $ANTCC_URL $ANTCC_HOME
-  EXIT_CODE=$?
-  if [ "$EXIT_CODE" -ne 0 ]
-  then
-    die "Failed to clone antcc repo" 3
-  fi
-
   echo "Trying to add  vatiables to all shell profiles in $HOME"
   for profile in .profile .bashrc .zshrc .cshrc
   do
@@ -127,7 +166,7 @@ then
   echo export CC_CLI_HOME=$CC_CLI_HOME
   echo export ANTCC_HOME=$ANTCC_HOME
   echo export ANT_HOME=$CC_HOME/common/lib/ant
-  echo export JAVA_HOME=${JAVA_HOME:-$CC_CLI_HOME//jvm/jvm/}
+  [ "$IS_ANTCC_BUILDER" = "true" ] &&  echo export JAVA_HOME=${JAVA_HOME:-$CC_CLI_HOME//jvm/jvm/}
   echo export PATH=$PATH:$CC_CLI_HOME/bin:$ANTCC_HOME/bin:$ANT_HOME/bin
   echo
   echo "Verify by running 'antcc help'"
