@@ -1,5 +1,7 @@
 version: 1.0.{build}
-cache: C:\Users\appveyor\Downloads
+#cache: C:\Users\appveyor\Downloads
+environment:
+- CC_INSTALLER_URL: https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3-rc13/
 install:
 - ps: bootstrap/install.ps1
 build_script:
