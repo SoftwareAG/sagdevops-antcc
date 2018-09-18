@@ -111,8 +111,7 @@ fi
 # default public download site used for builder
 #URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers}
 # default public download site used for antcc installation
-URL=${CC_INSTALLER_URL:-https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3/}
-
+URL=${CC_INSTALLER_URL:-https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3-rc13}
 
 # default installation dir
 export ANTCC_URL=https://github.com/SoftwareAG/sagdevops-antcc.git
