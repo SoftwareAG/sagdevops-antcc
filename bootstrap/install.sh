@@ -66,7 +66,7 @@ function installBuilder
   then
     rm -rf $ANTCC_HOME
   fi
-  git clone $ANTCC_URL $ANTCC_HOME
+  git clone --branch "$SAGCC_BRANCH" $ANTCC_URL $ANTCC_HOME
   EXIT_CODE=$?
   if [ "$EXIT_CODE" -ne 0 ]
   then
@@ -92,6 +92,7 @@ function installFromZip
 # latest public GA version
 CC_VERSION=${CC_VERSION:-10.3-stable}
 CC_DISTRO=${CC_DISTRO:-antcc-nojava}
+SAGCC_BRANCH=${SAGCC_BRANCH:-release/103oct2018}
 
 
 if [ "$IS_ANTCC_BUILDER" = "true" ]
