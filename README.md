@@ -1,6 +1,6 @@
 # Command Central Project Automation Tool
 
-AntCC is Software AG DevOps library to support Infrastructure as Code
+AntCC is Software AG DevOps tool to support Infrastructure as Code
 projects for Command Central.
 It is based on well-known Apache Ant build automation framework.
 
@@ -9,10 +9,13 @@ and provides default targets (commands) for developing and testing.
 
 ## Basic Installation
 
-### Requirements and Dependencies
+### Installing using Ant
+
+Requirements:
 
 * [Apache Ant 1.9.x](https://ant.apache.org/)
 * [Java 1.8.x](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+* Git client
 
 ```bash
 git clone https://github.com/SoftwareAG/sagdevops-antcc.git antcc
@@ -20,17 +23,16 @@ cd antcc
 bin/antcc client
 ```
 
-Add to the PATH
+Add to the PATH:
 
 ```bash
 export ANTCC_HOME=`pwd`
 export PATH=$PATH:$ANTCC_HOME/bin
 ```
 
-## Zero dependencies installation
+### Installing without Ant
 
-If you don't have Java and Apache Ant you can use bootstrap installation script to install the clients
-along with Java and Ant.
+If you don't Apache Ant but have Java 1.8+, you can install the tool using these commands.
 
 On Linux and Mac OS:
 

@@ -99,7 +99,7 @@ ant images                       Import product and fix images
 		<property file="${env.properties}" />
 		
 		<!-- default value: comma delimited list of all installers to download -->
-		<property name="installers" value="${installer}.${file.extension}" />
+		<property name="installers" value="${installer}" />
 
 		<echo>
 			Downloading requested installers: ${installers} ...
@@ -124,6 +124,7 @@ ant images                       Import product and fix images
 		<!-- env vars have presedence over env.properties -->
 		<property name="empower.username" value="${env.EMPOWER_USR}" if:set="env.EMPOWER_USR" />
 		<property name="empower.password" value="${env.EMPOWER_PSW}" if:set="env.EMPOWER_PSW"/>
+
 		<property name="cc.password"      value="${env.CC_PASSWORD}" if:set="env.CC_PASSWORD"/>
 
 		<!-- load the from propertes file -->
@@ -144,6 +145,9 @@ ant images                       Import product and fix images
 			<entry key="empower.username" value="${empower.username}" />
 			<entry key="empower.password" value="${empower.password}" />
 			<entry key="cc.password" value="${cc.password}" if:set="cc.password" />
+			<entry key="credentials.key" value="EMPOWER" />
+			<entry key="credentials.username" value="${empower.username}" />
+			<entry key="credentials.password" value="${empower.password}" />
 		</propertyfile>
 
 		<echo>
