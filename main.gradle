@@ -26,9 +26,15 @@ File rootEnvProperties = new File(projectDir, "env.properties");
 File envProperties = new File(projectDir, "environments/" + ant.properties["env"] + "/env.properties");
 File testProperties = new File(projectDir, "tests/test.properties");
 
+// Default location. To be overwritten in the project specific build.gradle file
+if(!project.ext.has("genericProperties")) {
+	ext.genericProperties = new File(projectDir, "generic.properties"); 
+} 
+
 setPropertyIfFileExists("bootstrap.properties", bootstrapProperties);
 setPropertyIfFileExists("bootstrap.properties", bootstrapDefaultProperties);
 setPropertyIfFileExists("cc.properties", clientProperties);
+setPropertyIfFileExists("generic.properties", genericProperties);
 setPropertyIfFileExists("cc.properties", ccProperties);
 setPropertyIfFileExists("env.properties", rootEnvProperties);
 setPropertyIfFileExists("env.properties", envProperties);
@@ -117,6 +123,9 @@ allprojects { currentProject ->
 		ccGradleLog "Found project with gradle java plugin applied: " + currentProject.name
 		ccGradleLog "Loading test.properties and env.properties as test system properties"
 		currentProject.ext.testProps = new Properties();
+		if(genericProperties.exists()) {
+			testProps.load(new FileInputStream(genericProperties));
+		}
 		if(testProperties.exists()) {
 			testProps.load(new FileInputStream(testProperties));
 		}
@@ -129,6 +138,7 @@ allprojects { currentProject ->
 		
 		// Load the properties in ant so that all variables are expanded by the ant framework
 		ant {
+			property(file: genericProperties)
 		    property(file: envProperties)
 			property(file: ccProperties)
 		    property(file: testProperties)
