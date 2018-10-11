@@ -99,8 +99,8 @@ if [ "$IS_ANTCC_BUILDER" = "true" ]
 then
   if [ -z $CC_INSTALLER ]; then
     case "`uname`" in
-      Darwin) CC_INSTALLER=$ANTCC_DISTRO-$ANTCC_VERSION-osx.sh ;;
-       Linux) CC_INSTALLER=$ANTCC_DISTRO-$ANTCC_VERSION-lnxamd64.sh ;;
+      Darwin) CC_INSTALLER=$CC_DISTRO-$CC_VERSION-osx.sh ;;
+       Linux) CC_INSTALLER=$CC_DISTRO-$CC_VERSION-lnxamd64.sh ;;
            *) die "Not supported OS" && exit 4 ;;
     esac
   fi
