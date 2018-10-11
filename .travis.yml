@@ -1,3 +1,4 @@
+
 git:
   depth: 100
 matrix:
@@ -17,6 +18,7 @@ env:
     - CC_VERSION=10.3-release 
     - CC_DISTRO=cc-def 
     - CC_INSTALLER_URL=http://empowersdc.softwareag.com/ccinstallers/
+    - ANTCC_INSTALLER_URL=https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3-rc13
 
 
 script:
