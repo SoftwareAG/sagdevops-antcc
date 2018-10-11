@@ -87,7 +87,7 @@ function installFromZip
     echo "Try to remove it manually and rerun the command"
     die "Faild to unzip antcc" 4
   fi
-  popd 
+  popd
 }
 # latest public GA version
 CC_VERSION=${CC_VERSION:-10.3-stable}
@@ -104,15 +104,17 @@ then
            *) die "Not supported OS" && exit 4 ;;
     esac
   fi
+   URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers/}
 else
- CC_INSTALLER=$CC_DISTRO-$CC_VERSION-any.zip
+  CC_INSTALLER=$CC_DISTRO-$CC_VERSION-any.zip
+  URL=${ANTCC_INSTALLER_URL:-https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3-rc13}
 fi
 
 
 # default public download site used for builder
 #URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers}
 # default public download site used for antcc installation
-URL=${CC_INSTALLER_URL:-https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3-rc13}
+#URL=${CC_INSTALLER_URL:-https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3-rc13}
 
 # default installation dir
 export ANTCC_URL=https://github.com/SoftwareAG/sagdevops-antcc.git
