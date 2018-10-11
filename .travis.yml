@@ -19,6 +19,8 @@ env:
     - CC_DISTRO=cc-def 
     - CC_INSTALLER_URL=http://empowersdc.softwareag.com/ccinstallers/
     - ANTCC_INSTALLER_URL=https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3-rc13
+    - ANTCC_VERSION=10.3-stable
+    - ANTCC_DISTRO=antcc-nojava
 
 
 script:
