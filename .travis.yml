@@ -1,3 +1,4 @@
+
 git:
   depth: 100
 matrix:
@@ -14,9 +15,12 @@ env:
   global:
     - CC_ENV=travis 
     - IS_ANTCC_BUILDER=true
-    - CC_VERSION=10.3-milestone 
+    - CC_VERSION=10.4-release 
     - CC_DISTRO=cc-def 
     - CC_INSTALLER_URL=http://empowersdc.softwareag.com/ccinstallers/
+    - ANTCC_INSTALLER_URL=https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.4-rc
+    - ANTCC_VERSION=10.4-stable
+    - ANTCC_DISTRO=antcc-nojava
 
 
 script:
@@ -34,9 +38,8 @@ deploy:
   file: /home/travis/antcc-nojava-10.3-stable-any.zip
   on:
     repo: SoftwareAG/sagdevops-antcc
-#    branch: release/103oct2018
-    branch: releases/103oct2018_develop
-#    all_branches: true
+    branch: releases/104apr2019
+
 
     tags: true
   prerelease: true

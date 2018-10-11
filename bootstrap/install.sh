@@ -66,7 +66,7 @@ function installBuilder
   then
     rm -rf $ANTCC_HOME
   fi
-  git clone $ANTCC_URL $ANTCC_HOME
+  git clone --branch "$SAGCC_BRANCH" $ANTCC_URL $ANTCC_HOME
   EXIT_CODE=$?
   if [ "$EXIT_CODE" -ne 0 ]
   then
@@ -87,32 +87,34 @@ function installFromZip
     echo "Try to remove it manually and rerun the command"
     die "Faild to unzip antcc" 4
   fi
-  popd 
+  popd
 }
 # latest public GA version
-CC_VERSION=${CC_VERSION:-10.3-stable}
-CC_DISTRO=${CC_DISTRO:-antcc-nojava}
+ANTCC_VERSION=${ANTCC_VERSION:-10.3-stable}
+ANTCC_DISTRO=${ANTCC_DISTRO:-antcc-nojava}
+SAGCC_BRANCH=${SAGCC_BRANCH:-release/103oct2018}
 
 
 if [ "$IS_ANTCC_BUILDER" = "true" ]
 then
   if [ -z $CC_INSTALLER ]; then
     case "`uname`" in
-      Darwin) CC_INSTALLER=$CC_DISTRO-$CC_VERSION-osx.sh ;;
-       Linux) CC_INSTALLER=$CC_DISTRO-$CC_VERSION-lnxamd64.sh ;;
+      Darwin) CC_INSTALLER=$ANTCC_DISTRO-$ANTCC_VERSION-osx.sh ;;
+       Linux) CC_INSTALLER=$ANTCC_DISTRO-$ANTCC_VERSION-lnxamd64.sh ;;
            *) die "Not supported OS" && exit 4 ;;
     esac
   fi
+   URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers/}
 else
- CC_INSTALLER=$CC_DISTRO-$CC_VERSION-any.zip
+  CC_INSTALLER=$ANTCC_DISTRO-$ANTCC_VERSION-any.zip
+  URL=${ANTCC_INSTALLER_URL:-https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3-rc13}
 fi
 
 
 # default public download site used for builder
 #URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers}
 # default public download site used for antcc installation
-URL=${CC_INSTALLER_URL:-https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3/}
-
+#URL=${CC_INSTALLER_URL:-https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3-rc13}
 
 # default installation dir
 export ANTCC_URL=https://github.com/SoftwareAG/sagdevops-antcc.git
