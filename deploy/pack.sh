@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 ###############################################################################
 #  Copyright 2013 - 2018 Software AG, Darmstadt, Germany and/or its licensors
 #
@@ -24,7 +24,7 @@ then
 	#setting default values
 	ANTCC_VERSION=${ANTCC_VERSION:-10.3-stable}
 	ANTCC_DISTRO=${ANTCC_DISTRO:-antcc-nojava}
-	# set distribution filename
+	# set distribution filename 
 	ANTCC_DISTRO_FILENAME="$ANTCC_DISTRO-$ANTCC_VERSION-any.zip"
 	mkdir -p $HOME/build_target
 	echo "zipping built project to  $HOME/build_target/$ANTCC_DISTRO_FILENAME"
