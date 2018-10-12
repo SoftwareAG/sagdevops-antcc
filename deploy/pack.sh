@@ -21,12 +21,12 @@
 if [ `uname` = "Linux" ]
 then
         pwd
-	cd $HOME
 	#setting default values
 	ANTCC_VERSION=${ANTCC_VERSION:-10.3-stable}
 	ANTCC_DISTRO=${ANTCC_DISTRO:-antcc-nojava}
 	# set distribution filename
 	ANTCC_DISTRO_FILENAME="$ANTCC_DISTRO-$ANTCC_VERSION-any.zip"
-	echo "zipping built project to  $HOME/$ANTCC_DISTRO_FILENAME"
-	zip -r $HOME/$ANTCC_DISTRO_FILENAME ./.sag/tools/CommandCentral ./.sag/tools/common ./.sag/tools/sagdevops-antcc
+	mkdir -p $HOME/build_target
+	echo "zipping built project to  $HOME/build_target/$ANTCC_DISTRO_FILENAME"
+	zip -r $HOME/build_target/$ANTCC_DISTRO_FILENAME ./.sag/tools/CommandCentral ./.sag/tools/common ./.sag/tools/sagdevops-antcc
 fi
