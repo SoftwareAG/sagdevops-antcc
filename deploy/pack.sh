@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 ###############################################################################
 #  Copyright 2013 - 2018 Software AG, Darmstadt, Germany and/or its licensors
 #
