@@ -107,7 +107,7 @@ then
    URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers/}
 else
   CC_INSTALLER=$ANTCC_DISTRO-$ANTCC_VERSION-any.zip
-  URL=${ANTCC_INSTALLER_URL:-https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3-rc13}
+  URL=${ANTCC_INSTALLER_URL:-https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3.0.1}
 fi
 
 
