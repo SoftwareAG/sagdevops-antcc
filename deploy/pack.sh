@@ -21,6 +21,7 @@
 if [ `uname` = "Linux" ]
 then
         pwd
+	cd $HOME
 	#setting default values
 	ANTCC_VERSION=${ANTCC_VERSION:-10.3-stable}
 	ANTCC_DISTRO=${ANTCC_DISTRO:-antcc-nojava}
