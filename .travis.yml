@@ -30,7 +30,7 @@ script:
   - antcc help
 
 before_deploy:
-  - bash deploy/pack.sh
+  - bash -x deploy/pack.sh
 
 deploy:
   provider: releases
