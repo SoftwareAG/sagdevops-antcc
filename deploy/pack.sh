@@ -23,15 +23,12 @@ then
         pwd
 	cd $HOME
 	#setting default values
-#	CC_VERSION=${CC_VERSION:-10.3-stable}
-#	CC_DISTRO=${CC_DISTRO:-antcc-nojava}
-	# set distribution filename
-#	CC_DISTRO_FILENAME="$CC_DISTRO-$CC_VERSION-any.zip"
-	CC_DISTRO_FILENAME="antcc-nojava-10.3-stable-any.zip"
-#	echo "Currently in folder `pwd`"
-#	echo "Environment variables values:"
-#	env
-#	echo
-	echo "zipping built project to  $HOME/$CC_DISTRO_FILENAME"
-	zip -r $HOME/$CC_DISTRO_FILENAME ./.sag/tools/CommandCentral ./.sag/tools/common ./.sag/tools/sagdevops-antcc
+	ANTCC_VERSION=${ANTCC_VERSION:-10.4-stable}
+	ANTCC_DISTRO=${ANTCC_DISTRO:-antcc-nojava}
+	# set distribution filename 
+	ANTCC_DISTRO_FILENAME="$ANTCC_DISTRO-$ANTCC_VERSION-any.zip"
+	mkdir -p $HOME/build_target
+	echo "zipping built project to  $HOME/build_target/$ANTCC_DISTRO_FILENAME"
+	zip -r $HOME/build_target/$ANTCC_DISTRO_FILENAME ./.sag/tools/CommandCentral ./.sag/tools/common ./.sag/tools/sagdevops-antcc
 fi
+##end
