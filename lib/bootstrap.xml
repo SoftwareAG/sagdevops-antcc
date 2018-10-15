@@ -241,6 +241,10 @@ ant stopcc                       Stop local Command Central server
 			<arg value="-d" />
 			<!-- IMPORTANT: convert path to Windows format -->
 			<arg path="${install.dir.win}" />
+			<arg value="-s" />
+			<arg value="${spm.http.port}" />
+			<arg value="-S" />
+			<arg value="${spm.https.port}" />
 			<arg value="-p" />
 			<arg value="${password}" />
 			<arg value="-m" />
