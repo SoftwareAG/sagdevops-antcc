@@ -71,7 +71,7 @@ ant clean                        Clean project from build artifacts
 		<property file="${env.properties}" />
 
 		<!-- expand resolved properties into new env.properties -->
-		<property name="env.properties.expanded.file" value="build/${env}/env.properties" />
+		<property name="env.properties.expanded.file" value="${build.dir}/${env}/env.properties" />
 		<copy file="${env.properties}" tofile="${env.properties.expanded.file}" verbose="true" overwrite="true">
 			<filterchain>
 				<expandproperties/>
