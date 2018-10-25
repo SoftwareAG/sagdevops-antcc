@@ -53,6 +53,7 @@ ant test                         Run tests/test*.xml AntUnit tests
 		<au:antunit failonerror="false">
 			<!-- pass in important properties -->
 			<propertyset>
+				<propertyref name="build.dir" />
 				<propertyref name="temp.dir" />
 				<propertyref name="automation.basedir"/>
 				<propertyref name="tests.project.basedir" />

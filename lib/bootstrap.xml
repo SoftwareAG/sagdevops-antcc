@@ -4,6 +4,10 @@
       	Command Central bootstrap installer wrapper
 	</description>
 
+	<!-- IMPORTANT: rev this version anytime we promote new installer -->
+	<property name="cc.installer.latest" value="cc-def-10.3-fix1" />
+
+
 	<property environment="env" />
 
 	<target name="help-bootstrap">
@@ -96,7 +100,11 @@ ant stopcc                       Stop local Command Central server
 		</condition>
 		
 		<!-- default is latest public GA version on SDC-->
+<<<<<<< HEAD
 		<condition property="installer" value="${env.CC_INSTALLER}" else="cc-def-10.4-milestone-${platform}">
+=======
+		<condition property="installer" value="${env.CC_INSTALLER}" else="${cc.installer.latest}-${platform}">
+>>>>>>> release/103oct2018
 			<isset property="env.CC_INSTALLER"/>
 		</condition>
 <!-- to remove
