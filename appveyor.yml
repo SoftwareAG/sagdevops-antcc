@@ -1,14 +1,8 @@
 version: 1.0.{build}
 cache: C:\Users\appveyor\Downloads -> appveyor.yml
 environment:
-<<<<<<< HEAD
   CC_INSTALLER_URL: ANTCC_INSTALLER_URL=https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.4-rc
   ANTCC_VERSION: 10.4-stable
-=======
-  ANTCC_INSTALLER_URL: https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3-rc13/
-  ANTCC_VERSION: 10.3-stable
-  ANTCC_DISTRO: antcc-nojava
->>>>>>> release/103oct2018
 install:
 - ps: bootstrap/install.ps1
 build_script:

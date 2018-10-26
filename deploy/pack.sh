@@ -23,11 +23,7 @@ then
         pwd
 	cd $HOME
 	#setting default values
-<<<<<<< HEAD
 	ANTCC_VERSION=${ANTCC_VERSION:-10.4-stable}
-=======
-	ANTCC_VERSION=${ANTCC_VERSION:-10.3-stable}
->>>>>>> release/103oct2018
 	ANTCC_DISTRO=${ANTCC_DISTRO:-antcc-nojava}
 	# set distribution filename 
 	ANTCC_DISTRO_FILENAME="$ANTCC_DISTRO-$ANTCC_VERSION-any.zip"

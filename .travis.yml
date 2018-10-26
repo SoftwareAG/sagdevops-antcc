@@ -15,19 +15,11 @@ env:
   global:
     - CC_ENV=travis 
     - IS_ANTCC_BUILDER=true
-<<<<<<< HEAD
     - CC_VERSION=10.4-release 
     - CC_DISTRO=cc-def 
     - CC_INSTALLER_URL=http://empowersdc.softwareag.com/ccinstallers/
     - ANTCC_INSTALLER_URL=https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.4-rc
     - ANTCC_VERSION=10.4-stable
-=======
-    - CC_VERSION=10.3-fix1 
-    - CC_DISTRO=cc-def 
-    - CC_INSTALLER_URL=http://empowersdc.softwareag.com/ccinstallers/
-    - ANTCC_INSTALLER_URL=https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3
-    - ANTCC_VERSION=10.3-stable
->>>>>>> release/103oct2018
     - ANTCC_DISTRO=antcc-nojava
 
 
@@ -48,12 +40,9 @@ deploy:
   file: /home/travis/build_target/*
   on:
     repo: SoftwareAG/sagdevops-antcc
-<<<<<<< HEAD
+
 #    branch: releases/104apr2019
-=======
-#    branch: release/103oct2018
->>>>>>> release/103oct2018
     all_branches: true
     tags: true
-#  prerelease: true
+  prerelease: true
   skip_cleanup: true

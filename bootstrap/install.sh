@@ -90,15 +90,9 @@ function installFromZip
   popd
 }
 # latest public GA version
-<<<<<<< HEAD
 ANTCC_VERSION=${ANTCC_VERSION:-10.4-stable}
 ANTCC_DISTRO=${ANTCC_DISTRO:-antcc-nojava}
 SAGCC_BRANCH=${SAGCC_BRANCH:-release/104apr2019}
-=======
-ANTCC_VERSION=${ANTCC_VERSION:-10.3-stable}
-ANTCC_DISTRO=${ANTCC_DISTRO:-antcc-nojava}
-SAGCC_BRANCH=${SAGCC_BRANCH:-release/103oct2018}
->>>>>>> release/103oct2018
 
 
 if [ "$IS_ANTCC_BUILDER" = "true" ]
@@ -113,11 +107,7 @@ then
    URL=${CC_INSTALLER_URL:-http://empowersdc.softwareag.com/ccinstallers/}
 else
   CC_INSTALLER=$ANTCC_DISTRO-$ANTCC_VERSION-any.zip
-<<<<<<< HEAD
   URL=${ANTCC_INSTALLER_URL:-https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.4-rc}
-=======
-  URL=${ANTCC_INSTALLER_URL:-https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.3.0.1}
->>>>>>> release/103oct2018
 fi
 
 

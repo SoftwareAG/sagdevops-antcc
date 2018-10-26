@@ -100,11 +100,7 @@ ant stopcc                       Stop local Command Central server
 		</condition>
 		
 		<!-- default is latest public GA version on SDC-->
-<<<<<<< HEAD
-		<condition property="installer" value="${env.CC_INSTALLER}" else="cc-def-10.4-milestone-${platform}">
-=======
 		<condition property="installer" value="${env.CC_INSTALLER}" else="${cc.installer.latest}-${platform}">
->>>>>>> release/103oct2018
 			<isset property="env.CC_INSTALLER"/>
 		</condition>
 <!-- to remove
