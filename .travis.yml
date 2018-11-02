@@ -6,5 +6,5 @@ env:
   - CC_INSTALLER=cc-def-9.12-fix18-lnxamd64
 script:
   - export CC_ENV=travis && mkdir -p environments/$CC_ENV && echo test=true>environments/$CC_ENV/env.properties
-  - ant -f main.xml client
-  - ant -f main.xml -Daccept.license=true boot
+  - travis_wait 30 ant -f main.xml client
+  - travis_wait 30 ant -f main.xml -Daccept.license=true boot
