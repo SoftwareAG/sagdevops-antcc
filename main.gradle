@@ -148,6 +148,7 @@ allprojects { currentProject ->
 			testProps.each { prop -> 
 				String propKey = prop.getKey();
 				String propValue = ant.properties[prop.getKey()] // We need the evaluated ant property
+				testProps.setProperty(propKey, propValue);
 				ccGradleLog "Setting test system property $propKey to $propValue"; 
 				currentProject.tasks.test.systemProperty(propKey, propValue);
 				currentProject.tasks.testRerun.systemProperty(propKey, propValue); 
