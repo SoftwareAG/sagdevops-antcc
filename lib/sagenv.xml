@@ -320,7 +320,7 @@ ant clean                        Clean project from build artifacts
 	<target name="clean" description="Clean project from build artifacts">
 		<delete dir="${build.dir}" verbose="true" />
 		<delete verbose="true" includeemptydirs="true">
-			<fileset dir="${basedir}" includes="**/build/**" />
+			<fileset dir="${basedir}/build/"  />
 		</delete>
 	</target>
 
