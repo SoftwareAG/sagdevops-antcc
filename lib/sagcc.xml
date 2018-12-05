@@ -22,6 +22,11 @@
 	<condition property="cc.properties" value="client/${cc}.properties">
         <available file="client/${cc}.properties"/>
     </condition>
+	
+    <!-- user clients -->
+	<condition property="cc.properties" value="${user.home}/.sag/cc.properties">
+		<available file="${user.home}/.sag/cc.properties"/>
+	</condition>
 		
 	<target name="help-sagcc">
 		<echo>
@@ -35,7 +40,8 @@ Optional parameter for any target:
 
 -Dcc=other                       Command Central client configuration
                                  using CC_CLIENT env var
-                                 or from 'clients/default/cc.properties'
+                                 using global settings in '~/.sag/cc.properties' 
+								 or from 'clients/default/cc.properties'
                                  or from 'clients/default.properties'
                                  or custom 'clients/other.properties'
 Targets:
@@ -88,7 +94,7 @@ Make sure that Java version is 1.8 or greater
 		<fail unless="cc.cli.home">
 			ERROR: Neither CC_CLI_HOME environment variable not 'cc.cli.home' property are set!
 			
-			Make sure you bootstrap Command Central client on this host and set cc.properties!
+Make sure you bootstrap Command Central client on this host
 		</fail>
 
 		<echo>CC Client HOME: ${cc.cli.home}</echo>
