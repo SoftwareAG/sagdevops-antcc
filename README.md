@@ -128,7 +128,9 @@ locally in order to execute other project targets.
 After Command Central server or client is bootstrapped the default client
 configuration is available for the current user, typically in ~/.sag/cc.properties file.
 
-If you want your project to use this or a different client configuration file make a copy of
+This configuration is used by default.
+
+If you want your project to use a different client configuration file make a copy of
 the configuration file and store it as client/default.properties.
 
 You can have as many client configuration files as you need.
