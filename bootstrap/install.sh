@@ -93,7 +93,7 @@ function installFromZip
 ANTCC_VERSION=${ANTCC_VERSION:-10.3-stable}
 ANTCC_DISTRO=${ANTCC_DISTRO:-antcc-nojava}
 SAGCC_BRANCH=${SAGCC_BRANCH:-release/103oct2018}
-
+CC_VERSION=${CC_VERSION:-10.3-latest}
 
 if [ "$IS_ANTCC_BUILDER" = "true" ]
 then
