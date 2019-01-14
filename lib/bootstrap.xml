@@ -117,7 +117,7 @@ ant stopcc                       Stop local Command Central server
 			<arg line="./${installer}.sh ${license.agreement.switch} -D ${distro} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -H ${cc.host}" />
 		</exec>
 
-		<exec dir="${install.dir}" executable="${installer.bat.filename}" osfamily="windows" vmlauncher="false" failonerror="true" >
+		<exec dir="${installer.dir}" executable="${installer.bat.filename}" osfamily="windows" vmlauncher="false" failonerror="true" >
 			<arg line="${license.agreement.switch}" />
 			<arg value="-D" />
 			<arg value="${distro}" />
@@ -161,7 +161,7 @@ ant stopcc                       Stop local Command Central server
 
 		<property name="installer.bat.filename" refid="win.installers.fileset" />
 
-		<exec dir="${install.dir}" executable="${installer.bat.filename}" osfamily="windows" vmlauncher="false" failonerror="true" >
+		<exec dir="${installer.dir}" executable="${installer.bat.filename}" osfamily="windows" vmlauncher="false" failonerror="true" >
 			<arg value="--accept-license" />
 			<arg value="-D" />
 			<arg value="${distro}" />
@@ -262,10 +262,10 @@ ant stopcc                       Stop local Command Central server
 	</target>
 	
 	<target name="_unzip-installer" if="unzip.file">
-		<echo>Unzipping file ${installer.dir}\${installer}.${file.extension} into ${install.dir} ... </echo>
-		<unzip src="${installer.dir}/${installer}.${file.extension}" dest="${install.dir}" />
+		<echo>Unzipping file ${installer.dir}\${installer}.${file.extension} into ${installer.dir} ... </echo>
+		<unzip src="${installer.dir}/${installer}.${file.extension}" dest="${installer.dir}" />
 
-		<fileset id="win.installers.fileset" dir="${install.dir}" includes="**/*">
+		<fileset id="win.installers.fileset" dir="${installer.dir}" includes="**/*">
 			<filename name="cc-*-w64.bat" />
 		</fileset>
 
