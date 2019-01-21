@@ -391,10 +391,10 @@ ant stopcc                       Stop local Command Central server
 	</target>
 	
 	<target name="_unzip-installer" if="unzip.file">
-		<echo>Unzipping file ${installer.dir}\${installer}.${file.extension} into ${install.dir} ... </echo>
+		<echo>Unzipping file ${installer.dir}\${installer}.${file.extension} into ${installer.dir} ... </echo>
 		<unzip src="${installer.dir}/${installer}.${file.extension}" dest="${installer.dir}" />
 
-		<fileset id="win.installers.fileset" dir="${install.dir}" includes="**/*">
+		<fileset id="win.installers.fileset" dir="${installer.dir}" includes="**/*">
 			<filename name="cc-*-w64.bat" />
 		</fileset>
 
