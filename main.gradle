@@ -7,7 +7,7 @@ ant.importBuild(frameworkLocation) { antTargetName ->
     'main.' + antTargetName
 } 
 
-if(ant.properties["ant.home"] != null) {
+if(ant.properties["ant.home"] == null) {
 	ant.'ant.home'= System.env.'ANT_HOME'
 }
 
