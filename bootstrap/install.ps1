@@ -60,7 +60,7 @@ function installFromZip($filename){
 $ANTCC_VERSION=set-unless $env:ANTCC_VERSION 10.4-stable
 $ANTCC_DISTRO=set-unless $env:ANTCC_DISTRO antcc-nojava
 $CC_INSTALLER="$ANTCC_DISTRO-$ANTCC_VERSION-any.zip"
-$URL=set-unless $env:ANTCC_INSTALLER_URL "https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.4-rc"
+$URL=set-unless $env:ANTCC_INSTALLER_URL "https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.4"
 $CC_HOME="$env:USERPROFILE\.sag\tools"
 $CC_CLI_HOME="$CC_HOME\CommandCentral\client"
 $ANTCC_HOME="$CC_HOME\sagdevops-antcc"
