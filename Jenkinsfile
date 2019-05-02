@@ -4,9 +4,9 @@
 
 def installAntcc () {
     if (isUnix()) {
-        sh "curl https://raw.githubusercontent.com/SoftwareAG/sagdevops-antcc/release/104apr2019/bootstrap/install.sh | sh"
+        sh "curl https://raw.githubusercontent.com/SoftwareAG/sagdevops-antcc/${env.ANTCC_BRANCH}/bootstrap/install.sh | sh"
     } else {
-    	bat 'powershell.exe -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;iex ((New-Object System.Net.WebClient).DownloadString(\'https://github.com/SoftwareAG/sagdevops-antcc/raw/release/104apr2019/bootstrap/install.ps1\'))"'
+    	bat 'powershell.exe -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12;iex ((New-Object System.Net.WebClient).DownloadString(\'https://github.com/SoftwareAG/sagdevops-antcc/raw/${env.ANTCC_BRANCH}/bootstrap/install.ps1\'))"'
     }
 }
 
@@ -87,6 +87,7 @@ pipeline {
     }
     environment {
     	CC_TAG = 10.4
+    	ANTCC_BRANCH="release/104apr2019"
         CC_INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/cc/installers" // internal download site
         CC_ENV_FILE = "tests/test.properties"
         CC_PASSWORD = "manage"
