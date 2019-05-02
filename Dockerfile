@@ -1,4 +1,4 @@
-FROM daerepository03.eur.ad.sag:4443/ccdevops/commandcentral-client:10.4
+FROM daerepository03.eur.ad.sag:4443/ccdevops/commandcentral-client:${CC_TAG}
 
 ADD . $CC_CLI_HOME/antcc/
 

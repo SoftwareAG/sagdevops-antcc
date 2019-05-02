@@ -86,10 +86,11 @@ pipeline {
         disableConcurrentBuilds()
     }
     environment {
+    	CC_TAG = 10.4
         CC_INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/cc/installers" // internal download site
         CC_ENV_FILE = "tests/test.properties"
         CC_PASSWORD = "manage"
-        CC_VERSION = "10.3-fix1"
+        CC_VERSION = "${env.CC_TAG}-latest"
     }
     stages {
         stage("Prepare") {
