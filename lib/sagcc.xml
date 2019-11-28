@@ -145,7 +145,7 @@ Upgrade CC Client to version 10.2 or newer
 
 	<target name="waitcc" description="Wait for Command Central ready" depends="sagccInit" >
 		<echo>Waiting for Command Central ready status ...</echo>
-		<cc command="get monitoring runtimestatus local OSGI-CCE" expectedvalues="ONLINE" waitforcc="300" format="tsv" checkevery="5" />
+		<cc command="get monitoring runtimestatus local OSGI-CCE" expectedvalues="ONLINE" waitforcc="300" wait="300" format="tsv" checkevery="5" />
 		<cc command="get inventory products local CCE includeHeaders=false properties=product.version.string" outputproperty="cce.version" format="tsv" />
 		<echo>
 			Command Central ${cce.version} is ready
