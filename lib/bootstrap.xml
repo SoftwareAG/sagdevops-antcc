@@ -5,7 +5,7 @@
 	</description>
 
 	<!-- IMPORTANT: rev this version anytime we promote new installer -->
-	<property name="cc.installer.latest" value="cc-def-10.4-latest" />
+	<property name="cc.installer.latest" value="cc-def-10.5-latest" />
 
 
 	<property environment="env" />
