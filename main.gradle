@@ -25,6 +25,7 @@ File ccProperties = new File(projectDir, "clients/" + ant.properties["cc"] + ".p
 File rootEnvProperties = new File(projectDir, "env.properties");
 File envProperties = new File(projectDir, "environments/" + ant.properties["env"] + "/env.properties");
 File testProperties = new File(projectDir, "tests/test.properties");
+ext.runConfigProperties = new File(projectDir, "runConfig.properties");
 
 // Default location. To be overwritten in the project specific build.gradle file
 if(!project.ext.has("genericProperties")) {
@@ -96,6 +97,10 @@ def ccGradleLog(String message) {
 }
 ext.ccGradleLog = this.&ccGradleLog
 
+def createRunConfigFile(String message) {
+	runConfigProperties.append("\n" + "$message");
+}
+ext.createRunConfigFile = this.&createRunConfigFile
 
 // #####################################################
 // ############ ARTIFACT REPOS PREPARATION #############
@@ -150,6 +155,7 @@ allprojects { currentProject ->
 				String propValue = ant.properties[prop.getKey()] // We need the evaluated ant property
 				testProps.setProperty(propKey, propValue);
 				ccGradleLog "Setting test system property $propKey to $propValue"; 
+				createRunConfigFile "$propKey=$propValue"				
 				currentProject.tasks.test.systemProperty(propKey, propValue);
 				currentProject.tasks.testRerun.systemProperty(propKey, propValue); 
 			}
