@@ -103,10 +103,10 @@ def ccGradleLog(String message) {
 }
 ext.ccGradleLog = this.&ccGradleLog
 
-def createRunConfigFile(String message) {
+def appendToRunConfigFile(String message) {
 	runConfigProperties.append("\n" + "$message");
 }
-ext.createRunConfigFile = this.&createRunConfigFile
+ext.appendToRunConfigFile = this.&appendToRunConfigFile
 
 // #####################################################
 // ############ ARTIFACT REPOS PREPARATION #############
@@ -160,8 +160,7 @@ allprojects { currentProject ->
 				String propKey = prop.getKey();
 				String propValue = ant.properties[prop.getKey()] // We need the evaluated ant property
 				testProps.setProperty(propKey, propValue);
-				ccGradleLog "Setting test system property $propKey to $propValue"; 
-				createRunConfigFile "-D$propKey=$propValue"				
+				ccGradleLog "Setting test system property $propKey to $propValue"; 				
 				currentProject.tasks.test.systemProperty(propKey, propValue);
 				currentProject.tasks.testRerun.systemProperty(propKey, propValue); 
 			}
