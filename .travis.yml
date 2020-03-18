@@ -15,11 +15,11 @@ env:
   global:
     - CC_ENV=travis 
     - IS_ANTCC_BUILDER=true
-    - CC_VERSION=10.4-latest 
+    - CC_VERSION=10.5-latest 
     - CC_DISTRO=cc-def 
     - CC_INSTALLER_URL=http://empowersdc.softwareag.com/ccinstallers/
-    - ANTCC_INSTALLER_URL=https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.4/
-    - ANTCC_VERSION=10.4-stable
+    - ANTCC_INSTALLER_URL=https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.5/
+    - ANTCC_VERSION=10.5-stable
     - ANTCC_DISTRO=antcc-nojava
 
 
