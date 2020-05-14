@@ -53,16 +53,20 @@ ant images                       Import product and fix images
 		<property name="mirror.platforms" value="${platform.uppercase}" />
 		<property name="mirror.repo.product" value="webMethods-${release}" />
 		<property name="mirror.repo.fix" value="Empower" />
+		<property name="mirror.repo.product.name" value="products-${release}" />
+		<property name="mirror.repo.fix.name" value="fixes-${release}" />		
 		<!-- <property name="mirror.spm" value="http://localhost:8092" /> -->
 
 		<mirror type="products" release="${release}"
+			name="${mirror.repo.product.name}"
 			from="${mirror.repo.product}" filter="" 
 			artifacts="${mirror.products}" 
 			platforms="${mirror.platforms}"/>
 
 		<mirror type="fixes" release="${release}" 
+			name="${mirror.repo.fix.name}"
 			from="${mirror.repo.fix}" 
-			filter="products-${release}" 
+			filter="${mirror.repo.product.name}"
 			platforms="${mirror.platforms}"
 			artifacts="LATEST" />
 
