@@ -211,7 +211,7 @@ ant images                       Import product and fix images
 		<attribute name="filter" default="webMethods-@{release}"/>
 		<attribute name="platforms" default="${platform.uppercase}"/>
 		<attribute name="artifacts" default="ALL"/>
-		<attribute name="wait" default="3600" />
+		<attribute name="wait" default="10800" />
 		<attribute name="noProductFilter" default="false" />
 
 		<sequential>
