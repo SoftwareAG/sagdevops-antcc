@@ -303,6 +303,48 @@ ant stopcc                       Stop local Command Central server
 			<arg value="${install.dir.win.old}" />
 		</exec>
     </target>
+	
+	<target name="boot-migration-newports" description="Upgrade local Command Central but provide new ports" depends="_prepare,_download,_check-installer,_unzip-installer">
+		<pathconvert  targetos="windows" property="install.dir.win" >
+		    <path>
+		      <pathelement location="${install.dir}" />
+		    </path>
+		</pathconvert>
+		<pathconvert  targetos="windows" property="install.dir.win.old" >
+		    <path>
+		      <pathelement location="${install.dir.old}" />
+		    </path>
+		</pathconvert>		
+		<echo>Running: ${installer}.${file.extension} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -m ${install.dir.old} </echo>
+
+		<exec dir="${installer.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failonerror="true" >
+			<arg line="./${installer}.sh --accept-license -D ${distro} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -m ${install.dir.old}" />
+		</exec>
+		
+		<condition property="installer.win" value="${installer.bat.filename}" else="${installer}.exe" >
+		    <isset property="installer.bat.filename"/>
+		</condition>
+		<exec dir="${installer.dir}" executable="${installer.win}" osfamily="windows" vmlauncher="false" failonerror="true" >
+			<arg value="--accept-license" />
+			<arg value="-D" />
+			<arg value="${distro}" />
+			<arg value="-d" />
+			<!-- IMPORTANT: convert path to Windows format -->
+			<arg path="${install.dir.win}" />
+			<arg value="-c" />
+			<arg value="${cce.http.port}" />
+			<arg value="-C" />
+			<arg value="${cce.https.port}" />
+			<arg value="-s" />
+			<arg value="${spm.http.port}" />
+			<arg value="-S" />
+			<arg value="${spm.https.port}" />
+			<arg value="-p" />
+			<arg value="${password}" />
+			<arg value="-m" />
+			<arg value="${install.dir.win.old}" />
+		</exec>
+    </target>
 
 
 	<target name="register-installer" description="Register installer in Command Central" depends="_prepare,_download,_check-installer">
