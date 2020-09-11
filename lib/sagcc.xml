@@ -127,7 +127,12 @@ Make sure you bootstrap Command Central client on this host
 		<!-- REQUIRES: 10.2 client -->
 		<fail>
 			<condition>
-				<islessthan arg1="${cli.Implementation-Version}" arg2="10.2"/>
+			 <and>
+			    <islessthan arg1="${cli.Implementation-Version}" arg2="10.2"/>
+			     <not>
+				<contains string="${cli.Implementation-Version}" substring="10.11"/>
+			     </not>
+			</and>
 			</condition>
 			Unsupported CC Client version: ${cli.Implementation-Version}. 
 Upgrade CC Client to version 10.2 or newer
