@@ -110,7 +110,7 @@ ant stopcc                       Stop local Command Central server
 		<property name="installer.dir" location="${user.home}/Downloads" />
 
 		<!-- default public download site on SDC-->
-		<condition property="installer.url" value="${env.CC_INSTALLER_URL}" else="http://empowersdc.softwareag.com/ccinstallers">
+		<condition property="installer.url" value="${env.CC_INSTALLER_URL}" else="https://empowersdc.softwareag.com/ccinstallers">
 			<isset property="env.CC_INSTALLER_URL"/>
 		</condition>
 
