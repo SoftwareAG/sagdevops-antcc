@@ -254,14 +254,6 @@ task testRerun(type: Test) {
 	}
 	if(failedTests.exists()) {	
         Properties props = loadFailedTests();   
-        Set failedSuites = new HashSet();
-        failedSuites.addAll(props.values());
-        for (String failedSuite : failedSuites) {
-            failedSuite = failedSuite.replaceAll("\\.", "/") + ".class" ;
-			ccGradleLog "Including Re-Run Suite: " + failedSuite;  
-            include failedSuite           
-        }
-
 		filter {			
 			for(String testRerunName : props.keySet()) {			
 				if(testRerunName.endsWith(".classMethod")) {
