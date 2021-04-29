@@ -18,8 +18,8 @@ env:
     - CC_VERSION=10.5-latest 
     - CC_DISTRO=cc-def 
     - CC_INSTALLER_URL=http://empowersdc.softwareag.com/ccinstallers/
-    - ANTCC_INSTALLER_URL=https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.5/
-    - ANTCC_VERSION=10.5-stable
+    - ANTCC_INSTALLER_URL=https://github.com/SoftwareAG/sagdevops-antcc/releases/download/v10.7/
+    - ANTCC_VERSION=10.7-stable
     - ANTCC_DISTRO=antcc-nojava
 
 
