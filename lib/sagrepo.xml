@@ -205,7 +205,7 @@ ant images                       Import product and fix images
 
 	<macrodef name="mirror" >
 		<attribute name="type" default="products"/>
-		<attribute name="release" default="10.2"/>
+		<attribute name="release" default="10.7"/>
 		<attribute name="name" default="@{type}-@{release}"/>
 		<attribute name="from" default="webMethods-@{release}"/>
 		<attribute name="filter" default="webMethods-@{release}"/>

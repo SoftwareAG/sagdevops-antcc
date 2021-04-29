@@ -88,8 +88,8 @@ pipeline {
         disableConcurrentBuilds()
     }
     environment {
-    	CC_TAG = 10.4
-    	ANTCC_BRANCH="release/104apr2019"
+    	CC_TAG = 10.7
+    	ANTCC_BRANCH="release/107oct2020"
         CC_INSTALLER_URL = "http://aquarius-bg.eur.ad.sag/cc/installers" // internal download site
         CC_ENV_FILE = "tests/test.properties"
         CC_PASSWORD = "manage"
