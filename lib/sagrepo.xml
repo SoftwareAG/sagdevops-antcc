@@ -89,12 +89,35 @@ ant images                       Import product and fix images
 		<mkdir dir="${build.dir}/downloads" />
 
 		<echo if:set="licenses.zip.url">Downloading license keys .zip from: ${licenses.zip.url}</echo>
-		<get if:set="licenses.zip.url" src="${licenses.zip.url}" dest="${licenses.zip.file}" usetimestamp="true" />
+		<condition property="get.license.no.token" value="true">
+		   <and>
+			<not>
+		    	  <isset property="licenses.token"/> 
+			</not>
+			<isset property="licenses.zip.url"/> 
+	           </and>
+		</condition>
+
+		<condition property="get.license.token" value="true">
+		  <and>
+		    	<isset property="licenses.token"/> 
+			<isset property="licenses.zip.url"/> 
+                  </and>
+		</condition>
+
+		<get if:set="get.license.token" src="${licenses.zip.url}" dest="${licenses.zip.file}" usetimestamp="true">
+  			<header name="Authorization" value="token ${licenses.token}"/>
+  			<header name="Accept" value="application/vnd.github.v3.raw"/>
+                </get>
+
+		<get if:set="get.license.no.token" src="${licenses.zip.url}" dest="${licenses.zip.file}" usetimestamp="true" />
+
 		<cc command="add license-tools keys" input="${licenses.zip.file}" failonerror="false" />
 
 		<echo>Registered license keys</echo>
 		<cc command="list license-tools keys" format="tsv"/>
 	</target>
+
 
 	<target name="installers" depends="_prepare,sagenvInit" description="Download bootstrap installers">
 		<property name="installers.dir" value="${install.dir}/profiles/CCE/data/installers" />
