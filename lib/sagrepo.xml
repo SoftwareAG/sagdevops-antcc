@@ -104,7 +104,7 @@ ant images                       Import product and fix images
 			<isset property="licenses.zip.url"/> 
                   </and>
 		</condition>
-
+                <echo if:set="get.license.toke">Downloading license keys using token!</echo>
 		<get if:set="get.license.token" src="${licenses.zip.url}" dest="${licenses.zip.file}" usetimestamp="true">
   			<header name="Authorization" value="token ${licenses.token}"/>
   			<header name="Accept" value="application/vnd.github.v3.raw"/>
