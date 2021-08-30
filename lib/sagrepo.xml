@@ -104,7 +104,7 @@ ant images                       Import product and fix images
 			<isset property="licenses.zip.url"/> 
                   </and>
 		</condition>
-                <echo if:set="get.license.toke">Downloading license keys using token!</echo>
+                <echo if:set="get.license.token">Downloading license keys using token!</echo>
 		<get if:set="get.license.token" src="${licenses.zip.url}" dest="${licenses.zip.file}" usetimestamp="true">
   			<header name="Authorization" value="token ${licenses.token}"/>
   			<header name="Accept" value="application/vnd.github.v3.raw"/>
@@ -146,7 +146,30 @@ ant images                       Import product and fix images
 		</echo>
 		<cc command="list provisioning bootstrap installers" format="tsv"/>
 	</target>	
+        <target name="administrator_credentials" depends="waitcc,sagenvInit2" description="Configure credentials" >
+		<!-- load the from propertes file -->
+		<property file="${env.properties}" />
 
+		<propertyfile file="${env.properties}">
+			<entry key="credentials.key" value="ADMINISTRATOR" />
+			<entry key="credentials.username" value="Administrator" />
+			<entry key="credentials.password" value="${admin.password}" />
+		</propertyfile>
+
+		<echo>
+			Securely store Empower credentials in Command Central ...
+		</echo>
+
+		<antcall target="apply">
+			<param name="alias" value="sag-cc-creds" />
+		</antcall>
+
+		<echo>
+			List of configured credentials
+		</echo>
+		<cc command="list configuration instances nodeAlias=local runtimeComponentId=OSGI-CCE-ENGINE configurationTypeId=COMMON-CREDENTIALS refresh=true properties=id" format="tsv" />
+
+	</target>
 	<target name="credentials" depends="waitcc,sagenvInit2" description="Configure credentials" >
 		<!-- env vars have presedence over env.properties -->
 		<property name="empower.username" value="${env.EMPOWER_USR}" if:set="env.EMPOWER_USR" />
