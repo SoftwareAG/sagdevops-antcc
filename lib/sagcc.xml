@@ -128,14 +128,11 @@ Make sure you bootstrap Command Central client on this host
 		<fail>
 			<condition>
 			 <and>
-			    <islessthan arg1="${cli.Implementation-Version}" arg2="10.2"/>
-			     <not>
-				<contains string="${cli.Implementation-Version}" substring="10.11"/>
-			     </not>
+			    <islessthan arg1="${cli.Implementation-Version}" arg2="10.3"/>
 			</and>
 			</condition>
 			Unsupported CC Client version: ${cli.Implementation-Version}. 
-Upgrade CC Client to version 10.2 or newer
+                        Upgrade CC Client to version 10.3 or newer
 		</fail>
 
 		<echo if:set="cc.properties.exists">CC Client config: ${cc.properties}</echo>
