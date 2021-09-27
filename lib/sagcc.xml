@@ -128,8 +128,9 @@ Make sure you bootstrap Command Central client on this host
 		<fail>
 			<condition>
 			 <and>
-			    <islessthan arg1="${cli.Implementation-Version}" arg2="10.3"/>
-			</and>
+			    <islessthan arg1="${cli.Implementation-Version}" arg2="10.1"/>
+                <equals arg1="${cli.Implementation-Version}" arg2="10.1"/>
+			 </and>
 			</condition>
 			Unsupported CC Client version: ${cli.Implementation-Version}. 
                         Upgrade CC Client to version 10.3 or newer
@@ -156,10 +157,10 @@ Make sure you bootstrap Command Central client on this host
 		<!-- REQUIRES: 10.3 server -->
 		<fail>
 			<condition>
-			 <or>
+			 <and>
 			    <islessthan arg1="${cli.Implementation-Version}" arg2="10.1"/>
-                            <equals arg1="${cli.Implementation-Version}" arg2="10.1"/>
-			</or>
+                <equals arg1="${cli.Implementation-Version}" arg2="10.1"/>
+			 </and>
 			</condition>
 			Unsupported CC Client version: ${cli.Implementation-Version}. 
                         Upgrade CC Client to version newer than 10.3
