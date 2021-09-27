@@ -153,14 +153,17 @@ Make sure you bootstrap Command Central client on this host
 			Command Central ${cce.version} is ready
 		</echo>
 
-		<!-- REQUIRES: 10.1 server -->
+		<!-- REQUIRES: 10.3 server -->
 		<fail>
 			<condition>
-				<islessthan arg1="${cce.version}" arg2="10.1"/>
+			 <or>
+			    <islessthan arg1="${cli.Implementation-Version}" arg2="10.1"/>
+                            <equals arg1="${cli.Implementation-Version}" arg2="10.1"/>
+			</or>
 			</condition>
-			Unsupported Command Central server version: ${cce.version}. 
-Upgrade Command Central server to version 10.1 or newer
-		</fail>		
+			Unsupported CC Client version: ${cli.Implementation-Version}. 
+                        Upgrade CC Client to version newer than 10.3
+		</fail>
 	</target>
 
 	<target name="restartcc" description="Restart Command Central" depends="waitcc" >
