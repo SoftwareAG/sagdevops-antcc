@@ -454,7 +454,9 @@ ant stopcc                       Stop local Command Central server
 	  <property name="file.extension" value="zip" />
 	  <property name="report.file.extension" value="bat" />
 	  <property name="unzip.file" value="true" />
-	  <get src="${installer.url}/${installer}.zip" dest="${installer.dir}" usetimestamp="true" />
+	  <retry retrycount="3">
+	  	<get src="${installer.url}/${installer}.zip" dest="${installer.dir}" usetimestamp="true" />
+	  </retry>
 	</target>
 
 	<target name="_check-installer" depends="_prepare">
