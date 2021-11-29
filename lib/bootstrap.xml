@@ -419,7 +419,12 @@ ant stopcc                       Stop local Command Central server
 	</target>
 
 	<target name="_download" depends="_prepare,_downloadSh,_downloadExe,_downloadZip" if="installer.url">
-			<echo>Finished downloading bootstrap installer from ${installer.url}/${installer}.${file.extension} ...</echo>
+	    <length file="${installer.dir}/${installer}.${file.extension}" property="length.file"/>
+		<tstamp>
+			<format property="finish_time" pattern="HH:mm:ss:sss zzz" />
+		</tstamp>
+
+		<echo>Finished downloading bootstrap installer from ${installer.url}/${installer}.${file.extension} at ${finish_time} length is: ${length.file}...</echo>
 	</target>
 	
 	<target name="_downloadSh" if="is.notWin">
@@ -432,9 +437,16 @@ ant stopcc                       Stop local Command Central server
 
 	<target name="_downloadExe" unless="skipWin">
          <mkdir dir="${installer.dir}" />
-	 <retry retrycount="3">
-	  	<get src="${installer.url}/${installer}.exe" dest="${installer.dir}" usetimestamp="true" />
-	  </retry>
+		 <echo>Start download</echo>
+		 <tstamp>
+			<format property="start_download_time" pattern="HH:mm:ss:sss zzz"/>
+		</tstamp>
+	    <echo>the bootstrapper start download time is ${start_download_time}</echo>
+	  	<get src="${installer.url}/${installer}.exe" dest="${installer.dir}" usetimestamp="true" verbose="true" maxtime="180" />
+        <tstamp>
+			<format property="end_download_time" pattern="HH:mm:ss:sss zzz" />
+		</tstamp>
+	    <echo>the bootstrapper end download time is ${end_download_time}</echo>
 	  <available file="${installer.dir}/${installer}.exe" property="skipZip" />
 	  <condition property="file.extension" value="exe">
 	    <isset property="skipZip"/>
