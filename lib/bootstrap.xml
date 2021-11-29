@@ -431,8 +431,10 @@ ant stopcc                       Stop local Command Central server
 	</target>
 
 	<target name="_downloadExe" unless="skipWin">
-      <mkdir dir="${installer.dir}" />
-	  <get src="${installer.url}/${installer}.exe" dest="${installer.dir}" usetimestamp="true" ignoreerrors="true"/>
+         <mkdir dir="${installer.dir}" />
+	 <retry retrycount="3">
+	  	<get src="${installer.url}/${installer}.exe" dest="${installer.dir}" usetimestamp="true" />
+	  </retry>
 	  <available file="${installer.dir}/${installer}.exe" property="skipZip" />
 	  <condition property="file.extension" value="exe">
 	    <isset property="skipZip"/>
