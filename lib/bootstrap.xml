@@ -436,18 +436,13 @@ ant stopcc                       Stop local Command Central server
 	</target>
 
 	<target name="_downloadExe" unless="skipWin">
-         <mkdir dir="${installer.dir}" />
-		 <echo>Start download</echo>
-		 <tstamp>
-			<format property="start_download_time" pattern="HH:mm:ss:sss zzz"/>
-		</tstamp>
-	    <echo>the bootstrapper start download time is ${start_download_time}</echo>
-	  	<get src="${installer.url}/${installer}.exe" dest="${installer.dir}" usetimestamp="true" verbose="true" maxtime="180" />
-        <tstamp>
-			<format property="end_download_time" pattern="HH:mm:ss:sss zzz" />
-		</tstamp>
-	    <echo>the bootstrapper end download time is ${end_download_time}</echo>
-	  <available file="${installer.dir}/${installer}.exe" property="skipZip" />
+        <mkdir dir="${installer.dir}" />
+
+        <get src="${installer.url}/${installer}.exe.SHA-256" dest="${installer.dir}" usetimestamp="true" maxtime="180" />
+		<antcall target="_downloadOnlyExe" />
+	    <available file="${installer.dir}/${installer}.exe" property="skipZip" />
+		<checksum file="${installer.dir}/${installer}.exe" algorithm="SHA-512" verifyProperty="isSHAok"/>
+		<antcall target="_downloadOnlyExe" />
 	  <condition property="file.extension" value="exe">
 	    <isset property="skipZip"/>
 	  </condition>
@@ -464,6 +459,20 @@ ant stopcc                       Stop local Command Central server
 	  </condition>
 	</target>
 
+
+	<target name="_downloadOnlyExe" unless="isSHAok">
+	  <delete file="${installer.dir}/${installer}.exe" failonerror="false"/>
+	  <echo>Start download</echo>
+	  <tstamp>
+		<format property="start_download_time" pattern="HH:mm:ss:sss zzz"/>
+	  </tstamp>
+	  <echo>the bootstrapper start download time is ${start_download_time}</echo>
+	  <get src="${installer.url}/${installer}.exe" dest="${installer.dir}" usetimestamp="true" maxtime="180" />
+	  <tstamp>
+		<format property="end_download_time" pattern="HH:mm:ss:sss zzz" />
+	  </tstamp>
+	  <echo>the bootstrapper end download time is ${end_download_time}</echo>
+	</target>
 	<target name="_downloadZip" if="downloadZip">
 	  <property name="file.extension" value="zip" />
 	  <property name="report.file.extension" value="bat" />
