@@ -5,7 +5,7 @@
 	</description>
 
 	<!-- IMPORTANT: rev this version anytime we promote new installer -->
-	<property name="cc.installer.latest" value="cc-def-10.5-latest" />
+	<property name="cc.installer.latest" value="cc-def-10.7-latest" />
 
 
 	<property environment="env" />
@@ -419,7 +419,12 @@ ant stopcc                       Stop local Command Central server
 	</target>
 
 	<target name="_download" depends="_prepare,_downloadSh,_downloadExe,_downloadZip" if="installer.url">
-			<echo>Finished downloading bootstrap installer from ${installer.url}/${installer}.${file.extension} ...</echo>
+	    <length file="${installer.dir}/${installer}.${file.extension}" property="length.file"/>
+		<tstamp>
+			<format property="finish_time" pattern="HH:mm:ss:sss zzz" />
+		</tstamp>
+
+		<echo>Finished downloading bootstrap installer from ${installer.url}/${installer}.${file.extension} at ${finish_time} length is: ${length.file}...</echo>
 	</target>
 	
 	<target name="_downloadSh" if="is.notWin">
@@ -431,32 +436,56 @@ ant stopcc                       Stop local Command Central server
 	</target>
 
 	<target name="_downloadExe" unless="skipWin">
-      <mkdir dir="${installer.dir}" />
-	  <retry retrycount="3">
-	  	<get src="${installer.url}/${installer}.exe" dest="${installer.dir}" usetimestamp="true" />
-	  </retry>
-	  <available file="${installer.dir}/${installer}.exe" property="skipZip" />
-	  <condition property="file.extension" value="exe">
-	    <isset property="skipZip"/>
-	  </condition>
-	  <condition property="report.file.extension" value="exe">
-	    <isset property="skipZip"/>
-	  </condition>
-	  <condition property="downloadZip" value="true">
-		<and>
+        <mkdir dir="${installer.dir}" />
+        <get src="${installer.url}/${installer}.exe.SHA-256" dest="${installer.dir}" usetimestamp="true" maxtime="180" />
+		<antcall target="_downloadOnlyExe" />
+	    <available file="${installer.dir}/${installer}.exe" property="skipZip" />
+		<checksum file="${installer.dir}/${installer}.exe" algorithm="SHA-256" verifyProperty="isSHAok"/>
+		<condition property="skipDownload" value="true">
+			<istrue value="${isSHAok}" />
+		</condition>
+		<antcall target="_waitBeforeRetryDownload" />
+		<antcall target="_downloadOnlyExe" />
+	    <condition property="file.extension" value="exe">
+	      <isset property="skipZip"/>
+	    </condition>
+	    <condition property="report.file.extension" value="exe">
+	     <isset property="skipZip"/>
+	    </condition>
+	    <condition property="downloadZip" value="true">
+		 <and>
 	  	  <not>
 	  	  	<isset property="skipZip" />
 		  </not>
 		  <isset property="is.windows" />
-		</and>
-	  </condition>
+		 </and>
+	    </condition>
 	</target>
-
+	<target name="_waitBeforeRetryDownload" unless="skipDownload">
+	    <sleep seconds="120"/>
+	</target>
+	<target name="_downloadOnlyExe" unless="skipDownload">
+	  <delete file="${installer.dir}/${installer}.exe" failonerror="false"/>
+	  <echo>Start download</echo>
+	  <tstamp>
+		<format property="start_download_time" pattern="HH:mm:ss:sss zzz"/>
+	  </tstamp>
+	  <echo>the bootstrapper start download time is ${start_download_time}</echo>
+		<retry retrycount="3">
+	       <get src="${installer.url}/${installer}.exe" dest="${installer.dir}" usetimestamp="true" maxtime="180" />
+		</retry>
+	  <tstamp>
+		<format property="end_download_time" pattern="HH:mm:ss:sss zzz" />
+	  </tstamp>
+	  <echo>the bootstrapper end download time is ${end_download_time}</echo>
+	</target>
 	<target name="_downloadZip" if="downloadZip">
 	  <property name="file.extension" value="zip" />
 	  <property name="report.file.extension" value="bat" />
 	  <property name="unzip.file" value="true" />
-	  <get src="${installer.url}/${installer}.zip" dest="${installer.dir}" usetimestamp="true" />
+	  <retry retrycount="3">
+	  	<get src="${installer.url}/${installer}.zip" dest="${installer.dir}" usetimestamp="true" />
+	  </retry>
 	</target>
 
 	<target name="_check-installer" depends="_prepare">
