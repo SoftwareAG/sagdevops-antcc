@@ -444,6 +444,7 @@ ant stopcc                       Stop local Command Central server
 		<condition property="skipDownload" value="true">
 			<istrue value="${isSHAok}" />
 		</condition>
+		<antcall target="_waitBeforeRetryDownload" />
 		<antcall target="_downloadOnlyExe" />
 	    <condition property="file.extension" value="exe">
 	      <isset property="skipZip"/>
@@ -460,8 +461,9 @@ ant stopcc                       Stop local Command Central server
 		 </and>
 	    </condition>
 	</target>
-
-
+	<target name="_waitBeforeRetryDownload" unless="skipDownload">
+	    <sleep seconds="120"/>
+	</target>
 	<target name="_downloadOnlyExe" unless="skipDownload">
 	  <delete file="${installer.dir}/${installer}.exe" failonerror="false"/>
 	  <echo>Start download</echo>
@@ -469,7 +471,9 @@ ant stopcc                       Stop local Command Central server
 		<format property="start_download_time" pattern="HH:mm:ss:sss zzz"/>
 	  </tstamp>
 	  <echo>the bootstrapper start download time is ${start_download_time}</echo>
-	  <get src="${installer.url}/${installer}.exe" dest="${installer.dir}" usetimestamp="true" maxtime="180" />
+		<retry retrycount="3">
+	       <get src="${installer.url}/${installer}.exe" dest="${installer.dir}" usetimestamp="true" maxtime="180" />
+		</retry>
 	  <tstamp>
 		<format property="end_download_time" pattern="HH:mm:ss:sss zzz" />
 	  </tstamp>
