@@ -434,8 +434,37 @@ ant stopcc                       Stop local Command Central server
 	  <get src="${installer.url}/${installer}.sh" dest="${installer.dir}" usetimestamp="true" />
 	  <property name="skipWin" value="true" />
 	</target>
+	
+	<target name="_downloadBat" unless="skipWin">
+		<mkdir dir="${installer.dir}" />
+		<get src="${installer.url}/${installer}.bat.SHA-256" dest="${installer.dir}" usetimestamp="true" maxtime="180" />
+		<antcall target="_downloadOnlyBat" />
+		<available file="${installer.dir}/${installer}.bat" property="skipExe" />
+		<checksum file="${installer.dir}/${installer}.bat" algorithm="SHA-256" verifyProperty="isSHAok"/>
+		<condition property="skipDownload" value="true">
+			<istrue value="${isSHAok}" />
+		</condition>
+		<antcall target="_waitBeforeRetryDownload" />
+		<antcall target="_downloadOnlyBat" />
+		<condition property="file.extension" value="bat">
+			<isset property="skipExe"/>
+		</condition>
+		<condition property="report.file.extension" value="bat">
+			<isset property="skipExe"/>
+		</condition>
+		<property name="installer.bat.filename" value="${installer.dir}/${installer}.bat" />
 
-	<target name="_downloadExe" unless="skipWin">
+		<condition property="downloadExe" value="true">
+			<and>
+				<not>
+					<isset property="skipExe" />
+				</not>
+				<isset property="is.windows" />
+			</and>
+		</condition>
+	</target>	
+
+	<target name="_downloadExe" unless="downloadExe">
         <mkdir dir="${installer.dir}" />
         <get src="${installer.url}/${installer}.exe.SHA-256" dest="${installer.dir}" usetimestamp="true" maxtime="180" />
 		<antcall target="_downloadOnlyExe" />
@@ -464,7 +493,24 @@ ant stopcc                       Stop local Command Central server
 	<target name="_waitBeforeRetryDownload" unless="skipDownload">
 	    <sleep seconds="120"/>
 	</target>
-	<target name="_downloadOnlyExe" unless="skipDownload">
+	
+	<target name="_downloadOnlyBat" unless="skipDownload">
+		<delete file="${installer.dir}/${installer}.bat" failonerror="false"/>
+		<echo>Start download</echo>
+		<tstamp>
+			<format property="start_download_time" pattern="HH:mm:ss:sss zzz"/>
+		</tstamp>
+		<echo>the bootstrapper start download time is ${start_download_time}</echo>
+		<retry retrycount="3">
+			<get src="${installer.url}/${installer}.bat" dest="${installer.dir}" usetimestamp="true" maxtime="180" />
+		</retry>
+		<tstamp>
+			<format property="end_download_time" pattern="HH:mm:ss:sss zzz" />
+		</tstamp>
+		<echo>the bootstrapper end download time is ${end_download_time}</echo>
+	</target>	
+	
+	<target name="_downloadOnlyExe" unless="downloadExe">
 	  <delete file="${installer.dir}/${installer}.exe" failonerror="false"/>
 	  <echo>Start download</echo>
 	  <tstamp>
