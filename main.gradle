@@ -136,9 +136,6 @@ allprojects { currentProject ->
 		ccGradleLog "Found project with gradle java plugin applied: " + currentProject.name
 		ccGradleLog "Loading test.properties and env.properties as test system properties"
 		currentProject.ext.testProps = new Properties();
-		if(bootstrapProperties.exists()) {
-			testProps.load(new FileInputStream(bootstrapProperties));
-		}
 		if(genericProperties.exists()) {
 			testProps.load(new FileInputStream(genericProperties));
 		}
@@ -154,7 +151,6 @@ allprojects { currentProject ->
 		
 		// Load the properties in ant so that all variables are expanded by the ant framework
 		ant {
-			property(file: bootstrapProperties)
 			property(file: genericProperties)
 		    property(file: envProperties)
 			property(file: ccProperties)
