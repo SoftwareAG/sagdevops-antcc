@@ -418,7 +418,7 @@ ant stopcc                       Stop local Command Central server
 		</antcall>
 	</target>
 
-	<target name="_download" depends="_prepare,_downloadSh,_downloadExe,_downloadZip" if="installer.url">
+	<target name="_download" depends="_prepare,_downloadSh,_downloadBat,_downloadExe,_downloadZip" if="installer.url">
 	    <length file="${installer.dir}/${installer}.${file.extension}" property="length.file"/>
 		<tstamp>
 			<format property="finish_time" pattern="HH:mm:ss:sss zzz" />
