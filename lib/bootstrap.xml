@@ -464,7 +464,7 @@ ant stopcc                       Stop local Command Central server
 		</condition>
 	</target>	
 
-	<target name="_downloadExe" unless="downloadExe">
+	<target name="_downloadExe" if="downloadExe">
         <mkdir dir="${installer.dir}" />
         <get src="${installer.url}/${installer}.exe.SHA-256" dest="${installer.dir}" usetimestamp="true" maxtime="180" />
 		<antcall target="_downloadOnlyExe" />
@@ -510,7 +510,7 @@ ant stopcc                       Stop local Command Central server
 		<echo>the bootstrapper end download time is ${end_download_time}</echo>
 	</target>	
 	
-	<target name="_downloadOnlyExe" unless="downloadExe">
+	<target name="_downloadOnlyExe" if="downloadExe">
 	  <delete file="${installer.dir}/${installer}.exe" failonerror="false"/>
 	  <echo>Start download</echo>
 	  <tstamp>
