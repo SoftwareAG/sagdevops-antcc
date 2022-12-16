@@ -87,8 +87,6 @@ ant stopcc                       Stop local Command Central server
 		</condition>
 	
 		<property name="bootstrap.properties" value="bootstrap/${bootstrap}.properties" />
-
-		<upper string="${platform}" to="platform.uppercase" />
 		
 		<property file="${bootstrap.properties}" />
 
@@ -604,12 +602,5 @@ ant stopcc                       Stop local Command Central server
 			Username: ${user.name}
 		</echo>
 	</target>
-
-	<!-- To upper case -->
-	<scriptdef language="javascript" name="upper">
-		<attribute name="string" />
-		<attribute name="to" />
-	    project.setProperty(attributes.get("to"),attributes.get("string").toUpperCase());
-	</scriptdef>
 	
 </project>
