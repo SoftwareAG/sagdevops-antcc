@@ -72,6 +72,7 @@ Make sure that Ant version is 1.9 or greater
 					<equals arg1="${ant.java.version}" arg2="1.9"/>
 					<equals arg1="${ant.java.version}" arg2="10"/>
 					<equals arg1="${ant.java.version}" arg2="11"/>
+					<equals arg1="${ant.java.version}" arg2="17"/>
 				</or>
 				</not>
 			</condition>
