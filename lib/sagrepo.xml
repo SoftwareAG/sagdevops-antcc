@@ -268,7 +268,9 @@ ant images                       Import product and fix images
 			<echo>${names}</echo>
 
 			<!-- check if we already have this repository -->
-			<contains list="${names}" item="@{name}" property="exists" />
+			<condition property="exists">
+				<contains string="${names}" substring="@{name}"/>
+			</condition>
 
 			<if>
 				<isfalse value="@{noProductFilter}" />
@@ -305,18 +307,13 @@ ant images                       Import product and fix images
 			<antcall target="_jobresult"/>	
 		</sequential>
 	</macrodef>
-	
-    <scriptdef language="javascript" name="contains">
-        <attribute name="list" />
-    	<attribute name="item" />
-        <attribute name="property" />
-        project.setProperty(attributes.get("property"), attributes.get("list").contains(attributes.get("item")));
-    </scriptdef>	
 
 	<target name="_upload-image-files">
 		<property name="alias" value="${filename}"/>
 		<!-- check if we already have this repo -->
-		<contains list="${aliases}" item="${alias}" property="exists" />
+		<condition property="exists">
+			<contains string="${names}" substring="@{name}"/>
+		</condition>
 		
 		<echo if:true="${exists}">${alias}: already present!</echo>
 
