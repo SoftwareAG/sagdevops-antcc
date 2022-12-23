@@ -28,12 +28,15 @@ ant images                       Import product and fix images
 		<cc command="list repository products includeHeaders=false" format="csv" outputproperty="productrepos" />
 		<cc command="list repository fixes includeHeaders=false" format="csv" outputproperty="fixrepos" />
 		<property name="aliases" value="${productrepos},${fixrepos}" />
-
-		<iterate target="_upload-image-files">
-			<fileset dir="${images.dir}/products" includes="*.zip" />
-			<fileset dir="${images.dir}/fixes" includes="*.zip" />
-		</iterate>
-
+		
+		<antcall target="iterateImageRepos">
+			<param name="type" value="products"/>
+		</antcall>
+		
+		<antcall target="iterateImageRepos">
+			<param name="type" value="fixes"/>
+		</antcall>
+		
 		<echo>
 			Registered product repositories
 		</echo>
@@ -307,7 +310,28 @@ ant images                       Import product and fix images
 			<antcall target="_jobresult"/>	
 		</sequential>
 	</macrodef>
-
+	
+	<target name="iterateImageRepos">	
+		<property name="type" value="${type}"/>
+		<for param="file">
+            <path>
+				<fileset dir="${images.dir}/${type}" includes="*.zip"/>
+            </path>
+            <sequential>
+				<local name="filename" />
+				<basename property="filename" file="@{file}" suffix=".zip"/>
+				<echo message="${filename}"/>
+				
+				<antcall target="_upload-image-files">
+					<param name="filename" value="${filename}"/>
+					<param name="file" value="${filename}.zip"/>
+					<param name="dirname" value="${type}"/>
+					<param name="dir" value="${basedir}/${images.dir}/${type}"/>
+				</antcall>
+			</sequential>
+        </for>		
+	</target>
+	
 	<target name="_upload-image-files">
 		<property name="alias" value="${filename}"/>
 		<!-- check if we already have this repo -->
@@ -318,47 +342,10 @@ ant images                       Import product and fix images
 		<echo if:true="${exists}">${alias}: already present!</echo>
 
 		<sequential unless:true="${exists}">
-            <echo>${alias}: uploading from ${dir}/${file}</echo>
+            <echo>${alias}: uploading from ${dir}/${file}</echo>			
 			<cc command="add repository ${dirname} image name=${alias} includeHeaders=false properties=id" input="${dir}/${file}" format="csv" outputproperty="jobid"/>
 			<waitforjob />
  	    </sequential>
 	</target>
-
-	<scriptdef name="iterate" language="javascript" description="Calls target for each file in fileset">
-		<element name="fileset" type="fileset"/>
-		<attribute name="target" />
-		<![CDATA[
-            callee = project.createTask("antcall");
-            callee.setTaskName(attributes.get("target"));
-            callee.init();
-            callee.setTarget(attributes.get("target"));
-            callee.setInheritAll(true);
-            callee.setInheritRefs(false);
-            p1 = callee.createParam();
-            p1.setName("dir");
-            p2 = callee.createParam();
-            p2.setName("file");
-            p3 = callee.createParam();
-            p3.setName("filename");
-            p4 = callee.createParam();
-            p4.setName("dirname");
-          	
-          	filesets = elements.get("fileset");
-              for (i = 0; i < filesets.size(); ++i) {
-          	    fileset = filesets.get(i);
-          	    dir = fileset.getDir(project)
-          	    ds = fileset.getDirectoryScanner();
-          	    files = ds.getIncludedFiles();
-          	    for (n = 0; n < files.length; n++) {
-          	      f = files[n]
-                  p1.setValue(dir);
-                  p2.setValue(f);
-                  p3.setValue(f.substring(0, f.length() - 4)); // no .ext
-                  p4.setValue(dir.getName());
-          	      callee.execute();
-          	  }
-            }
-    ]]>
-	</scriptdef>	
-
+	
 </project>
