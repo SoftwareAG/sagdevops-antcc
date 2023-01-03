@@ -28,14 +28,15 @@ ant images                       Import product and fix images
 		<cc command="list repository products includeHeaders=false" format="csv" outputproperty="productrepos" />
 		<cc command="list repository fixes includeHeaders=false" format="csv" outputproperty="fixrepos" />
 		<property name="aliases" value="${productrepos},${fixrepos}" />
-		
-		<antcall target="iterateImageRepos">
-			<param name="type" value="products"/>
-		</antcall>
-		
-		<antcall target="iterateImageRepos">
-			<param name="type" value="fixes"/>
-		</antcall>
+
+		<property name="types" value="fixes,products" />
+		<for list="${types}" param="type" delimiter=",">
+			<sequential>
+				<antcall target="iterate-image-repos">
+					<param name="type" value="@{type}"/>
+				</antcall>
+			</sequential>
+		</for>
 		
 		<echo>
 			Registered product repositories
@@ -311,7 +312,7 @@ ant images                       Import product and fix images
 		</sequential>
 	</macrodef>
 	
-	<target name="iterateImageRepos">
+	<target name="iterate-image-repos">
 	  <property name="type" value="${type}"/>
 	  <for param="file">
 		<path>
@@ -335,7 +336,7 @@ ant images                       Import product and fix images
 		<property name="alias" value="${filename}"/>
 		<!-- check if we already have this repo -->
 		<condition property="exists">
-			<contains string="${names}" substring="@{name}"/>
+			<contains string="${aliases}" substring="${alias}"/>
 		</condition>
 		
 		<echo if:true="${exists}">${alias}: already present!</echo>
