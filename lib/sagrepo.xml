@@ -311,26 +311,25 @@ ant images                       Import product and fix images
 		</sequential>
 	</macrodef>
 	
-	<target name="iterateImageRepos">	
-		<property name="type" value="${type}"/>
-		<for param="file">
-            <path>
-				<fileset dir="${images.dir}/${type}" includes="*.zip"/>
-            </path>
-            <sequential>
-				<local name="filename" />
-				<basename property="filename" file="@{file}" suffix=".zip"/>
-				<echo message="${filename}"/>
-				
-				<antcall target="_upload-image-files">
-					<param name="filename" value="${filename}"/>
-					<param name="file" value="${filename}.zip"/>
-					<param name="dirname" value="${type}"/>
-					<param name="dir" value="${basedir}/${images.dir}/${type}"/>
-				</antcall>
-			</sequential>
-        </for>		
-	</target>
+	<target name="iterateImageRepos">
+	  <property name="type" value="${type}"/>
+	  <for param="file">
+		<path>
+		  <fileset dir="${images.dir}/${type}" includes="*.zip"/>
+		</path>
+		<sequential>
+		  <local name="filename" />
+		  <basename property="filename" file="@{file}" suffix=".zip"/>
+		  <echo message="${filename}"/>
+		  <antcall target="_upload-image-files">
+			<param name="filename" value="${filename}"/>
+			<param name="file" value="${filename}.zip"/>
+			<param name="dirname" value="${type}"/>
+			<param name="dir" value="${basedir}/${images.dir}/${type}"/>
+		  </antcall>
+		</sequential>
+	  </for>
+	</target>	
 	
 	<target name="_upload-image-files">
 		<property name="alias" value="${filename}"/>
