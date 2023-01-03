@@ -203,7 +203,7 @@ ant clean                        Clean project from build artifacts
 
 	<target name="nodes" depends="waitcc,sagenvInit2" description="Register nodes">
 		<property file="${env.properties}" />
-		<property name="nodes" value="localhost:localhost:8092" />
+		<property name="nodes" value="" />
 		
 		<echo>Registering nodes [${nodes}] ...</echo>
 		<for list="${nodes}" param="node" delimiter="," keepgoing="true" trim="yes">
