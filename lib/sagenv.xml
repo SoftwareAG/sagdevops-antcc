@@ -209,13 +209,18 @@ ant clean                        Clean project from build artifacts
 		<for list="${nodes}" param="node" delimiter="," keepgoing="true" trim="yes">
 			<sequential>
 				<echo>Registering: @{node}</echo>
-				<nodeProperties definition="@{node}" alias="node.alias" host="node.host" port="node.port" />
-				<cc command="add landscape nodes alias=${node.alias} url=http://${node.host}:${node.port}" expectedvalues="OK" />
+				<antcall target="nodeProperties" inheritAll="true">
+					<param name="definition" value="@{node}" />
+				</antcall>
 			</sequential>
 		</for>
 
 		<echo>Registered nodes</echo>
 		<cc command="list landscape nodes" format="tsv" />
+	</target>
+	
+	<target name="addLandscapeNodes" >
+		<cc command="add landscape nodes alias=${alias} url=http://${host}:${port}" expectedvalues="OK" />
 	</target>
 
 	<target name="waitnodes" depends="nodes" description="Waitfor nodes to come ONLINE">
@@ -223,10 +228,15 @@ ant clean                        Clean project from build artifacts
 		<for list="${nodes}" param="node" delimiter="," keepgoing="true" trim="yes">
 			<sequential>
 				<echo>Waiting for ONLINE: @{node}</echo>
-				<nodeProperties definition="@{node}" alias="node.alias" host="node.host" port="node.port" />
-				<cc command="list landscape nodes ${node.alias}" expectedvalues="ONLINE" format="tsv" wait="180" />
+				<antcall target="nodeProperties" inheritAll="true">
+					<param name="definition" value="@{node}" />
+				</antcall>
 			</sequential>
 		</for>
+	</target>
+	
+	<target name="listLandscapeNodes" >
+		<cc command="list landscape nodes ${alias}" expectedvalues="ONLINE" format="tsv" wait="180" />
 	</target>
 
 	<!-- TODO: more generic way to run any template -->
@@ -300,22 +310,44 @@ ant clean                        Clean project from build artifacts
 	</target>
 
 	<!-- helper to extract properties in format alias:host:port -->
-    <scriptdef language="javascript" name="nodeProperties">
-        <attribute name="definition" />
-    	<attribute name="alias" />
-        <attribute name="host" />
-		<attribute name="port" />
-		arr = attributes.get("definition").split(':');
-		alias = arr[0];
-		host = alias;
-		port = 8092;
-		if (arr[1]) { host = arr[1] }
-		if (arr[2]) { port = arr[2] }
-
-		project.setProperty(attributes.get("alias"), alias);
-		project.setProperty(attributes.get("host"), host);
-		project.setProperty(attributes.get("port"),  port);
-    </scriptdef>	
+    <target name="nodeProperties">
+		<property name="definition" value="" />
+		<echo>Definition: ${definition}</echo>
+		<var name="index" value="1" />
+		<for list="${definition}" param="def" delimiter=":" >
+			<sequential>
+				<if>
+					<equals arg1="${index}" arg2="1" />
+					<then>
+						<property name="alias" value="@{def}" />
+					</then>
+				<elseif>
+					<equals arg1="${index}" arg2="2" />
+					<then>
+						<property name="host" value="@{def}" />
+					</then>
+				</elseif>
+				<elseif>
+					<equals arg1="${index}" arg2="3" />
+					<then>
+						<property name="port" value="@{def}" />
+					</then>
+				</elseif>
+				</if>
+				<math result="index" operand1="${index}" operand2="1" operation="+" datatype="int" />
+			</sequential> 
+		</for>
+	
+		<antcall target="addLandscapeNodes">
+			<param name="alias" value="${alias}" />
+			<param name="host" value="${host}" />
+			<param name="port" value="${port}" />
+		</antcall>
+		
+		<antcall target="listLandscapeNodes" >
+			<param name="alias" value="${alias}" />
+		</antcall>
+	</target>
 	
 	<target name="clean" description="Clean project from build artifacts">
 		<delete dir="${build.dir}" verbose="true" />
