@@ -329,7 +329,7 @@ ant images                       Import product and fix images
 			<param name="filename" value="${filename}"/>
 			<param name="file" value="${filename}.zip"/>
 			<param name="dirname" value="${type}"/>
-			<param name="dir" value="${basedir}/${images.dir}/${type}"/>
+			<param name="dir" value="${images.dir}/${type}"/>
 		  </antcall>
 		</sequential>
 	  </for>
