@@ -236,7 +236,7 @@ ant clean                        Clean project from build artifacts
 	</target>
 	
 	<target name="listLandscapeNodes" >
-		<cc command="list landscape nodes ${alias}" expectedvalues="ONLINE" format="tsv" wait="180" />
+		<cc command="list landscape nodes ${alias}" format="tsv" wait="180" />
 	</target>
 
 	<!-- TODO: more generic way to run any template -->
@@ -337,6 +337,18 @@ ant clean                        Clean project from build artifacts
 				<math result="index" operand1="${index}" operand2="1" operation="+" datatype="int" />
 			</sequential> 
 		</for>
+		
+		<condition property="host" value="${alias}">
+			<not>
+			<isset property="host" />
+			</not>
+		</condition>
+		
+		<condition property="port" value="8092">
+			<not>
+			<isset property="port" />
+			</not>
+		</condition>
 	
 		<antcall target="addLandscapeNodes">
 			<param name="alias" value="${alias}" />
