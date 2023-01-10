@@ -23,7 +23,10 @@ ant images                       Import product and fix images
 
 	<target name="images" depends="waitcc,sagenvInit" description="Upload product and fix images">
 		<property file="${env.properties}" />
-		<property name="images.dir" value="images" />
+		
+		<sequential unless:set="images.dir">
+            <property name="images.dir" value="images" />
+        </sequential>
 
 		<cc command="list repository products includeHeaders=false" format="csv" outputproperty="productrepos" />
 		<cc command="list repository fixes includeHeaders=false" format="csv" outputproperty="fixrepos" />
