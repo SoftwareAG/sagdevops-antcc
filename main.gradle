@@ -113,7 +113,7 @@ ext.appendToRunConfigFile = this.&appendToRunConfigFile
 // #####################################################
 // ############ ARTIFACT REPOS PREPARATION #############
 // #####################################################
-String repoToken = System.getProperty("ivyRepositoryTokenProperty");
+String repoToken = System.env.'BUILD_ARM_PASSWORD'
 project.ext.set("repoToken", repoToken)
 
 def configureIvyRepository(String repoUrl) {
