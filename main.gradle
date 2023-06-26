@@ -111,15 +111,26 @@ ext.appendToRunConfigFile = this.&appendToRunConfigFile
 // #####################################################
 // ############ ARTIFACT REPOS PREPARATION #############
 // #####################################################
+String repoToken = System.env.'BUILD_ARM_PASSWORD'
+project.ext.set("repoToken", repoToken)
+
 def configureIvyRepository(String repoUrl) {
-	configureIvyRepository(repoUrl, "maven", true);
+	configureIvyRepository(repoUrl, repoToken, "maven", true);
 }
-def configureIvyRepository(String repoUrl, String repoLayout, boolean repoDynamicMode) {
+
+def configureIvyRepository(String repoUrl, String repoToken, String repoLayout, boolean repoDynamicMode) {
 	repositories {
 	    ivy {
 	    	layout repoLayout
 	    	resolve.dynamicMode = repoDynamicMode
 	        url repoUrl
+			credentials(HttpHeaderCredentials) {
+				name = "Authorization"
+				value = "Bearer ${repoToken}"
+			}
+			authentication {
+				header(HttpHeaderAuthentication)
+			}
 	    }
 	}
 }
