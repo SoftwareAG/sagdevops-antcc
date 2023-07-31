@@ -142,7 +142,7 @@ ant stopcc                       Stop local Command Central server
 		</echo>
 
 		<exec dir="${installer.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failonerror="true" >
-			<arg line="chmod +x ${installer}.sh; ./${installer}.sh ${license.agreement.switch} -D ${distro} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -H ${cc.host}" />
+			<arg line="./${installer}.sh ${license.agreement.switch} -D ${distro} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -H ${cc.host}" />
 		</exec>
 		<condition property="installer.win" value="${installer.bat.filename}" else="${installer}.exe" >
 		    <isset property="installer.bat.filename"/>
@@ -189,7 +189,7 @@ ant stopcc                       Stop local Command Central server
 		</echo>
 
 		<exec dir="${installer.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failonerror="true" >
-			<arg line="chmod +x ${installer}.sh; ./${installer}.sh ${license.agreement.switch} -D ${distro} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -H ${cc.host} -L" />
+			<arg line="./${installer}.sh ${license.agreement.switch} -D ${distro} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -H ${cc.host} -L" />
 		</exec>
 		<condition property="installer.win" value="${installer.bat.filename}" else="${installer}.exe" >
 			<isset property="installer.bat.filename"/>
@@ -268,7 +268,7 @@ ant stopcc                       Stop local Command Central server
 		</echo>
 
 		<exec dir="${installer.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failonerror="true" >
-			<arg line="chmod +x ${installer}.sh; ./${installer}.sh ${license.agreement.switch} -D ${distro} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -H ${cc.host} --internal-remote-repo ${bootstrap.remote.repo}" />
+			<arg line="./${installer}.sh ${license.agreement.switch} -D ${distro} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -H ${cc.host} --internal-remote-repo ${bootstrap.remote.repo}" />
 		</exec>
 		<condition property="installer.win" value="${installer.bat.filename}" else="${installer}.exe" >
 		    <isset property="installer.bat.filename"/>
@@ -324,7 +324,7 @@ ant stopcc                       Stop local Command Central server
 		<echo>Running: ${installer}.${file.extension} -d ${install.dir} -p ${password} -m ${install.dir.old}</echo>
 
 		<exec dir="${installer.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failonerror="true" >
-			<arg line="chmod +x ${installer}.sh; ./${installer}.sh --accept-license -D ${distro} -d ${install.dir} -p ${password} -m ${install.dir.old}" />
+			<arg line="./${installer}.sh --accept-license -D ${distro} -d ${install.dir} -p ${password} -m ${install.dir.old}" />
 		</exec>
 		
 		<condition property="installer.win" value="${installer.bat.filename}" else="${installer}.exe" >
@@ -358,7 +358,7 @@ ant stopcc                       Stop local Command Central server
 		<echo>Running: ${installer}.${file.extension} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -m ${install.dir.old} </echo>
 
 		<exec dir="${installer.dir}" executable="/bin/bash" osfamily="unix" vmlauncher="false" failonerror="true" >
-			<arg line="chmod +x ${installer}.sh; ./${installer}.sh --accept-license -D ${distro} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -m ${install.dir.old}" />
+			<arg line="./${installer}.sh --accept-license -D ${distro} -d ${install.dir} -c ${cce.http.port} -C ${cce.https.port} -s ${spm.http.port} -S ${spm.https.port} -p ${password} -m ${install.dir.old}" />
 		</exec>
 		
 		<condition property="installer.win" value="${installer.bat.filename}" else="${installer}.exe" >
